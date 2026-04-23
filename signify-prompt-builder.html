@@ -1,301 +1,872 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Signify Prompt Builder</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --sig-green: #00E487;
-    --sig-green-dark: #00c474;
-    --sig-teal: #14D3BE;
-    --sig-dark: #0a1628;
-    --sig-dark-2: #0f1f38;
-    --sig-dark-3: #162a4a;
-    --sig-surface: #1a2d4d;
-    --sig-text: #e8edf5;
-    --sig-text-dim: #8899b3;
-    --sig-border: #253a5c;
-    --sig-green-glow: rgba(0,228,135,0.15);
-    --sig-teal-glow: rgba(20,211,190,0.1);
-    --radius: 10px;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--sig-dark); color: var(--sig-text); min-height: 100vh; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signify Prompt Builder</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --sig-green: #00E487;
+      --sig-green-dark: #00c474;
+      --sig-teal: #14D3BE;
+      --sig-dark: #0a1628;
+      --sig-dark-2: #0f1f38;
+      --sig-dark-3: #162a4a;
+      --sig-surface: #1a2d4d;
+      --sig-text: #e8edf5;
+      --sig-text-dim: #8899b3;
+      --sig-border: #253a5c;
+      --sig-green-glow: rgba(0, 228, 135, 0.15);
+      --sig-teal-glow: rgba(20, 211, 190, 0.1);
+      --radius: 10px;
+    }
 
-  .header {
-    background: linear-gradient(135deg, var(--sig-dark-2) 0%, var(--sig-dark) 50%, var(--sig-dark-2) 100%);
-    border-bottom: 1px solid var(--sig-border);
-    padding: 16px 24px;
-    display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0; z-index: 100;
-  }
-  .header-left { display: flex; align-items: center; gap: 14px; }
-  .logo-mark {
-    width: 38px; height: 38px;
-    background: linear-gradient(135deg, var(--sig-green), var(--sig-teal));
-    border-radius: 9px; display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 17px; color: var(--sig-dark);
-  }
-  .header h1 {
-    font-size: 18px; font-weight: 700;
-    background: linear-gradient(135deg, var(--sig-green), var(--sig-teal));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  }
-  .header-subtitle { font-size: 11px; color: var(--sig-text-dim); font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; }
-  .header-badge {
-    background: var(--sig-dark-3); border: 1px solid var(--sig-border); border-radius: 20px;
-    padding: 5px 12px; font-size: 10px; color: var(--sig-teal); font-weight: 600;
-    letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap;
-  }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  .category-bar {
-    display: flex; gap: 0; border-bottom: 1px solid var(--sig-border);
-    background: var(--sig-dark-2); padding: 0 24px; overflow-x: auto;
-  }
-  .cat-tab {
-    padding: 12px 20px; border: none; background: transparent;
-    color: var(--sig-text-dim); font-family: inherit; font-size: 13px; font-weight: 600;
-    cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap;
-  }
-  .cat-tab:hover { color: var(--sig-text); }
-  .cat-tab.active { color: var(--sig-green); border-bottom-color: var(--sig-green); }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--sig-dark);
+      color: var(--sig-text);
+      min-height: 100vh;
+    }
 
-  .template-bar {
-    display: flex; gap: 6px; padding: 12px 24px;
-    background: var(--sig-dark); border-bottom: 1px solid var(--sig-border);
-    overflow-x: auto; flex-wrap: wrap;
-  }
-  .tmpl-tab {
-    padding: 7px 14px; border-radius: 20px;
-    border: 1px solid var(--sig-border); background: var(--sig-dark-2);
-    color: var(--sig-text-dim); font-family: inherit; font-size: 12px; font-weight: 500;
-    cursor: pointer; transition: all 0.15s; white-space: nowrap;
-  }
-  .tmpl-tab:hover { border-color: var(--sig-teal); color: var(--sig-text); }
-  .tmpl-tab.active { background: var(--sig-green); border-color: var(--sig-green); color: var(--sig-dark); font-weight: 700; }
+    .header {
+      background: linear-gradient(135deg, var(--sig-dark-2) 0%, var(--sig-dark) 50%, var(--sig-dark-2) 100%);
+      border-bottom: 1px solid var(--sig-border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
 
-  .main-layout { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 160px); }
-  @media (max-width: 900px) { .main-layout { grid-template-columns: 1fr; } }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
 
-  .builder-panel { padding: 24px; overflow-y: auto; border-right: 1px solid var(--sig-border); }
-  .builder-panel h2 { font-size: 17px; font-weight: 700; margin-bottom: 3px; }
-  .builder-desc { font-size: 13px; color: var(--sig-text-dim); margin-bottom: 20px; line-height: 1.5; }
+    .logo-mark {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--sig-green), var(--sig-teal));
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 17px;
+      color: var(--sig-dark);
+    }
 
-  .field-group { margin-bottom: 16px; }
-  .field-label { font-size: 11px; font-weight: 600; color: var(--sig-text-dim); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 5px; display: block; }
-  .field-input, .field-select, .field-textarea {
-    width: 100%; padding: 9px 12px; background: var(--sig-dark); border: 1px solid var(--sig-border);
-    border-radius: var(--radius); color: var(--sig-text); font-family: inherit; font-size: 13px; transition: border-color 0.2s;
-  }
-  .field-input:focus, .field-select:focus, .field-textarea:focus { outline: none; border-color: var(--sig-green); box-shadow: 0 0 0 3px var(--sig-green-glow); }
-  .field-input::placeholder, .field-textarea::placeholder { color: var(--sig-text-dim); opacity: 0.6; }
-  .field-select {
-    cursor: pointer; appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238899b3' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 12px center; padding-right: 30px;
-  }
-  .field-select option { background: var(--sig-dark); color: var(--sig-text); }
-  .field-textarea { resize: vertical; min-height: 60px; }
+    .header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--sig-green), var(--sig-teal));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
 
-  .chip-group { display: flex; flex-wrap: wrap; gap: 5px; }
-  .chip {
-    padding: 5px 12px; border-radius: 18px; border: 1px solid var(--sig-border); background: var(--sig-dark);
-    color: var(--sig-text-dim); font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: inherit;
-  }
-  .chip:hover { border-color: var(--sig-teal); color: var(--sig-text); }
-  .chip.selected { background: var(--sig-green); border-color: var(--sig-green); color: var(--sig-dark); font-weight: 600; }
+    .header-subtitle {
+      font-size: 11px;
+      color: var(--sig-text-dim);
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
 
-  .add-row { display: flex; gap: 6px; margin-top: 8px; }
-  .add-input {
-    flex: 1; padding: 7px 10px; background: var(--sig-dark); border: 1px solid var(--sig-border);
-    border-radius: 18px; color: var(--sig-text); font-family: inherit; font-size: 11px;
-  }
-  .add-input:focus { outline: none; border-color: var(--sig-green); }
-  .add-input::placeholder { color: var(--sig-text-dim); opacity: 0.5; }
-  .add-btn {
-    padding: 7px 14px; background: var(--sig-dark-3); border: 1px solid var(--sig-border);
-    border-radius: 18px; color: var(--sig-teal); font-family: inherit; font-size: 11px;
-    font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap;
-  }
-  .add-btn:hover { background: var(--sig-teal); color: var(--sig-dark); border-color: var(--sig-teal); }
+    .header-badge {
+      background: var(--sig-dark-3);
+      border: 1px solid var(--sig-border);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 10px;
+      color: var(--sig-teal);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
 
-  .generate-btn {
-    width: 100%; padding: 13px; background: linear-gradient(135deg, var(--sig-green), var(--sig-teal));
-    border: none; border-radius: var(--radius); color: var(--sig-dark); font-family: inherit;
-    font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-top: 6px;
-  }
-  .generate-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px var(--sig-green-glow); }
-  .divider { height: 1px; background: var(--sig-border); margin: 14px 0; }
+    .copilot-bar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 8px 24px;
+      background: var(--sig-dark-2);
+      border-bottom: 1px solid var(--sig-border);
+    }
 
-  .output-panel { padding: 24px; overflow-y: auto; display: flex; flex-direction: column; }
-  .output-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-  .output-header h2 { font-size: 17px; font-weight: 700; }
-  .copy-btn {
-    display: flex; align-items: center; gap: 5px; padding: 7px 14px;
-    background: var(--sig-dark-3); border: 1px solid var(--sig-border); border-radius: 8px;
-    color: var(--sig-text); font-family: inherit; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s;
-  }
-  .copy-btn:hover, .copy-btn.copied { background: var(--sig-green); border-color: var(--sig-green); color: var(--sig-dark); }
-  .output-box {
-    flex: 1; background: var(--sig-dark-2); border: 1px solid var(--sig-border); border-radius: var(--radius);
-    padding: 18px; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.7;
-    color: var(--sig-text); white-space: pre-wrap; word-break: break-word; overflow-y: auto; min-height: 300px;
-  }
-  .output-placeholder {
-    color: var(--sig-text-dim); opacity: 0.5; font-family: 'Plus Jakarta Sans', sans-serif;
-    font-style: italic; display: flex; align-items: center; justify-content: center;
-    height: 100%; text-align: center; padding: 40px; line-height: 1.6;
-  }
-  .output-tip { margin-top: 10px; font-size: 10px; color: var(--sig-text-dim); display: flex; align-items: center; gap: 5px; }
-  .output-tip .dot { width: 5px; height: 5px; background: var(--sig-teal); border-radius: 50%; flex-shrink: 0; }
+    .copilot-toggle {
+      display: flex;
+      background: var(--sig-dark-3);
+      border: 1px solid var(--sig-border);
+      border-radius: 20px;
+      padding: 3px;
+      gap: 2px;
+      flex-shrink: 0;
+    }
 
-  ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--sig-border); border-radius: 3px; }
-</style>
+    .toggle-pill {
+      padding: 5px 14px;
+      border-radius: 16px;
+      border: none;
+      background: transparent;
+      color: var(--sig-text-dim);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toggle-pill.active {
+      background: var(--sig-green);
+      color: var(--sig-dark);
+    }
+
+    .toggle-pill:not(.active):hover {
+      color: var(--sig-text);
+    }
+
+    .tier-badge {
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      line-height: 1.5;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+
+    .tier-badge-free {
+      background: rgba(0, 228, 135, 0.12);
+      color: var(--sig-green);
+      border: 1px solid rgba(0, 228, 135, 0.3);
+    }
+
+    .tier-badge-paid {
+      background: rgba(255, 180, 0, 0.1);
+      color: #e6a800;
+      border: 1px solid rgba(255, 180, 0, 0.3);
+    }
+
+    .toggle-pill.active .tier-badge {
+      background: rgba(0, 0, 0, 0.12);
+      color: rgba(10, 22, 40, 0.6);
+      border-color: rgba(0, 0, 0, 0.15);
+    }
+
+    .copilot-hint {
+      font-size: 11px;
+      color: var(--sig-text-dim);
+    }
+
+    .role-selector { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .role-label {
+      font-size: 11px; color: var(--sig-text-dim); font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+    }
+    .role-select {
+      padding: 5px 26px 5px 10px; background: var(--sig-dark-3); border: 1px solid var(--sig-border);
+      border-radius: 16px; color: var(--sig-text); font-family: inherit; font-size: 11px; font-weight: 600;
+      cursor: pointer; appearance: none; transition: border-color 0.15s;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%238899b3' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 9px center;
+    }
+    .role-select:focus { outline: none; border-color: var(--sig-green); }
+    .role-select option { background: var(--sig-dark); color: var(--sig-text); }
+    .bar-divider { width: 1px; height: 20px; background: var(--sig-border); flex-shrink: 0; }
+
+    .category-bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--sig-border);
+      background: var(--sig-dark-2);
+      padding: 0 24px;
+      overflow-x: auto;
+    }
+
+    .cat-tab {
+      padding: 12px 20px;
+      border: none;
+      background: transparent;
+      color: var(--sig-text-dim);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .cat-tab:hover {
+      color: var(--sig-text);
+    }
+
+    .cat-tab.active {
+      color: var(--sig-green);
+      border-bottom-color: var(--sig-green);
+    }
+
+    .template-bar {
+      display: flex;
+      gap: 6px;
+      padding: 12px 24px;
+      background: var(--sig-dark);
+      border-bottom: 1px solid var(--sig-border);
+      overflow-x: auto;
+      flex-wrap: wrap;
+    }
+
+    .tmpl-tab {
+      padding: 7px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--sig-border);
+      background: var(--sig-dark-2);
+      color: var(--sig-text-dim);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .tmpl-tab:hover {
+      border-color: var(--sig-teal);
+      color: var(--sig-text);
+    }
+
+    .tmpl-tab.active {
+      background: var(--sig-green);
+      border-color: var(--sig-green);
+      color: var(--sig-dark);
+      font-weight: 700;
+    }
+
+    .m365-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      background: rgba(20, 211, 190, 0.12);
+      color: var(--sig-teal);
+      border: 1px solid rgba(20, 211, 190, 0.3);
+      line-height: 1.5;
+      flex-shrink: 0;
+    }
+
+    .tmpl-tab.active .m365-badge {
+      background: rgba(0, 0, 0, 0.12);
+      color: rgba(10, 22, 40, 0.7);
+      border-color: rgba(0, 0, 0, 0.15);
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: calc(100vh - 185px);
+    }
+
+    @media (max-width: 900px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .builder-panel {
+      padding: 24px;
+      overflow-y: auto;
+      border-right: 1px solid var(--sig-border);
+    }
+
+    .builder-panel h2 {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+
+    .builder-desc {
+      font-size: 13px;
+      color: var(--sig-text-dim);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .field-group {
+      margin-bottom: 16px;
+    }
+
+    .field-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sig-text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .field-input,
+    .field-select,
+    .field-textarea {
+      width: 100%;
+      padding: 9px 12px;
+      background: var(--sig-dark);
+      border: 1px solid var(--sig-border);
+      border-radius: var(--radius);
+      color: var(--sig-text);
+      font-family: inherit;
+      font-size: 13px;
+      transition: border-color 0.2s;
+    }
+
+    .field-input:focus,
+    .field-select:focus,
+    .field-textarea:focus {
+      outline: none;
+      border-color: var(--sig-green);
+      box-shadow: 0 0 0 3px var(--sig-green-glow);
+    }
+
+    .field-input::placeholder,
+    .field-textarea::placeholder {
+      color: var(--sig-text-dim);
+      opacity: 0.6;
+    }
+
+    .field-select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238899b3' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 30px;
+    }
+
+    .field-select option {
+      background: var(--sig-dark);
+      color: var(--sig-text);
+    }
+
+    .field-textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .chip {
+      padding: 5px 12px;
+      border-radius: 18px;
+      border: 1px solid var(--sig-border);
+      background: var(--sig-dark);
+      color: var(--sig-text-dim);
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    .chip:hover {
+      border-color: var(--sig-teal);
+      color: var(--sig-text);
+    }
+
+    .chip.selected {
+      background: var(--sig-green);
+      border-color: var(--sig-green);
+      color: var(--sig-dark);
+      font-weight: 600;
+    }
+
+    .add-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .add-input {
+      flex: 1;
+      padding: 7px 10px;
+      background: var(--sig-dark);
+      border: 1px solid var(--sig-border);
+      border-radius: 18px;
+      color: var(--sig-text);
+      font-family: inherit;
+      font-size: 11px;
+    }
+
+    .add-input:focus {
+      outline: none;
+      border-color: var(--sig-green);
+    }
+
+    .add-input::placeholder {
+      color: var(--sig-text-dim);
+      opacity: 0.5;
+    }
+
+    .add-btn {
+      padding: 7px 14px;
+      background: var(--sig-dark-3);
+      border: 1px solid var(--sig-border);
+      border-radius: 18px;
+      color: var(--sig-teal);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .add-btn:hover {
+      background: var(--sig-teal);
+      color: var(--sig-dark);
+      border-color: var(--sig-teal);
+    }
+
+    .generate-btn {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, var(--sig-green), var(--sig-teal));
+      border: none;
+      border-radius: var(--radius);
+      color: var(--sig-dark);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 6px;
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px var(--sig-green-glow);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--sig-border);
+      margin: 14px 0;
+    }
+
+    .validation-warn {
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: rgba(255, 180, 0, 0.08);
+      border: 1px solid rgba(255, 180, 0, 0.25);
+      border-radius: 8px;
+      color: #e6a800;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .output-panel {
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .output-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .output-header h2 {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .copy-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 14px;
+      background: var(--sig-dark-3);
+      border: 1px solid var(--sig-border);
+      border-radius: 8px;
+      color: var(--sig-text);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .copy-btn:hover,
+    .copy-btn.copied {
+      background: var(--sig-green);
+      border-color: var(--sig-green);
+      color: var(--sig-dark);
+    }
+
+    .output-box {
+      flex: 1;
+      background: var(--sig-dark-2);
+      border: 1px solid var(--sig-border);
+      border-radius: var(--radius);
+      padding: 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--sig-text);
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-y: auto;
+      min-height: 300px;
+    }
+
+    .output-placeholder {
+      color: var(--sig-text-dim);
+      opacity: 0.5;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-style: italic;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      padding: 40px;
+      line-height: 1.6;
+    }
+
+    .output-tip {
+      margin-top: 10px;
+      font-size: 10px;
+      color: var(--sig-text-dim);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .output-tip .dot {
+      width: 5px;
+      height: 5px;
+      background: var(--sig-teal);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--sig-border);
+      border-radius: 3px;
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="header">
-  <div class="header-left">
-    <div class="logo-mark">S</div>
-    <div>
-      <h1>Signify Prompt Builder</h1>
-      <div class="header-subtitle">Microsoft Copilot Prompt Generator</div>
+  <div class="header">
+    <div class="header-left">
+      <div class="logo-mark">S</div>
+      <div>
+        <h1>Signify Prompt Builder</h1>
+        <div class="header-subtitle">Microsoft Copilot Prompt Generator</div>
+      </div>
+    </div>
+    <div class="header-badge">Consumer Lighting &bull; North America</div>
+  </div>
+
+  <div class="copilot-bar">
+    <div class="role-selector">
+      <span class="role-label">My Role</span>
+      <select class="role-select" id="roleSelect" onchange="setRole(this.value)">
+        <option value="kam">Key Account Manager / Sales Analyst</option>
+        <option value="channel">Channel / Product Marketing</option>
+        <option value="marcom">Marcom / Brand Marketing</option>
+        <option value="leadership">Sales Leadership / Management</option>
+      </select>
+    </div>
+    <div class="bar-divider"></div>
+    <div class="copilot-toggle">
+      <button id="toggleChat" class="toggle-pill active" onclick="setCopilot('chat')">Copilot Chat <span
+          class="tier-badge tier-badge-free">FREE</span></button>
+      <button id="toggleM365" class="toggle-pill" onclick="setCopilot('m365')">M365 Copilot <span
+          class="tier-badge tier-badge-paid">PAID</span></button>
+    </div>
+    <span class="copilot-hint" id="copilotHint">Chat mode &#8212; paste content manually into Copilot</span>
+  </div>
+
+  <div class="category-bar" id="categoryBar"></div>
+  <div class="template-bar" id="templateBar"></div>
+
+  <div class="main-layout">
+    <div class="builder-panel" id="builderPanel"></div>
+    <div class="output-panel">
+      <div class="output-header">
+        <h2>Generated Prompt</h2>
+        <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">
+          <span id="copyIcon">&#128203;</span> <span id="copyText">Copy</span>
+        </button>
+      </div>
+      <div class="output-box" id="outputBox">
+        <div class="output-placeholder">Select a template, fill in the fields, and click Generate Prompt.<br><br>Your
+          copy-paste-ready Copilot prompt will appear here.</div>
+      </div>
+      <div class="output-tip"><span class="dot"></span> Paste directly into Microsoft Copilot for best results</div>
     </div>
   </div>
-  <div class="header-badge">Consumer Lighting &bull; North America</div>
-</div>
 
-<div class="category-bar" id="categoryBar"></div>
-<div class="template-bar" id="templateBar"></div>
+  <script>
+    let COMPETITORS = [
+      'Govee', 'GE Lighting (Savant)', 'TP-Link (Kasa/Tapo)', 'Great Value (Walmart)',
+      'Feit Electric', 'Wyze', 'LIFX', 'Cree Lighting', 'Sylvania (Ledvance)',
+      'Ring (Amazon)', 'Nanoleaf', 'Lutron (Caseta)', 'Sengled', 'Hue (Philips)'
+    ];
+    const CHANNELS = ['Amazon', 'Best Buy', 'Home Depot', "Lowe's", 'Walmart', 'Target', 'Costco', 'Do it Best', 'Ace Hardware', 'Menards'];
+    const CATEGORIES = ['Smart Bulbs', 'Smart Switches/Dimmers', 'Smart Plugs', 'Light Strips', 'Outdoor Lighting', 'LED Bulbs (non-connected)', 'LED Fixtures', 'Decorative Lighting', 'Recessed Lighting', 'Landscape Lighting'];
+    const AUDIENCES = ['DIY Homeowner', 'Tech-savvy Consumer', 'Builder/Contractor', 'Property Manager', 'Interior Designer', 'Retail Buyer'];
 
-<div class="main-layout">
-  <div class="builder-panel" id="builderPanel"></div>
-  <div class="output-panel">
-    <div class="output-header">
-      <h2>Generated Prompt</h2>
-      <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">
-        <span id="copyIcon">📋</span> <span id="copyText">Copy</span>
-      </button>
-    </div>
-    <div class="output-box" id="outputBox">
-      <div class="output-placeholder">Select a template, fill in the fields, and click Generate Prompt.<br><br>Your copy-paste-ready Copilot prompt will appear here.</div>
-    </div>
-    <div class="output-tip"><span class="dot"></span> Paste directly into Microsoft Copilot for best results</div>
-  </div>
-</div>
+    const CATS = {
+      sales: { label: 'Sales Enablement', templates: ['competitive_intel', 'battle_card', 'objection_handling', 'buyer_email'] },
+      marketing: { label: 'Marketing', templates: ['market_research', 'product_positioning', 'channel_strategy', 'content_brief'] },
+      daily: { label: 'Daily Tasks', templates: ['meeting_recap', 'email_search', 'exec_summary', 'weekly_update'] },
+      planning: { label: 'Presentations & Planning', templates: ['deck_builder', 'agenda_builder', 'product_coach', 'research_report'] }
+    };
 
-<script>
-let COMPETITORS = [
-  'Govee','GE Lighting (Savant)','TP-Link (Kasa/Tapo)','Great Value (Walmart)',
-  'Feit Electric','Wyze','LIFX','Cree Lighting','Sylvania (Ledvance)',
-  'Ring (Amazon)','Nanoleaf','Lutron (Caseta)','Sengled','Hue (Philips)'
-];
-const CHANNELS = ['Home Depot','Lowes','Amazon','Walmart','Target','Best Buy','Costco','Ace Hardware','Menards'];
-const CATEGORIES = ['Smart Bulbs','Smart Switches/Dimmers','Smart Plugs','Light Strips','Outdoor Lighting','LED Bulbs (non-connected)','LED Fixtures','Decorative Lighting','Recessed Lighting','Landscape Lighting'];
-const AUDIENCES = ['DIY Homeowner','Tech-savvy Consumer','Builder/Contractor','Property Manager','Interior Designer','Retail Buyer'];
+    const ROLES = {
+      kam:        { label: 'Key Account Manager / Sales Analyst', context: 'Key Account Manager / Sales Analyst at Signify North America' },
+      channel:    { label: 'Channel / Product Marketing',          context: 'Channel / Product Marketing Manager at Signify North America' },
+      marcom:     { label: 'Marcom / Brand Marketing',             context: 'Marcom / Brand Marketing Manager at Signify North America' },
+      leadership: { label: 'Sales Leadership / Management',        context: 'Sales Director / VP at Signify North America' }
+    };
 
-const CATS = {
-  sales: { label: 'Sales Enablement', templates: ['competitive_intel','battle_card','objection_handling','buyer_email'] },
-  marketing: { label: 'Marketing', templates: ['market_research','product_positioning','channel_strategy','content_brief'] },
-  daily: { label: 'Daily Tasks', templates: ['meeting_recap','email_search','exec_summary','weekly_update'] }
-};
+    const ROLE_CAT_ORDER = {
+      kam:        ['sales', 'daily', 'marketing', 'planning'],
+      channel:    ['marketing', 'sales', 'planning', 'daily'],
+      marcom:     ['marketing', 'planning', 'daily', 'sales'],
+      leadership: ['daily', 'planning', 'sales', 'marketing']
+    };
 
-const T = {
-  competitive_intel:{cat:'sales',title:'Competitive Intel',desc:'Research a competitor\'s recent moves, product launches, pricing, and positioning.',fields:[
-    {id:'competitor',type:'chips',label:'Competitor',opts:'COMP',custom:true},
-    {id:'focus',type:'select',label:'Research Focus',opts:['Product launches (last 90 days)','Pricing & promotions','Retail distribution changes','Marketing campaigns','Smart home ecosystem partnerships','Patent/technology moves','Leadership changes']},
-    {id:'category',type:'select',label:'Product Category',opts:['All categories',...CATEGORIES]},
-    {id:'channel',type:'select',label:'Channel Focus',opts:['All channels',...CHANNELS]},
-    {id:'extra',type:'text',label:'Additional Context',ph:'e.g., "focus on connected lighting at CES 2026"'}
-  ],gen:d=>`You are a competitive intelligence analyst for Signify North America's consumer lighting division (Philips brand). Research the following and provide a structured brief:
+    const ROLE_PREFILLS = {
+      kam: {
+        objection_handling: { audience: 'Retail Buyer' },
+        buyer_email:        { purpose: 'Follow up on line review', tone: 'Professional & direct' },
+        market_research:    { geography: 'North America', timeframe: 'Current snapshot' },
+        channel_strategy:   { objective: 'Grow shelf space' },
+        weekly_update:      { team: 'Sales Enablement', format: 'Email to manager' }
+      },
+      channel: {
+        channel_strategy: { objective: 'Grow shelf space' },
+        content_brief:    { type: 'Sell sheet' },
+        market_research:  { geography: 'North America', timeframe: 'Current snapshot' },
+        weekly_update:    { team: 'Channel Marketing', format: 'Email to manager' }
+      },
+      marcom: {
+        content_brief:       { type: 'Social campaign', brand: 'Philips Hue' },
+        product_positioning: { brand: 'Philips Hue' },
+        market_research:     { topic: 'Market size & growth (TAM/SAM)', geography: 'North America', timeframe: '3-5 year outlook' },
+        weekly_update:       { team: 'Category Marketing', format: 'Email to manager' }
+      },
+      leadership: {
+        exec_summary:    { audience: 'VP/SVP', format: '1-page brief' },
+        weekly_update:   { team: 'Cross-functional', format: 'Email to manager' },
+        research_report: { audience: 'VP/SVP' },
+        market_research: { geography: 'North America', timeframe: '3-5 year outlook' }
+      }
+    };
 
-COMPETITOR: ${d.competitor||'[select competitor]'}
-FOCUS AREA: ${d.focus||'[select focus]'}
-PRODUCT CATEGORY: ${d.category||'All categories'}
-CHANNEL: ${d.channel||'All channels'}
-${d.extra?`ADDITIONAL CONTEXT: ${d.extra}`:''}
+    const ROLE_HIDDEN_TEMPLATES = {
+      kam:        ['content_brief'],
+      channel:    ['battle_card', 'objection_handling'],
+      marcom:     ['battle_card', 'objection_handling', 'buyer_email'],
+      leadership: ['battle_card', 'objection_handling']
+    };
+
+    const ROLE_PROMPT_CONTEXT = {
+      market_research: {
+        kam:        'Prioritize data relevant to key account sell-through: retailer-specific trends, consumer purchase drivers at shelf, and competitive market share at major retail channels.',
+        channel:    'Prioritize channel-specific metrics: turns, velocity, share of shelf, and sell-through data. Frame insights for retail execution and sell-in arguments.',
+        marcom:     'Prioritize consumer market sizing (TAM/SAM/SOM), category growth trends, brand share data, and consumer insights that inform campaign strategy and brand investment decisions.',
+        leadership: 'Prioritize top-line category growth rates, competitive threats, and strategic market position. Frame implications for Signify NA portfolio investment and business strategy.'
+      },
+      product_positioning: {
+        kam:        'Frame for retail buyer conversations: emphasize competitive differentiation at shelf, price/value proof points, and responses to common buyer objections.',
+        channel:    'Frame for retail channel execution: emphasize sell-in rationale, planogram justification, and retailer-specific benefits.',
+        marcom:     'Frame for brand and campaign strategy: emphasize consumer messaging hierarchy, brand architecture fit, and portfolio positioning within the Signify brand house.',
+        leadership: 'Frame for strategic portfolio decisions: emphasize market differentiation, brand architecture, and long-term positioning implications for the business.'
+      },
+      channel_strategy: {
+        kam:        'Focus on account-level strategy: winning the sell-in, growing shelf space, and protecting position at specific retail accounts.',
+        channel:    'Focus on channel mix and sell-through programs: trade marketing, co-op, and execution tactics to drive category growth across accounts.',
+        marcom:     'Focus on brand presence and consumer experience within the channel: in-store marketing, brand blocks, and campaign alignment with channel strategy.',
+        leadership: 'Focus on portfolio-level channel allocation: investment priorities, channel economics, and strategic implications for the Signify NA business.'
+      },
+      content_brief: {
+        channel:    'Frame for retail execution content: sell-in/sell-through materials (sell sheets, co-op ads, in-store signage) with retailer economics and buyer priorities in mind.',
+        marcom:     'Frame for brand and consumer-facing content: ensure brand voice consistency, consumer-insight driven messaging, and alignment with Signify brand guidelines.',
+        leadership: 'Frame for executive-level communications: emphasis on strategic narrative, business impact, and stakeholder alignment.'
+      },
+      competitive_intel: {
+        kam:        'Focus on how this competitor impacts key account relationships: retail buyer preferences, pricing at shelf, promotional activity, and wins/losses at major retailers.',
+        channel:    'Focus on channel presence and retail execution: shelf placement, promotional programs, co-op activity, and retailer partnerships.',
+        marcom:     'Focus on brand positioning, marketing campaigns, consumer perception, and messaging strategies. Identify differentiation opportunities for Signify brands.',
+        leadership: 'Focus on strategic threat level, market share implications, and recommended Signify NA portfolio or investment responses.'
+      },
+      exec_summary: {
+        kam:        'Tailor for a sales manager or director. Emphasize account performance, sell-through results, and retailer relationship implications.',
+        channel:    'Tailor for channel or marketing leadership. Emphasize channel performance, program effectiveness, and sell-through results.',
+        marcom:     'Tailor for brand or marketing leadership. Emphasize brand health, campaign performance, and consumer insights.',
+        leadership: 'Tailor for VP/SVP or C-suite. Lead with business impact and strategic implications. State the decision or action needed upfront.'
+      },
+      deck_builder: {
+        kam:        'Orient the deck for a retail buyer or sales meeting. Emphasize account-specific data, competitive differentiation, and a clear sell-in ask.',
+        channel:    'Orient for channel or trade marketing. Emphasize sell-through programs, retail execution, and channel economics.',
+        marcom:     'Orient for brand or campaign strategy. Emphasize consumer insights, brand positioning, and creative direction.',
+        leadership: 'Orient for executive or board-level audiences. Lead with business performance, strategic direction, and key decisions required.'
+      },
+      research_report: {
+        kam:        'Orient for sales planning and account strategy. Emphasize market data relevant to key accounts, competitive dynamics, and sell-in support.',
+        channel:    'Orient for channel marketing decisions. Emphasize channel-specific data, sell-through insights, and program effectiveness.',
+        marcom:     'Orient for brand strategy and marketing investment. Emphasize consumer trends, market sizing, brand share, and campaign implications.',
+        leadership: 'Orient for executive consumption. Lead with strategic insights and business implications. Keep it concise — one clear recommendation.'
+      },
+      weekly_update: {
+        kam:        'Focus on account activity: key retailer meetings, sell-through results, competitive threats at accounts, and upcoming line reviews.',
+        channel:    'Focus on channel programs: campaign launches, sell-through performance, retailer partnerships, and upcoming initiatives.',
+        marcom:     'Focus on brand and marketing activity: campaign performance, content launches, consumer insights, and upcoming marketing milestones.',
+        leadership: 'Focus on team performance, strategic progress, and key risks or decisions needed. Suitable for peer leadership or upward reporting.'
+      }
+    };
+
+    const T = {
+
+      competitive_intel: {
+        cat: 'sales', title: 'Competitive Intel', desc: 'Research a competitor\'s recent moves, product launches, pricing, and positioning.', fields: [
+          { id: 'competitor', type: 'chips', label: 'Competitor', opts: 'COMP', custom: true, required: true },
+          { id: 'focus', type: 'select', label: 'Research Focus', opts: ['Product launches (last 90 days)', 'Pricing & promotions', 'Retail distribution changes', 'Marketing campaigns', 'Smart home ecosystem partnerships', 'Patent/technology moves', 'Leadership changes'] },
+          { id: 'category', type: 'select', label: 'Product Category', opts: ['All categories', ...CATEGORIES] },
+          { id: 'channel', type: 'select', label: 'Channel Focus', opts: ['All channels', ...CHANNELS] },
+          { id: 'extra', type: 'text', label: 'Additional Context', ph: 'e.g., "focus on connected lighting at CES 2026"' }
+        ], gen: d => `You are a competitive intelligence analyst for Signify North America's consumer lighting division (Philips brand). Research the following and provide a structured brief:
+
+COMPETITOR: ${d.competitor || '[select competitor]'}
+FOCUS AREA: ${d.focus || '[select focus]'}
+PRODUCT CATEGORY: ${d.category || 'All categories'}
+CHANNEL: ${d.channel || 'All channels'}
+${d.extra ? 'ADDITIONAL CONTEXT: ' + d.extra : ''}
 
 Structure your response as:
-1. DIRECT ANSWER — What is ${d.competitor||'this competitor'} doing right now? (2-3 sentences)
-2. KEY FINDINGS — Bullet each finding with source and date
-3. SO WHAT FOR SIGNIFY — What does this mean for our positioning, messaging, or channel strategy?
-4. RECOMMENDED ACTIONS — 2-3 specific next steps
-5. SOURCES — List all sources with dates
+1. DIRECT ANSWER -- What is ${d.competitor || 'this competitor'} doing right now? (2-3 sentences)
+2. KEY FINDINGS -- Bullet each finding with source and date
+3. SO WHAT FOR SIGNIFY -- What does this mean for our positioning, messaging, or channel strategy?
+4. RECOMMENDED ACTIONS -- 2-3 specific next steps
+5. SOURCES -- List all sources with dates
 
 Only include verified information. Flag anything uncertain. Prioritize last 90 days. Our business: connected "smart" lighting (Philips Hue, WiZ) and non-connected LED through major retail in North America.`},
 
-  battle_card:{cat:'sales',title:'Battle Card',desc:'Create a competitive battle card for quick rep reference during buyer conversations.',fields:[
-    {id:'competitor',type:'chips',label:'Competitor',opts:'COMP',custom:true},
-    {id:'category',type:'select',label:'Product Category',opts:CATEGORIES},
-    {id:'scenario',type:'select',label:'Selling Scenario',opts:['Head-to-head comparison','Displacing incumbent','Defending shelf space','New product launch','Price objection response']},
-    {id:'audience',type:'select',label:'Buyer Type',opts:AUDIENCES}
-  ],gen:d=>`You are a sales enablement specialist for Signify North America (Philips consumer lighting). Create a battle card scannable in 30 seconds.
+      battle_card: {
+        cat: 'sales', title: 'Battle Card', desc: 'Create a competitive battle card for quick rep reference during buyer conversations.', fields: [
+          { id: 'competitor', type: 'chips', label: 'Competitor', opts: 'COMP', custom: true, required: true },
+          { id: 'category', type: 'select', label: 'Product Category', opts: CATEGORIES },
+          { id: 'scenario', type: 'select', label: 'Selling Scenario', opts: ['Head-to-head comparison', 'Displacing incumbent', 'Defending shelf space', 'New product launch', 'Price objection response'] },
+          { id: 'audience', type: 'select', label: 'Buyer Type', opts: AUDIENCES }
+        ], gen: d => `You are a sales enablement specialist for Signify North America (Philips consumer lighting). Create a battle card scannable in 30 seconds.
 
-COMPETITOR: ${d.competitor||'[select]'}  |  CATEGORY: ${d.category||'[select]'}
-SCENARIO: ${d.scenario||'[select]'}  |  BUYER TYPE: ${d.audience||'[select]'}
+COMPETITOR: ${d.competitor || '[select]'}  |  CATEGORY: ${d.category || '[select]'}
+SCENARIO: ${d.scenario || '[select]'}  |  BUYER TYPE: ${d.audience || '[select]'}
 
-## ${d.competitor||'COMPETITOR'} vs PHILIPS — ${d.category||'CATEGORY'}
+## ${d.competitor || 'COMPETITOR'} vs PHILIPS -- ${d.category || 'CATEGORY'}
 
-**WHAT THEY SAY ABOUT THEMSELVES:** (positioning/claims)
-**WHAT CUSTOMERS ACTUALLY SAY:** (reviews, social, retail feedback)
-**WHERE WE WIN:** • [3 advantages with proof points]
-**WHERE WE LOSE (BE HONEST):** • [2 gaps with mitigation]
-**KILLER QUESTION TO ASK THE BUYER:** (exposes competitor weakness)
-**LANDMINES TO AVOID:** (topics that backfire)
-**30-SECOND PITCH:** (why Philips over ${d.competitor||'them'} for a ${d.audience||'buyer'})
+WHAT THEY SAY ABOUT THEMSELVES: (positioning/claims)
+WHAT CUSTOMERS ACTUALLY SAY: (reviews, social, retail feedback)
+WHERE WE WIN: [3 advantages with proof points]
+WHERE WE LOSE (BE HONEST): [2 gaps with mitigation]
+KILLER QUESTION TO ASK THE BUYER: (exposes competitor weakness)
+LANDMINES TO AVOID: (topics that backfire)
+30-SECOND PITCH: (why Philips over ${d.competitor || 'them'} for a ${d.audience || 'buyer'})
 
 Punchy. No filler. Every bullet usable in conversation.`},
 
-  objection_handling:{cat:'sales',title:'Objection Handling',desc:'Generate talk tracks for common buyer objections.',fields:[
-    {id:'objection',type:'select',label:'Objection',opts:['Price is too high','Competitor has better smart features','Competitor has better app/ecosystem','Already committed to another brand','Connected lighting too complex','Private label is good enough','Better competitor reviews','Need Matter/Thread support','Packaging not competitive','Margin doesn\'t work']},
-    {id:'audience',type:'select',label:'Who Is Objecting',opts:AUDIENCES},
-    {id:'competitor',type:'chips',label:'Competitor Referenced',opts:'COMP',custom:true},
-    {id:'context',type:'text',label:'Additional Context',ph:'e.g., "Lowes buyer meeting next week"'}
-  ],gen:d=>`Sales enablement coach for Signify NA consumer lighting. Write an objection-handling talk track.
+      objection_handling: {
+        cat: 'sales', title: 'Objection Handling', desc: 'Generate talk tracks for common buyer objections.', fields: [
+          { id: 'objection', type: 'select', label: 'Objection', opts: ['Price is too high', 'Competitor has better smart features', 'Competitor has better app/ecosystem', 'Already committed to another brand', 'Connected lighting too complex', 'Private label is good enough', 'Better competitor reviews', 'Need Matter/Thread support', 'Packaging not competitive', 'Margin doesn\'t work'], required: true },
+          { id: 'audience', type: 'select', label: 'Who Is Objecting', opts: AUDIENCES },
+          { id: 'competitor', type: 'chips', label: 'Competitor Referenced', opts: 'COMP', custom: true },
+          { id: 'context', type: 'text', label: 'Additional Context', ph: 'e.g., "Lowe\'s buyer meeting next week"' }
+        ], gen: d => `Sales enablement coach for Signify NA consumer lighting. Write an objection-handling talk track.
 
-OBJECTION: "${d.objection||'[select]'}"
-FROM: ${d.audience||'[select]'}  |  COMPETITOR: ${d.competitor||'None'}
-${d.context?`CONTEXT: ${d.context}`:''}
-
-**ACKNOWLEDGE** (1 sentence — validate without agreeing)
-**REFRAME** (1-2 sentences — shift to our strength)
-**PROOF POINT** (data, case study, or customer quote)
-**REDIRECT QUESTION** (move conversation forward)
-**IF THEY PUSH BACK AGAIN** (harder evidence)
+OBJECTION: "${d.objection || '[select]'}"
+FROM: ${d.audience || '[select]'}  |  COMPETITOR: ${d.competitor || 'None'}
+${d.context ? 'CONTEXT: ' + d.context + '\n' : ''}
+ACKNOWLEDGE (1 sentence -- validate without agreeing)
+REFRAME (1-2 sentences -- shift to our strength)
+PROOF POINT (data, case study, or customer quote)
+REDIRECT QUESTION (move conversation forward)
+IF THEY PUSH BACK AGAIN (harder evidence)
 
 Conversational, not scripted. Portfolio: Philips Hue (premium smart), WiZ (value smart), Philips LED (non-connected).`},
 
-  buyer_email:{cat:'sales',title:'Buyer Email',desc:'Draft a professional email to a retail buyer or channel partner.',fields:[
-    {id:'purpose',type:'select',label:'Purpose',opts:['Follow up on line review','Introduce new product','Respond to competitive threat','Propose promo program','Share market data','Request meeting','Address supply issue']},
-    {id:'channel',type:'chips',label:'Retailer',opts:CHANNELS},
-    {id:'buyerName',type:'text',label:'Buyer Name (optional)',ph:'e.g., Sarah'},
-    {id:'keyPoints',type:'textarea',label:'Key Points',ph:'What do you want to communicate?'},
-    {id:'tone',type:'select',label:'Tone',opts:['Professional & direct','Warm & relationship-building','Urgent & action-oriented','Data-driven & analytical']}
-  ],gen:d=>`Draft email from Signify NA sales rep to retail buyer.
+      buyer_email: {
+        cat: 'sales', title: 'Buyer Email', desc: 'Draft a professional email to a retail buyer or channel partner.', fields: [
+          { id: 'purpose', type: 'select', label: 'Purpose', opts: ['Follow up on line review', 'Introduce new product', 'Respond to competitive threat', 'Propose promo program', 'Share market data', 'Request meeting', 'Address supply issue'], required: true },
+          { id: 'channel', type: 'chips', label: 'Retailer', opts: CHANNELS },
+          { id: 'buyerName', type: 'text', label: 'Buyer Name (optional)', ph: 'e.g., Sarah' },
+          { id: 'keyPoints', type: 'textarea', label: 'Key Points', ph: 'What do you want to communicate?' },
+          { id: 'tone', type: 'select', label: 'Tone', opts: ['Professional & direct', 'Warm & relationship-building', 'Urgent & action-oriented', 'Data-driven & analytical'] }
+        ], gen: d => `Draft email from Signify NA sales rep to retail buyer.
 
-PURPOSE: ${d.purpose||'[select]'}  |  RETAILER: ${d.channel||'[select]'}
-${d.buyerName?`BUYER: ${d.buyerName}`:''}
-KEY POINTS: ${d.keyPoints||'[fill in]'}
-TONE: ${d.tone||'Professional & direct'}
+PURPOSE: ${d.purpose || '[select]'}  |  RETAILER: ${d.channel || '[select]'}
+${d.buyerName ? 'BUYER: ' + d.buyerName + '\n' : ''}KEY POINTS: ${d.keyPoints || '[fill in]'}
+TONE: ${d.tone || 'Professional & direct'}
 
 Rules: 3-5 sentences max. Lead with value to THEIR business. Specific CTA with date/time. No "I hope this finds you well." Sign off: [Your Name], Signify North America.`},
 
-  market_research:{cat:'marketing',title:'Market Research',desc:'Research market trends, sizing, and dynamics in consumer lighting.',fields:[
-    {id:'topic',type:'select',label:'Topic',opts:['Market size & growth (TAM/SAM)','Consumer trends','Smart home adoption rates','LED penetration & upgrade cycle','Sustainability trends','Retail channel shifts','New tech (Matter, Thread, AI)','Pricing trends']},
-    {id:'category',type:'select',label:'Category',opts:['Consumer lighting overall',...CATEGORIES]},
-    {id:'geography',type:'select',label:'Geography',opts:['North America','United States','Canada','Specific region']},
-    {id:'timeframe',type:'select',label:'Timeframe',opts:['Current snapshot','Last 12 months','3-5 year outlook','YoY comparison']},
-    {id:'extra',type:'text',label:'Specific Question',ph:'e.g., "what % of US homes have a smart bulb?"'}
-  ],gen:d=>`Market research analyst for Signify NA consumer lighting strategy. Research:
+      market_research: {
+        cat: 'marketing', title: 'Market Research', desc: 'Research market trends, sizing, and dynamics in consumer lighting.', fields: [
+          { id: 'topic', type: 'select', label: 'Topic', opts: ['Market size & growth (TAM/SAM)', 'Consumer trends', 'Smart home adoption rates', 'LED penetration & upgrade cycle', 'Sustainability trends', 'Retail channel shifts', 'New tech (Matter, Thread, AI)', 'Pricing trends'], required: true },
+          { id: 'category', type: 'select', label: 'Category', opts: ['Consumer lighting overall', ...CATEGORIES] },
+          { id: 'geography', type: 'select', label: 'Geography', opts: ['North America', 'United States', 'Canada', 'Specific region'] },
+          { id: 'timeframe', type: 'select', label: 'Timeframe', opts: ['Current snapshot', 'Last 12 months', '3-5 year outlook', 'YoY comparison'] },
+          { id: 'extra', type: 'text', label: 'Specific Question', ph: 'e.g., "what % of US homes have a smart bulb?"' }
+        ], gen: d => `Market research analyst for Signify NA consumer lighting strategy. Research:
 
-TOPIC: ${d.topic||'[select]'}  |  CATEGORY: ${d.category||'All'}
-GEO: ${d.geography||'North America'}  |  TIMEFRAME: ${d.timeframe||'Current'}
-${d.extra?`QUESTION: ${d.extra}`:''}
-
+TOPIC: ${d.topic || '[select]'}  |  CATEGORY: ${d.category || 'All'}
+GEO: ${d.geography || 'North America'}  |  TIMEFRAME: ${d.timeframe || 'Current'}
+${d.extra ? 'QUESTION: ' + d.extra + '\n' : ''}
 1. DIRECT ANSWER (2-3 sentences)
 2. KEY DATA POINTS (bulleted, sourced, dated)
 3. MARKET DYNAMICS (2-3 paragraphs max)
@@ -304,197 +875,364 @@ ${d.extra?`QUESTION: ${d.extra}`:''}
 
 Show math on sizing. Label sourced vs estimated. Present conflicting data fairly.`},
 
-  product_positioning:{cat:'marketing',title:'Product Positioning',desc:'Develop positioning statements and messaging frameworks.',fields:[
-    {id:'brand',type:'select',label:'Signify Brand',opts:['Philips Hue','WiZ','Philips LED (non-connected)','Cross-portfolio']},
-    {id:'product',type:'text',label:'Product/Line',ph:'e.g., "Hue Gradient Lightstrip"'},
-    {id:'audience',type:'chips',label:'Target Audience',opts:AUDIENCES},
-    {id:'competitor',type:'chips',label:'Position Against',opts:'COMP',custom:true},
-    {id:'differentiator',type:'text',label:'Key Differentiator',ph:'What makes this uniquely valuable?'}
-  ],gen:d=>`Product marketing strategist for Signify NA. Build positioning framework.
+      product_positioning: {
+        cat: 'marketing', title: 'Product Positioning', desc: 'Develop positioning statements and messaging frameworks.', fields: [
+          { id: 'brand', type: 'select', label: 'Signify Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED (non-connected)', 'Cross-portfolio'], required: true },
+          { id: 'product', type: 'text', label: 'Product/Line', ph: 'e.g., "Hue Gradient Lightstrip"' },
+          { id: 'audience', type: 'chips', label: 'Target Audience', opts: AUDIENCES },
+          { id: 'competitor', type: 'chips', label: 'Position Against', opts: 'COMP', custom: true },
+          { id: 'differentiator', type: 'text', label: 'Key Differentiator', ph: 'What makes this uniquely valuable?' }
+        ], gen: d => `Product marketing strategist for Signify NA. Build positioning framework.
 
-BRAND: ${d.brand||'[select]'}  |  PRODUCT: ${d.product||'[specify]'}
-AUDIENCE: ${d.audience||'[select]'}  |  VS: ${d.competitor||'[select]'}
-DIFFERENTIATOR: ${d.differentiator||'[specify]'}
+BRAND: ${d.brand || '[select]'}  |  PRODUCT: ${d.product || '[specify]'}
+AUDIENCE: ${d.audience || '[select]'}  |  VS: ${d.competitor || '[select]'}
+DIFFERENTIATOR: ${d.differentiator || '[specify]'}
 
-**POSITIONING STATEMENT** (For [target], [product] is the [category] that [benefit] because [reason], unlike [competitor] which [limitation].)
-**MESSAGING HIERARCHY:** 1) One thing 2) Rational 3) Emotional 4) Proof
-**ELEVATOR PITCH** (15 sec at shelf)
-**BUYER HEADLINE** (sell sheets/presentations)
-**HIDDEN DOWNSIDE** (address proactively)
+POSITIONING STATEMENT (For [target], [product] is the [category] that [benefit] because [reason], unlike [competitor] which [limitation].)
+MESSAGING HIERARCHY: 1) One thing 2) Rational 3) Emotional 4) Proof
+ELEVATOR PITCH (15 sec at shelf)
+BUYER HEADLINE (sell sheets/presentations)
+HIDDEN DOWNSIDE (address proactively)
 
 Concrete > vague. "2x lumens per watt" beats "superior quality."`},
 
-  channel_strategy:{cat:'marketing',title:'Channel Strategy',desc:'Analyze channel dynamics and develop retail strategies.',fields:[
-    {id:'channel',type:'chips',label:'Retailer',opts:CHANNELS},
-    {id:'objective',type:'select',label:'Objective',opts:['Grow shelf space','Defend vs private label','Launch new category','Optimize assortment','Promo strategy','Improve margins','Counter competitive threat']},
-    {id:'category',type:'select',label:'Category',opts:CATEGORIES},
-    {id:'context',type:'textarea',label:'Situation',ph:'Current situation, upcoming reviews, threats?'}
-  ],gen:d=>`Channel marketing strategist for Signify NA.
+      channel_strategy: {
+        cat: 'marketing', title: 'Channel Strategy', desc: 'Analyze channel dynamics and develop retail strategies.', fields: [
+          { id: 'channel', type: 'chips', label: 'Retailer', opts: CHANNELS, required: true },
+          { id: 'objective', type: 'select', label: 'Objective', opts: ['Grow shelf space', 'Defend vs private label', 'Launch new category', 'Optimize assortment', 'Promo strategy', 'Improve margins', 'Counter competitive threat'] },
+          { id: 'category', type: 'select', label: 'Category', opts: CATEGORIES },
+          { id: 'context', type: 'textarea', label: 'Situation', ph: 'Current situation, upcoming reviews, threats?' }
+        ], gen: d => `Channel marketing strategist for Signify NA.
 
-RETAILER: ${d.channel||'[select]'}  |  OBJECTIVE: ${d.objective||'[select]'}  |  CATEGORY: ${d.category||'[select]'}
-CONTEXT: ${d.context||'[provide]'}
+RETAILER: ${d.channel || '[select]'}  |  OBJECTIVE: ${d.objective || '[select]'}  |  CATEGORY: ${d.category || '[select]'}
+CONTEXT: ${d.context || '[provide situation]'}
 
 Think sell-IN and sell-THROUGH:
-**RETAILER LENS** (Their priorities?)
-**COMPETITIVE SHELF SET** (Who else? Planogram?)
-**STRATEGY:** Sell-in angle, sell-out support, margin considerations
-**RISKS** (Buyer pushback?)
-**ACTION PLAN** (Steps + timeline)
+RETAILER LENS (Their priorities?)
+COMPETITIVE SHELF SET (Who else? Planogram?)
+STRATEGY: Sell-in angle, sell-out support, margin considerations
+RISKS (Buyer pushback?)
+ACTION PLAN (Steps + timeline)
 
 Frame through partner economics: category growth, margin, turn rate.`},
 
-  content_brief:{cat:'marketing',title:'Content Brief',desc:'Generate briefs for marketing materials and campaigns.',fields:[
-    {id:'type',type:'select',label:'Content Type',opts:['Sell sheet','Social campaign','Email campaign','Blog/article','Retailer co-op ad','In-store signage','E-comm listing copy','Press release']},
-    {id:'brand',type:'select',label:'Brand',opts:['Philips Hue','WiZ','Philips LED','Signify Corporate']},
-    {id:'audience',type:'chips',label:'Audience',opts:AUDIENCES},
-    {id:'objective',type:'text',label:'Objective',ph:'What should this achieve?'},
-    {id:'keyMessage',type:'text',label:'Key Message',ph:'The one thing to remember'}
-  ],gen:d=>`Content brief for Signify NA marketing.
+      content_brief: {
+        cat: 'marketing', title: 'Content Brief', desc: 'Generate briefs for marketing materials and campaigns.', fields: [
+          { id: 'type', type: 'select', label: 'Content Type', opts: ['Sell sheet', 'Social campaign', 'Email campaign', 'Blog/article', 'Retailer co-op ad', 'In-store signage', 'E-comm listing copy', 'Press release'], required: true },
+          { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Signify Corporate'] },
+          { id: 'audience', type: 'chips', label: 'Audience', opts: AUDIENCES },
+          { id: 'objective', type: 'text', label: 'Objective', ph: 'What should this achieve?' },
+          { id: 'keyMessage', type: 'text', label: 'Key Message', ph: 'The one thing to remember' }
+        ], gen: d => `Content brief for Signify NA marketing.
 
-TYPE: ${d.type||'[select]'}  |  BRAND: ${d.brand||'[select]'}
-AUDIENCE: ${d.audience||'[select]'}
-OBJECTIVE: ${d.objective||'[specify]'}  |  KEY MESSAGE: ${d.keyMessage||'[specify]'}
+TYPE: ${d.type || '[select]'}  |  BRAND: ${d.brand || '[select]'}
+AUDIENCE: ${d.audience || '[select]'}
+OBJECTIVE: ${d.objective || '[specify]'}  |  KEY MESSAGE: ${d.keyMessage || '[specify]'}
 
-1. **HEADLINES** (3 options — punchy, benefit-driven)
-2. **COPY POINTS** (3-5 bullets)
-3. **TONE** (brand-specific)
-4. **CTA**
-5. **VISUAL DIRECTION**
-6. **DO NOT SAY** (no "illuminate your world" etc.)
-7. **LEGAL/COMPLIANCE**
+1. HEADLINES (3 options -- punchy, benefit-driven)
+2. COPY POINTS (3-5 bullets)
+3. TONE (brand-specific)
+4. CTA
+5. VISUAL DIRECTION
+6. DO NOT SAY (no "illuminate your world" etc.)
+7. LEGAL/COMPLIANCE
 
 Write for 5 seconds of attention.`},
 
-  meeting_recap:{cat:'daily',title:'Meeting Recap',desc:'Have Copilot summarize a recent meeting.',fields:[
-    {id:'meetingType',type:'select',label:'Type',opts:['Team sync','Buyer/retailer meeting','Cross-functional review','Strategy session','Line/category review','1:1 with manager','Vendor meeting']},
-    {id:'attendees',type:'text',label:'Key Attendees',ph:'e.g., "Channel team, HD buyer"'},
-    {id:'meetingName',type:'text',label:'Meeting Name/Date',ph:'e.g., "Q2 Review - April 7"'},
-    {id:'focus',type:'select',label:'Focus',opts:['Action items & owners','Decisions made','Key discussion points','Full summary + next steps','Open questions']}
-  ],gen:d=>`Search my meetings and emails for this meeting and recap:
+      meeting_recap: {
+        cat: 'daily', title: 'Meeting Recap', desc: 'Have Copilot summarize a recent meeting.', m365: true, fields: [
+          { id: 'meetingType', type: 'select', label: 'Type', opts: ['Team sync', 'Buyer/retailer meeting', 'Cross-functional review', 'Strategy session', 'Line/category review', '1:1 with manager', 'Vendor meeting'] },
+          { id: 'attendees', type: 'text', label: 'Key Attendees', ph: 'e.g., "Channel team, HD buyer"' },
+          { id: 'meetingName', type: 'text', label: 'Meeting Name / Date', ph: 'e.g., "Q2 Review - April 7"', required: true },
+          { id: 'focus', type: 'select', label: 'Focus', opts: ['Action items & owners', 'Decisions made', 'Key discussion points', 'Full summary + next steps', 'Open questions'] }
+        ], gen: d => {
+          const body = 'MEETING: ' + (d.meetingName || '[specify meeting name/date]') + '  |  TYPE: ' + (d.meetingType || '[select]') + '\nATTENDEES: ' + (d.attendees || '[list]') + '  |  FOCUS: ' + (d.focus || 'Full summary + next steps') + '\n\nTL;DR (1-2 sentences)\nKEY DECISIONS: [Decision] -- Owner: [who]\nACTION ITEMS: | Action | Owner | Due |\nOPEN QUESTIONS: [Item]\nNEXT MEETING: [Date]';
+          if (copilotType === 'm365') {
+            return 'Search my meetings in Teams and Outlook for the following meeting and provide a structured recap:\n\n' + body + '\n\nIf you can\'t find the meeting, tell me what you searched so I can redirect.';
+          }
+          return 'You are a meeting summarizer. I\'ll paste my notes or transcript below -- review them and provide a structured recap.\n\n' + body + '\n\n[PASTE MEETING NOTES OR TRANSCRIPT HERE]';
+        }
+      },
 
-MEETING: ${d.meetingName||'[specify]'}  |  TYPE: ${d.meetingType||'[select]'}
-ATTENDEES: ${d.attendees||'[list]'}  |  FOCUS: ${d.focus||'Full summary'}
+      email_search: {
+        cat: 'daily', title: 'Email Search', desc: 'Find and summarize specific emails or threads.', m365: true, fields: [
+          { id: 'searchType', type: 'select', label: 'Find', opts: ['Emails from a person', 'Emails about a topic', 'Unread needing action', 'Emails with attachments', 'Latest thread on deal/project', 'Emails mentioning a competitor'], required: true },
+          { id: 'person', type: 'text', label: 'Person', ph: 'e.g., "from Sarah Chen"' },
+          { id: 'topic', type: 'text', label: 'Topic / Keywords', ph: 'e.g., "Q3 promo calendar"' },
+          { id: 'timeframe', type: 'select', label: 'Timeframe', opts: ['Today', 'Last 3 days', 'This week', 'Last 2 weeks', 'This month'] },
+          { id: 'action', type: 'select', label: 'Then', opts: ['Summarize key points', 'List my action items', 'Draft a reply', 'Summary table', 'Flag urgent items'] }
+        ], gen: d => {
+          const action = d.action || 'Summarize key points';
+          const filters = 'FIND: ' + (d.searchType || '[select]') + '\n' + (d.person ? 'PERSON: ' + d.person + '\n' : '') + (d.topic ? 'TOPIC: ' + d.topic + '\n' : '') + 'TIMEFRAME: ' + (d.timeframe || 'This week');
+          if (copilotType === 'm365') {
+            return 'Search my Outlook inbox and ' + action.toLowerCase() + ':\n\n' + filters + '\n\nPer email: subject, date, from/to, 1-sentence key point, [action needed] if I need to act.\nThen: ' + action + '\nIf nothing matches, tell me what you searched and suggest alternatives.';
+          }
+          return 'You are an email analyst. I\'ll paste the email(s) below -- review them and ' + action.toLowerCase() + '.\n\n' + filters + '\n\nPer email: subject, date, from/to, 1-sentence key point, [action needed] if action required.\nThen: ' + action + '\n\n[PASTE EMAILS HERE]';
+        }
+      },
 
-**TL;DR** (1-2 sentences)
-**KEY DECISIONS:** • [Decision] — Owner: [who]
-**ACTION ITEMS:** | Action | Owner | Due |
-**OPEN QUESTIONS:** • [Item]
-**NEXT MEETING:** [Date]
+      exec_summary: {
+        cat: 'daily', title: 'Exec Summary', desc: 'Create leadership-ready summaries.', fields: [
+          { id: 'topic', type: 'text', label: 'Topic / Document', ph: 'e.g., "Q1 smart lighting results"', required: true },
+          { id: 'audience', type: 'select', label: 'For Whom', opts: ['VP/SVP', 'Director-level', 'Cross-functional leadership', 'Board/C-suite', 'External partner'] },
+          { id: 'format', type: 'select', label: 'Format', opts: ['1-page brief', 'Bullet summary (Slack)', 'Meeting talking points', 'Decision memo'] },
+          { id: 'keyQuestion', type: 'text', label: 'Key Question', ph: 'What do they need to know/decide?' }
+        ], gen: d => `Create ${d.format || 'executive summary'} for ${d.audience || 'leadership'}.
 
-If you can't find it, tell me what you searched so I can redirect.`},
-
-  email_search:{cat:'daily',title:'Email Search',desc:'Find and summarize specific emails or threads.',fields:[
-    {id:'searchType',type:'select',label:'Find',opts:['Emails from a person','Emails about a topic','Unread needing action','Emails with attachments','Latest thread on deal/project','Emails mentioning a competitor']},
-    {id:'person',type:'text',label:'Person',ph:'e.g., "from Sarah Chen"'},
-    {id:'topic',type:'text',label:'Topic / Keywords',ph:'e.g., "Q3 promo calendar"'},
-    {id:'timeframe',type:'select',label:'Timeframe',opts:['Today','Last 3 days','This week','Last 2 weeks','This month']},
-    {id:'action',type:'select',label:'Then',opts:['Summarize key points','List my action items','Draft a reply','Summary table','Flag urgent items']}
-  ],gen:d=>`Search my Outlook and ${d.action?d.action.toLowerCase():'summarize'}:
-
-FIND: ${d.searchType||'[select]'}
-${d.person?`PERSON: ${d.person}`:''}${d.topic?`\nTOPIC: ${d.topic}`:''}
-TIMEFRAME: ${d.timeframe||'This week'}
-
-Per email: subject, date, from/to, 1-sentence key point, ⚡ if I need to act.
-Then: ${d.action||'Summarize takeaways'}
-If nothing matches, tell me what you searched and suggest alternatives.`},
-
-  exec_summary:{cat:'daily',title:'Exec Summary',desc:'Create leadership-ready summaries.',fields:[
-    {id:'topic',type:'text',label:'Topic / Document',ph:'e.g., "Q1 smart lighting results"'},
-    {id:'audience',type:'select',label:'For Whom',opts:['VP/SVP','Director-level','Cross-functional leadership','Board/C-suite','External partner']},
-    {id:'format',type:'select',label:'Format',opts:['1-page brief','Bullet summary (Slack)','Meeting talking points','Decision memo']},
-    {id:'keyQuestion',type:'text',label:'Key Question',ph:'What do they need to know/decide?'}
-  ],gen:d=>`Create ${d.format||'executive summary'} for ${d.audience||'leadership'}.
-
-TOPIC: ${d.topic||'[specify]'}  |  FOR: ${d.audience||'[select]'}
-FORMAT: ${d.format||'[select]'}  |  KEY Q: ${d.keyQuestion||'[specify]'}
+TOPIC: ${d.topic || '[specify]'}  |  FOR: ${d.audience || '[select]'}
+FORMAT: ${d.format || '[select]'}  |  KEY Q: ${d.keyQuestion || '[specify]'}
 
 Lead with answer, not background. Strategic > operational. Clear recommendation. Concrete numbers ("grew 12%" not "grew significantly"). Under 300 words (1-pager) or 100 (Slack). Frame for Signify NA (Hue, WiZ, Philips LED).`},
 
-  weekly_update:{cat:'daily',title:'Weekly Update',desc:'Compile your weekly status from emails, meetings, and tasks.',fields:[
-    {id:'team',type:'select',label:'Team',opts:['Channel Marketing','Category Marketing','Sales Enablement','Cross-functional']},
-    {id:'format',type:'select',label:'Format',opts:['Email to manager','Team Slack post','Standup points','Weekly report']},
-    {id:'priorities',type:'textarea',label:'Priorities (optional)',ph:'Top 3-5 this week'},
-    {id:'highlights',type:'text',label:'Highlight',ph:'e.g., "closed HD promo deal"'}
-  ],gen:d=>`Review my calendar/emails/docs this week. Compile ${d.format||'update'}.
+      weekly_update: {
+        cat: 'daily', title: 'Weekly Update', desc: 'Compile your weekly status from emails, meetings, and tasks.', fields: [
+          { id: 'team', type: 'select', label: 'Team', opts: ['Channel Marketing', 'Category Marketing', 'Sales Enablement', 'Cross-functional'], optsByRole: { kam: ['Sales Enablement', 'Key Accounts', 'Regional Sales', 'Cross-functional'], channel: ['Channel Marketing', 'Trade Marketing', 'Sales Enablement', 'Cross-functional'], marcom: ['Category Marketing', 'Brand Marketing', 'Digital & Social', 'Cross-functional'], leadership: ['Sales Org', 'Marketing Org', 'Cross-functional', 'Executive Team'] }, required: true },
+          { id: 'format', type: 'select', label: 'Format', opts: ['Email to manager', 'Team Slack post', 'Standup points', 'Weekly report'] },
+          { id: 'priorities', type: 'textarea', label: 'Priorities (optional)', ph: 'Top 3-5 this week' },
+          { id: 'highlights', type: 'text', label: 'Highlight', ph: 'e.g., "closed HD promo deal"' }
+        ], gen: d => `Review my calendar/emails/docs this week. Compile ${d.format || 'update'}.
 
-TEAM: ${d.team||'[select]'}  |  FORMAT: ${d.format||'[select]'}
-${d.priorities?`PRIORITIES:\n${d.priorities}`:''}
-${d.highlights?`HIGHLIGHT: ${d.highlights}`:''}
+TEAM: ${d.team || '[select]'}  |  FORMAT: ${d.format || '[select]'}
+${d.priorities ? 'PRIORITIES:\n' + d.priorities + '\n' : ''}${d.highlights ? 'HIGHLIGHT: ' + d.highlights + '\n' : ''}
+WINS (2-3)  |  IN PROGRESS (key items)
+BLOCKERS (stalled/at risk)  |  NEXT WEEK (top 3)
+${d.highlights ? 'Feature prominently: ' + d.highlights + '\n' : ''}Scannable in 30 seconds.`
+      },
 
-**WINS** (2-3)  |  **IN PROGRESS** (key items)
-**BLOCKERS** (stalled/at risk)  |  **NEXT WEEK** (top 3)
-${d.highlights?`Feature prominently: ${d.highlights}`:''}
-Scannable in 30 seconds.`}
-};
+      deck_builder: {
+        cat: 'planning', title: 'Deck Builder', desc: 'Build a slide-by-slide PowerPoint outline for any audience.', fields: [
+          { id: 'deck_type', type: 'chips', label: 'Deck Type', opts: ['Line Review', 'Sell-In Deck', 'QBR', 'Brand Strategy', 'Product Launch', 'Training'], required: true },
+          { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Full Portfolio'] },
+          { id: 'audience', type: 'chips', label: 'Audience', opts: ['Retail Buyer', 'Internal Team', 'Senior Leadership', 'Cross-functional'] },
+          { id: 'slide_count', type: 'select', label: 'Slide Count', opts: ['5-7 slides', '8-12 slides', '13-20 slides', 'As needed'] },
+          { id: 'key_message', type: 'textarea', label: 'Key Message or Ask', ph: "What's the one thing you want the audience to leave knowing or doing?" }
+        ], gen: d => `You are a presentation strategist for Signify North America's consumer lighting division (Philips Hue, WiZ, Philips LED).
 
-let currentCat = 'sales', currentTemplate = 'competitive_intel', formData = {}, customCompetitors = [];
+DECK TYPE: ${d.deck_type || '[select]'}
+BRAND: ${d.brand || '[select]'}
+AUDIENCE: ${d.audience || '[select]'}
+SLIDE COUNT: ${d.slide_count || 'As needed'}
+KEY MESSAGE / ASK: ${d.key_message || '[fill in]'}
 
-function renderCatBar() {
-  document.getElementById('categoryBar').innerHTML = Object.entries(CATS).map(([k,v]) =>
-    `<button class="cat-tab ${k===currentCat?'active':''}" onclick="switchCat('${k}')">${v.label}</button>`
-  ).join('');
-}
-function renderTmplBar() {
-  document.getElementById('templateBar').innerHTML = CATS[currentCat].templates.map(t =>
-    `<button class="tmpl-tab ${t===currentTemplate?'active':''}" onclick="switchTmpl('${t}')">${T[t].title}</button>`
-  ).join('');
-}
-function switchCat(c) { currentCat=c; currentTemplate=CATS[c].templates[0]; formData={}; renderCatBar(); renderTmplBar(); renderBuilder(); resetOut(); }
-function switchTmpl(t) { currentTemplate=t; formData={}; renderTmplBar(); renderBuilder(); resetOut(); }
-function resetOut() { document.getElementById('outputBox').innerHTML='<div class="output-placeholder">Fill in the fields and click Generate Prompt</div>'; }
+Build a complete slide-by-slide outline:
+- Slide number and title
+- 3-4 bullet points per slide (headline-style, not full sentences)
+- One speaker note per slide (what to SAY, not what's on the slide)
+- Opening hook (slide 1: why this matters to the audience)
+- Closing / next steps (final slide: the ask or desired outcome)
+- Note where to include data, charts, or product images
 
-function renderBuilder() {
-  const tmpl = T[currentTemplate], p = document.getElementById('builderPanel');
-  formData = {};
-  let h = `<h2>${tmpl.title}</h2><p class="builder-desc">${tmpl.desc}</p>`;
-  tmpl.fields.forEach(f => {
-    h += `<div class="field-group"><label class="field-label">${f.label}</label>`;
-    if (f.type==='chips') {
-      const opts = f.opts==='COMP' ? [...COMPETITORS,...customCompetitors] : f.opts;
-      h += `<div class="chip-group" id="cg_${f.id}">`;
-      opts.forEach(o => { const e=o.replace(/'/g,"\\'"); h+=`<button class="chip" onclick="selChip(this,'${f.id}','${e}')">${o}</button>`; });
-      h += `</div>`;
-      if (f.custom) h += `<div class="add-row"><input class="add-input" id="ci_${f.id}" placeholder="Type a competitor name..." onkeydown="if(event.key==='Enter')addComp('${f.id}')"><button class="add-btn" onclick="addComp('${f.id}')">+ Add</button></div>`;
-    } else if (f.type==='select') {
-      h += `<select class="field-select" onchange="uf('${f.id}',this.value)"><option value="">Select...</option>`;
-      f.opts.forEach(o => { h+=`<option value="${o}">${o}</option>`; }); h+=`</select>`;
-    } else if (f.type==='textarea') {
-      h += `<textarea class="field-textarea" placeholder="${f.ph||''}" oninput="uf('${f.id}',this.value)"></textarea>`;
-    } else {
-      h += `<input class="field-input" type="text" placeholder="${f.ph||''}" oninput="uf('${f.id}',this.value)">`;
+Format as a numbered list. Keep bullets short and punchy. Tailor language and emphasis for: ${d.audience || 'the audience'}.`
+      },
+
+      agenda_builder: {
+        cat: 'planning', title: 'Agenda Builder', desc: 'Draft a focused agenda and prep checklist for any upcoming meeting.', m365: true, fields: [
+          { id: 'meeting_type', type: 'select', label: 'Meeting Type', opts: ['Line Review', 'Buyer Meeting', 'Team Sync', 'Strategy Session', '1:1', 'Kickoff', 'QBR'], required: true },
+          { id: 'duration', type: 'select', label: 'Duration', opts: ['30 minutes', '60 minutes', '90 minutes', '2+ hours'] },
+          { id: 'attendees', type: 'textarea', label: 'Key Attendees & Roles', ph: 'e.g., Jane (Buyer - HD), Mark (VP Sales), 2 reps' },
+          { id: 'objective', type: 'text', label: 'Meeting Objective', ph: 'e.g., Secure Q3 shelf placement for WiZ A19' },
+          { id: 'brand', type: 'select', label: 'Brand / Topic Focus', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Full Portfolio', 'Internal/Ops'] }
+        ], gen: d => {
+          const calLine = copilotType === 'm365' ? '\nSearch my calendar for my upcoming ' + (d.meeting_type || 'meeting') + ' and incorporate any pre-existing agenda items.\n' : '';
+          return 'You are a meeting facilitator for Signify North America.' + calLine + '\nMEETING TYPE: ' + (d.meeting_type || '[select]') + '  |  DURATION: ' + (d.duration || '[select]') + '\nATTENDEES: ' + (d.attendees || '[list key attendees and roles]') + '\nOBJECTIVE: ' + (d.objective || '[what should this meeting achieve?]') + '\nFOCUS: ' + (d.brand || '[select brand or topic]') + '\n\nProduce:\n1. AGENDA -- Time-blocked with owner for each block (e.g., 0:00-0:05: Welcome)\n2. PRE-MEETING CHECKLIST -- What to prepare, bring, or review beforehand\n3. KEY QUESTIONS TO ASK -- 3-5 that will move the objective forward\n4. DESIRED OUTCOMES -- What "done" looks like at end of meeting\n5. HOW TO OPEN / CLOSE -- One sentence each\nKeep it concise and scannable.';
+        }
+      },
+
+      product_coach: {
+        cat: 'planning', title: 'Product Coach', desc: 'Get coached on Signify\'s portfolio, brand messaging, or sales scenarios.', fields: [
+          { id: 'mode', type: 'chips', label: 'Coaching Mode', opts: ['Product Knowledge', 'Objection Practice', 'Brand Guidelines', 'Category Education'], required: true },
+          { id: 'brand', type: 'chips', label: 'Brand / Product', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Full Portfolio'] },
+          { id: 'my_role', type: 'chips', label: 'My Role', opts: ['New Sales Rep', 'Experienced Rep', 'Marketing', 'Leadership'] },
+          { id: 'level', type: 'select', label: 'Depth', opts: ['Quick overview', 'Standard', 'Deep dive'] },
+          { id: 'scenario', type: 'textarea', label: 'Specific Question or Scenario', ph: 'e.g., How do I explain WiZ vs Hue to a confused buyer? Or: buyer says our app is worse than Govee.' }
+        ], gen: d => {
+          const mode = d.mode || 'Product Knowledge', brand = d.brand || 'Philips (Hue, WiZ, LED)', role = d.my_role || 'Signify team member', level = d.level || 'Standard', scenario = d.scenario || '[describe your scenario or question]';
+          if (mode === 'Product Knowledge') return 'You are a product trainer for Signify North America. My role: ' + role + '. Depth: ' + level + '.\n\nBrand/Product: ' + brand + '\nScenario/Question: ' + scenario + '\n\nExplain:\n1. KEY FEATURES -- What makes ' + brand + ' different in plain language\n2. SPECS THAT MATTER -- The 3-5 specs a sales rep needs to know\n3. WHO IT\'S FOR -- Ideal customer profile in one sentence\n4. HOW TO EXPLAIN IT -- A 30-second pitch a rep can use at shelf\n5. COMMON QUESTIONS -- Top 3 buyer questions + answers\n6. WHAT NOT TO SAY -- Messaging or claims to avoid';
+          if (mode === 'Objection Practice') return 'You are a sales coach running a roleplay exercise for a ' + role + ' at Signify North America.\n\nBrand: ' + brand + '\nScenario: ' + scenario + '\n\nRun the roleplay:\n1. Open as a skeptical retail buyer raising a tough objection about: ' + scenario + '\n2. After I respond, give me: WHAT YOU DID WELL / WHAT TO IMPROVE / STRONGER VERSION\n3. Repeat for 2 more objection variations on the same theme\nStay in character as a fair but demanding buyer. Portfolio: Philips Hue (premium smart), WiZ (value smart), Philips LED (non-connected).';
+          if (mode === 'Brand Guidelines') return 'You are a brand strategist for Signify North America. My role: ' + role + '.\n\nBrand: ' + brand + '\nQuestion/Scenario: ' + scenario + '\n\nSummarize:\n1. APPROVED CLAIMS -- What we can confidently say about ' + brand + '\n2. TONE OF VOICE -- How ' + brand + ' should sound (3 adjectives + one example phrase)\n3. DO NOT SAY -- Messaging, claims, or comparisons to avoid\n4. VISUAL / BRAND RULES -- Key design or identity guidelines to know\n5. HOW THIS DIFFERS -- Key distinctions vs. other Signify brands (Hue vs WiZ vs Philips LED)';
+          return 'You are a category management expert explaining retail lighting dynamics to a ' + role + ' at Signify North America.\n\nTopic/Scenario: ' + scenario + '\nDepth: ' + level + '\n\nExplain:\n1. HOW THIS CATEGORY WORKS -- Simple overview (assume no prior knowledge)\n2. KEY METRICS BUYERS TRACK -- What matters to the retailer (turns, margin, attach rate)\n3. HOW DECISIONS GET MADE -- Planogram/reset process, timing, who\'s involved\n4. HOW SIGNIFY WINS HERE -- Our angle in this space (Hue, WiZ, Philips LED)\n5. WATCH OUT FOR -- Common pitfalls or misconceptions for someone new to this\nUse plain language. Define any jargon you use.';
+        }
+      },
+
+      research_report: {
+        cat: 'planning', title: 'Research & Reporting', desc: 'Build a framework for QBRs, category reviews, and performance reports.', fields: [
+          { id: 'report_type', type: 'chips', label: 'Report Type', opts: ['QBR', 'Category Review', 'Market Sizing', 'Performance Summary', 'Launch Recap', 'Monthly Update'], required: true },
+          { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Full Portfolio'] },
+          { id: 'channel', type: 'chips', label: 'Retailer / Channel', opts: CHANNELS },
+          { id: 'period', type: 'select', label: 'Time Period', opts: ['Last 4 weeks', 'Last Quarter', 'Last 6 months', 'Last 12 months', 'YTD'] },
+          { id: 'audience', type: 'chips', label: 'Report Audience', opts: ['My Manager', 'Director', 'VP/SVP', 'Cross-functional Team'] },
+          { id: 'key_question', type: 'text', label: 'Key Question to Answer', ph: 'e.g., Why did WiZ underperform at Walmart in Q1?' }
+        ], gen: d => `You are a business analyst for Signify North America's consumer lighting division (Philips Hue, WiZ, Philips LED).
+
+REPORT TYPE: ${d.report_type || '[select]'}
+BRAND: ${d.brand || '[select]'}
+CHANNEL / RETAILER: ${d.channel || '[select]'}
+TIME PERIOD: ${d.period || '[select]'}
+REPORT AUDIENCE: ${d.audience || '[select]'}
+KEY QUESTION: ${d.key_question || '[fill in]'}
+
+Build a complete report framework:
+1. EXECUTIVE SUMMARY TEMPLATE -- Answer-first, 3 sentences max, no fluff
+2. SECTION STRUCTURE -- Headers + what each section should cover
+3. KEY METRICS TO INCLUDE -- The 5-7 numbers that tell the story
+4. RECOMMENDED DATA SOURCES -- Where to pull each metric (Nielsen, IRI, retailer portal, etc.)
+5. KEY QUESTION ANSWER -- Address directly: ${d.key_question || 'the question above'}
+6. NARRATIVE ARC -- What story does this data tell? What is the headline?
+7. RECOMMENDED VISUALIZATIONS -- Chart/table types per section
+
+Format for ${d.audience || 'the audience'}. Lead with decisions, not data. Flag estimates clearly.`
+      }
+
+    };
+
+    let copilotType = 'chat'; let userRole = localStorage.getItem('signifyRole') || 'kam';
+    let currentCat = 'sales', currentTemplate = 'competitive_intel', formData = {}, customCompetitors = [];
+
+    function setCopilot(type) {
+      copilotType = type;
+      document.getElementById('toggleChat').classList.toggle('active', type === 'chat');
+      document.getElementById('toggleM365').classList.toggle('active', type === 'm365');
+      document.getElementById('copilotHint').textContent = type === 'm365'
+        ? 'M365 mode — prompts connect to your Outlook, Calendar & Teams'
+        : 'Chat mode — paste content manually into Copilot';
+      if (type === 'chat' && T[currentTemplate] && T[currentTemplate].m365) {
+        const visible = CATS[currentCat].templates.filter(t => !T[t].m365);
+        currentTemplate = visible[0] || CATS[currentCat].templates[0];
+        formData = {};
+        renderBuilder();
+      }
+      renderTmplBar();
+      resetOut();
     }
-    h += `</div>`;
-  });
-  h += `<div class="divider"></div><button class="generate-btn" onclick="gen()">⚡ Generate Prompt</button>`;
-  p.innerHTML = h;
-}
+    function setRole(r) {
+      userRole = r;
+      localStorage.setItem('signifyRole', r);
+      const order = ROLE_CAT_ORDER[r];
+      currentCat = order[0];
+      const hidden = ROLE_HIDDEN_TEMPLATES[r] || [];
+      const visible = CATS[currentCat].templates.filter(t => !hidden.includes(t));
+      currentTemplate = visible[0] || CATS[currentCat].templates[0];
+      formData = {};
+      renderCatBar(); renderTmplBar(); renderBuilder(); resetOut();
+    }
+    function renderCatBar() {
+      const order = ROLE_CAT_ORDER[userRole] || Object.keys(CATS);
+      document.getElementById('categoryBar').innerHTML = order.map(k =>
+        `<button class="cat-tab ${k === currentCat ? 'active' : ''}" onclick="switchCat('${k}')">${CATS[k].label}</button>`
+      ).join('');
+    }
+    function renderTmplBar() {
+      const hidden = ROLE_HIDDEN_TEMPLATES[userRole] || [];
+      const templates = CATS[currentCat].templates.filter(t => (copilotType === 'm365' || !T[t].m365) && !hidden.includes(t));
+      document.getElementById('templateBar').innerHTML = templates.map(t =>
+        `<button class="tmpl-tab ${t === currentTemplate ? 'active' : ''}" onclick="switchTmpl('${t}')">${T[t].title}${T[t].m365 ? '<span class="m365-badge">M365</span>' : ''}</button>`
+      ).join('');
+    }
+    function switchCat(c) {
+      currentCat = c;
+      const hidden = ROLE_HIDDEN_TEMPLATES[userRole] || [];
+      const visible = CATS[c].templates.filter(t => (copilotType === 'm365' || !T[t].m365) && !hidden.includes(t));
+      currentTemplate = visible[0] || CATS[c].templates[0];
+      formData = {}; renderCatBar(); renderTmplBar(); renderBuilder(); resetOut();
+    }
+    function switchTmpl(t) { currentTemplate = t; formData = {}; renderTmplBar(); renderBuilder(); resetOut(); }
+    function resetOut() { document.getElementById('outputBox').innerHTML = '<div class="output-placeholder">Fill in the fields and click Generate Prompt</div>'; }
 
-function selChip(el,fid,v) { el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected')); el.classList.add('selected'); formData[fid]=v; }
-function uf(id,v) { formData[id]=v; }
-function addComp(fid) {
-  const inp=document.getElementById(`ci_${fid}`), n=inp.value.trim();
-  if(!n) return;
-  if(!COMPETITORS.includes(n)&&!customCompetitors.includes(n)) customCompetitors.push(n);
-  const g=document.getElementById(`cg_${fid}`);
-  g.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
-  const b=document.createElement('button'); b.className='chip selected'; b.textContent=n;
-  b.onclick=function(){selChip(this,fid,n);}; g.appendChild(b);
-  formData[fid]=n; inp.value='';
-}
-function gen() { const t=T[currentTemplate], pr=t.gen(formData), b=document.getElementById('outputBox'); b.innerHTML=''; b.textContent=pr; }
-function copyPrompt() {
-  const t=document.getElementById('outputBox').textContent;
-  if(!t||t.includes('Select a template')) return;
-  navigator.clipboard.writeText(t).then(()=>{
-    document.getElementById('copyIcon').textContent='✅';
-    document.getElementById('copyText').textContent='Copied!';
-    document.getElementById('copyBtn').classList.add('copied');
-    setTimeout(()=>{ document.getElementById('copyIcon').textContent='📋'; document.getElementById('copyText').textContent='Copy'; document.getElementById('copyBtn').classList.remove('copied'); },2000);
-  });
-}
+    function renderBuilder() {
+      const tmpl = T[currentTemplate], p = document.getElementById('builderPanel');
+      formData = {};
+      Object.assign(formData, (ROLE_PREFILLS[userRole] || {})[currentTemplate] || {});
+      let h = `<h2>${tmpl.title}</h2><p class="builder-desc">${tmpl.desc}</p>`;
+      tmpl.fields.forEach(f => {
+        h += `<div class="field-group"><label class="field-label">${f.label}</label>`;
+        if (f.type === 'chips') {
+          const opts = f.opts === 'COMP' ? [...COMPETITORS, ...customCompetitors] : f.opts;
+          h += `<div class="chip-group" id="cg_${f.id}">`;
+          opts.forEach(o => { const e = o.replace(/'/g, "\\'"); h += `<button class="chip" onclick="selChip(this,'${f.id}','${e}')">${o}</button>`; });
+          h += `</div>`;
+          if (f.custom) h += `<div class="add-row"><input class="add-input" id="ci_${f.id}" placeholder="Type a competitor name..." onkeydown="if(event.key==='Enter')addComp('${f.id}')"><button class="add-btn" onclick="addComp('${f.id}')">+ Add</button></div>`;
+        } else if (f.type === 'select') {
+          const resolvedOpts = (f.optsByRole && f.optsByRole[userRole]) ? f.optsByRole[userRole] : f.opts;
+          h += `<select class="field-select" onchange="uf('${f.id}',this.value)"><option value="">Select...</option>`;
+          resolvedOpts.forEach(o => { h += `<option value="${o}"${formData[f.id] === o ? ' selected' : ''}>${o}</option>`; }); h += `</select>`;
+        } else if (f.type === 'textarea') {
+          h += `<textarea class="field-textarea" placeholder="${f.ph || ''}" oninput="uf('${f.id}',this.value)"></textarea>`;
+        } else {
+          h += `<input class="field-input" type="text" placeholder="${f.ph || ''}" oninput="uf('${f.id}',this.value)">`;
+        }
+        h += `</div>`;
+      });
+      h += `<div class="divider"></div><button class="generate-btn" onclick="gen()">&#9889; Generate Prompt</button><div class="validation-warn" id="validationWarn" style="display:none"></div>`;
+      p.innerHTML = h;
+    }
 
-renderCatBar(); renderTmplBar(); renderBuilder();
-</script>
+    function selChip(el, fid, v) { el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); formData[fid] = v; }
+    function uf(id, v) { formData[id] = v; }
+    function addComp(fid) {
+      const inp = document.getElementById('ci_' + fid), n = inp.value.trim();
+      if (!n) return;
+      if (!COMPETITORS.includes(n) && !customCompetitors.includes(n)) customCompetitors.push(n);
+      const g = document.getElementById('cg_' + fid);
+      g.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+      const b = document.createElement('button'); b.className = 'chip selected'; b.textContent = n;
+      b.onclick = function () { selChip(this, fid, n); }; g.appendChild(b);
+      formData[fid] = n; inp.value = '';
+    }
+    function gen() {
+      const t = T[currentTemplate];
+      const req = t.fields.filter(f => f.required && !formData[f.id]);
+      const warn = document.getElementById('validationWarn');
+      if (warn) {
+        if (req.length > 0) { warn.textContent = '⚠ Fill in ' + req.map(f => f.label).join(' and ') + ' for a more useful prompt.'; warn.style.display = 'block'; }
+        else { warn.style.display = 'none'; }
+      }
+      const roleCtx = 'MY ROLE: ' + ROLES[userRole].context + '\n\n';
+      const roleFocus = (ROLE_PROMPT_CONTEXT[currentTemplate] || {})[userRole];
+      const focusLine = roleFocus ? 'ROLE FOCUS: ' + roleFocus + '\n\n' : '';
+      const pr = roleCtx + focusLine + t.gen(formData);
+      const b = document.getElementById('outputBox');
+      b.innerHTML = ''; b.textContent = pr;
+    }
+    function copyPrompt() {
+      const t = document.getElementById('outputBox').textContent.trim();
+      if (!t || t.includes('Fill in the fields') || t.includes('Select a template')) return;
+
+      function onSuccess() {
+        document.getElementById('copyIcon').textContent = '✅';
+        document.getElementById('copyText').textContent = 'Copied!';
+        document.getElementById('copyBtn').classList.add('copied');
+        setTimeout(() => {
+          document.getElementById('copyIcon').textContent = '📋';
+          document.getElementById('copyText').textContent = 'Copy';
+          document.getElementById('copyBtn').classList.remove('copied');
+        }, 2000);
+      }
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(t).then(onSuccess).catch(function () { fallbackCopy(t, onSuccess); });
+      } else {
+        fallbackCopy(t, onSuccess);
+      }
+    }
+
+    function fallbackCopy(text, onSuccess) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.top = '-9999px';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        if (document.execCommand('copy')) onSuccess();
+      } catch (e) { }
+      document.body.removeChild(ta);
+    }
+
+    document.getElementById('roleSelect').value = userRole;
+    setRole(userRole);
+  </script>
 </body>
+
 </html>
