@@ -776,21 +776,21 @@
 
       competitive_intel: {
         cat: 'sales', title: 'Competitive Intel', desc: 'Research a competitor\'s recent moves, product launches, pricing, and positioning.', fields: [
-          { id: 'competitor', type: 'chips', label: 'Competitor', opts: 'COMP', custom: true, required: true },
+          { id: 'competitor', type: 'chips', label: 'Competitor', opts: 'COMP', custom: true, required: true, multi: true },
           { id: 'focus', type: 'select', label: 'Research Focus', opts: ['Product launches (last 90 days)', 'Pricing & promotions', 'Retail distribution changes', 'Marketing campaigns', 'Smart home ecosystem partnerships', 'Patent/technology moves', 'Leadership changes'] },
           { id: 'category', type: 'select', label: 'Product Category', opts: ['All categories', ...CATEGORIES] },
-          { id: 'channel', type: 'select', label: 'Channel Focus', opts: ['All channels', ...CHANNELS] },
+          { id: 'channel', type: 'chips', label: 'Channel Focus', opts: CHANNELS, multi: true },
           { id: 'extra', type: 'text', label: 'Additional Context', ph: 'e.g., "focus on connected lighting at CES 2026"' }
         ], gen: d => `You are a competitive intelligence analyst for Signify North America's consumer lighting division (Philips brand). Research the following and provide a structured brief:
 
-COMPETITOR: ${d.competitor || '[select competitor]'}
+COMPETITOR: ${fv(d.competitor, '[select competitor]')}
 FOCUS AREA: ${d.focus || '[select focus]'}
 PRODUCT CATEGORY: ${d.category || 'All categories'}
-CHANNEL: ${d.channel || 'All channels'}
+CHANNEL: ${fv(d.channel, 'All channels')}
 ${d.extra ? 'ADDITIONAL CONTEXT: ' + d.extra : ''}
 
 Structure your response as:
-1. DIRECT ANSWER -- What is ${d.competitor || 'this competitor'} doing right now? (2-3 sentences)
+1. DIRECT ANSWER -- What is ${fv(d.competitor, 'this competitor')} doing right now? (2-3 sentences)
 2. KEY FINDINGS -- Bullet each finding with source and date
 3. SO WHAT FOR SIGNIFY -- What does this mean for our positioning, messaging, or channel strategy?
 4. RECOMMENDED ACTIONS -- 2-3 specific next steps
@@ -800,16 +800,16 @@ Only include verified information. Flag anything uncertain. Prioritize last 90 d
 
       battle_card: {
         cat: 'sales', title: 'Battle Card', desc: 'Create a competitive battle card for quick rep reference during buyer conversations.', fields: [
-          { id: 'competitor', type: 'chips', label: 'Competitor', opts: 'COMP', custom: true, required: true },
+          { id: 'competitor', type: 'chips', label: 'Competitor', opts: 'COMP', custom: true, required: true, multi: true },
           { id: 'category', type: 'select', label: 'Product Category', opts: CATEGORIES },
           { id: 'scenario', type: 'select', label: 'Selling Scenario', opts: ['Head-to-head comparison', 'Displacing incumbent', 'Defending shelf space', 'New product launch', 'Price objection response'] },
           { id: 'audience', type: 'select', label: 'Buyer Type', opts: AUDIENCES }
         ], gen: d => `You are a sales enablement specialist for Signify North America (Philips consumer lighting). Create a battle card scannable in 30 seconds.
 
-COMPETITOR: ${d.competitor || '[select]'}  |  CATEGORY: ${d.category || '[select]'}
+COMPETITOR: ${fv(d.competitor, '[select]')}  |  CATEGORY: ${d.category || '[select]'}
 SCENARIO: ${d.scenario || '[select]'}  |  BUYER TYPE: ${d.audience || '[select]'}
 
-## ${d.competitor || 'COMPETITOR'} vs PHILIPS -- ${d.category || 'CATEGORY'}
+## ${fv(d.competitor, 'COMPETITOR')} vs PHILIPS -- ${d.category || 'CATEGORY'}
 
 WHAT THEY SAY ABOUT THEMSELVES: (positioning/claims)
 WHAT CUSTOMERS ACTUALLY SAY: (reviews, social, retail feedback)
@@ -817,7 +817,7 @@ WHERE WE WIN: [3 advantages with proof points]
 WHERE WE LOSE (BE HONEST): [2 gaps with mitigation]
 KILLER QUESTION TO ASK THE BUYER: (exposes competitor weakness)
 LANDMINES TO AVOID: (topics that backfire)
-30-SECOND PITCH: (why Philips over ${d.competitor || 'them'} for a ${d.audience || 'buyer'})
+30-SECOND PITCH: (why Philips over ${fv(d.competitor, 'them')} for a ${d.audience || 'buyer'})
 
 Punchy. No filler. Every bullet usable in conversation.`},
 
@@ -825,12 +825,12 @@ Punchy. No filler. Every bullet usable in conversation.`},
         cat: 'sales', title: 'Objection Handling', desc: 'Generate talk tracks for common buyer objections.', fields: [
           { id: 'objection', type: 'select', label: 'Objection', opts: ['Price is too high', 'Competitor has better smart features', 'Competitor has better app/ecosystem', 'Already committed to another brand', 'Connected lighting too complex', 'Private label is good enough', 'Better competitor reviews', 'Need Matter/Thread support', 'Packaging not competitive', 'Margin doesn\'t work'], required: true },
           { id: 'audience', type: 'select', label: 'Who Is Objecting', opts: AUDIENCES },
-          { id: 'competitor', type: 'chips', label: 'Competitor Referenced', opts: 'COMP', custom: true },
+          { id: 'competitor', type: 'chips', label: 'Competitor Referenced', opts: 'COMP', custom: true, multi: true },
           { id: 'context', type: 'text', label: 'Additional Context', ph: 'e.g., "Lowe\'s buyer meeting next week"' }
         ], gen: d => `Sales enablement coach for Signify NA consumer lighting. Write an objection-handling talk track.
 
 OBJECTION: "${d.objection || '[select]'}"
-FROM: ${d.audience || '[select]'}  |  COMPETITOR: ${d.competitor || 'None'}
+FROM: ${d.audience || '[select]'}  |  COMPETITOR: ${fv(d.competitor, 'None')}
 ${d.context ? 'CONTEXT: ' + d.context + '\n' : ''}
 ACKNOWLEDGE (1 sentence -- validate without agreeing)
 REFRAME (1-2 sentences -- shift to our strength)
@@ -843,13 +843,13 @@ Conversational, not scripted. Portfolio: Philips Hue (premium smart), WiZ (value
       buyer_email: {
         cat: 'sales', title: 'Buyer Email', desc: 'Draft a professional email to a retail buyer or channel partner.', fields: [
           { id: 'purpose', type: 'select', label: 'Purpose', opts: ['Follow up on line review', 'Introduce new product', 'Respond to competitive threat', 'Propose promo program', 'Share market data', 'Request meeting', 'Address supply issue'], required: true },
-          { id: 'channel', type: 'chips', label: 'Retailer', opts: CHANNELS },
+          { id: 'channel', type: 'chips', label: 'Retailer', opts: CHANNELS, multi: true },
           { id: 'buyerName', type: 'text', label: 'Buyer Name (optional)', ph: 'e.g., Sarah' },
           { id: 'keyPoints', type: 'textarea', label: 'Key Points', ph: 'What do you want to communicate?' },
           { id: 'tone', type: 'select', label: 'Tone', opts: ['Professional & direct', 'Warm & relationship-building', 'Urgent & action-oriented', 'Data-driven & analytical'] }
         ], gen: d => `Draft email from Signify NA sales rep to retail buyer.
 
-PURPOSE: ${d.purpose || '[select]'}  |  RETAILER: ${d.channel || '[select]'}
+PURPOSE: ${d.purpose || '[select]'}  |  RETAILER: ${fv(d.channel, '[select]')}
 ${d.buyerName ? 'BUYER: ' + d.buyerName + '\n' : ''}KEY POINTS: ${d.keyPoints || '[fill in]'}
 TONE: ${d.tone || 'Professional & direct'}
 
@@ -879,13 +879,13 @@ Show math on sizing. Label sourced vs estimated. Present conflicting data fairly
         cat: 'marketing', title: 'Product Positioning', desc: 'Develop positioning statements and messaging frameworks.', fields: [
           { id: 'brand', type: 'select', label: 'Signify Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED (non-connected)', 'Cross-portfolio'], required: true },
           { id: 'product', type: 'text', label: 'Product/Line', ph: 'e.g., "Hue Gradient Lightstrip"' },
-          { id: 'audience', type: 'chips', label: 'Target Audience', opts: AUDIENCES },
-          { id: 'competitor', type: 'chips', label: 'Position Against', opts: 'COMP', custom: true },
+          { id: 'audience', type: 'chips', label: 'Target Audience', opts: AUDIENCES, multi: true },
+          { id: 'competitor', type: 'chips', label: 'Position Against', opts: 'COMP', custom: true, multi: true },
           { id: 'differentiator', type: 'text', label: 'Key Differentiator', ph: 'What makes this uniquely valuable?' }
         ], gen: d => `Product marketing strategist for Signify NA. Build positioning framework.
 
 BRAND: ${d.brand || '[select]'}  |  PRODUCT: ${d.product || '[specify]'}
-AUDIENCE: ${d.audience || '[select]'}  |  VS: ${d.competitor || '[select]'}
+AUDIENCE: ${fv(d.audience, '[select]')}  |  VS: ${fv(d.competitor, '[select]')}
 DIFFERENTIATOR: ${d.differentiator || '[specify]'}
 
 POSITIONING STATEMENT (For [target], [product] is the [category] that [benefit] because [reason], unlike [competitor] which [limitation].)
@@ -898,13 +898,13 @@ Concrete > vague. "2x lumens per watt" beats "superior quality."`},
 
       channel_strategy: {
         cat: 'marketing', title: 'Channel Strategy', desc: 'Analyze channel dynamics and develop retail strategies.', fields: [
-          { id: 'channel', type: 'chips', label: 'Retailer', opts: CHANNELS, required: true },
+          { id: 'channel', type: 'chips', label: 'Retailer', opts: CHANNELS, required: true, multi: true },
           { id: 'objective', type: 'select', label: 'Objective', opts: ['Grow shelf space', 'Defend vs private label', 'Launch new category', 'Optimize assortment', 'Promo strategy', 'Improve margins', 'Counter competitive threat'] },
           { id: 'category', type: 'select', label: 'Category', opts: CATEGORIES },
           { id: 'context', type: 'textarea', label: 'Situation', ph: 'Current situation, upcoming reviews, threats?' }
         ], gen: d => `Channel marketing strategist for Signify NA.
 
-RETAILER: ${d.channel || '[select]'}  |  OBJECTIVE: ${d.objective || '[select]'}  |  CATEGORY: ${d.category || '[select]'}
+RETAILER: ${fv(d.channel, '[select]')}  |  OBJECTIVE: ${d.objective || '[select]'}  |  CATEGORY: ${d.category || '[select]'}
 CONTEXT: ${d.context || '[provide situation]'}
 
 Think sell-IN and sell-THROUGH:
@@ -920,13 +920,13 @@ Frame through partner economics: category growth, margin, turn rate.`},
         cat: 'marketing', title: 'Content Brief', desc: 'Generate briefs for marketing materials and campaigns.', fields: [
           { id: 'type', type: 'select', label: 'Content Type', opts: ['Sell sheet', 'Social campaign', 'Email campaign', 'Blog/article', 'Retailer co-op ad', 'In-store signage', 'E-comm listing copy', 'Press release'], required: true },
           { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Signify Corporate'] },
-          { id: 'audience', type: 'chips', label: 'Audience', opts: AUDIENCES },
+          { id: 'audience', type: 'chips', label: 'Audience', opts: AUDIENCES, multi: true },
           { id: 'objective', type: 'text', label: 'Objective', ph: 'What should this achieve?' },
           { id: 'keyMessage', type: 'text', label: 'Key Message', ph: 'The one thing to remember' }
         ], gen: d => `Content brief for Signify NA marketing.
 
 TYPE: ${d.type || '[select]'}  |  BRAND: ${d.brand || '[select]'}
-AUDIENCE: ${d.audience || '[select]'}
+AUDIENCE: ${fv(d.audience, '[select]')}
 OBJECTIVE: ${d.objective || '[specify]'}  |  KEY MESSAGE: ${d.keyMessage || '[specify]'}
 
 1. HEADLINES (3 options -- punchy, benefit-driven)
@@ -1003,14 +1003,14 @@ ${d.highlights ? 'Feature prominently: ' + d.highlights + '\n' : ''}Scannable in
         cat: 'planning', title: 'Deck Builder', desc: 'Build a slide-by-slide PowerPoint outline for any audience.', fields: [
           { id: 'deck_type', type: 'chips', label: 'Deck Type', opts: ['Line Review', 'Sell-In Deck', 'QBR', 'Brand Strategy', 'Product Launch', 'Training'], required: true },
           { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Full Portfolio'] },
-          { id: 'audience', type: 'chips', label: 'Audience', opts: ['Retail Buyer', 'Internal Team', 'Senior Leadership', 'Cross-functional'] },
+          { id: 'audience', type: 'chips', label: 'Audience', opts: ['Retail Buyer', 'Internal Team', 'Senior Leadership', 'Cross-functional'], multi: true },
           { id: 'slide_count', type: 'select', label: 'Slide Count', opts: ['5-7 slides', '8-12 slides', '13-20 slides', 'As needed'] },
           { id: 'key_message', type: 'textarea', label: 'Key Message or Ask', ph: "What's the one thing you want the audience to leave knowing or doing?" }
         ], gen: d => `You are a presentation strategist for Signify North America's consumer lighting division (Philips Hue, WiZ, Philips LED).
 
 DECK TYPE: ${d.deck_type || '[select]'}
 BRAND: ${d.brand || '[select]'}
-AUDIENCE: ${d.audience || '[select]'}
+AUDIENCE: ${fv(d.audience, '[select]')}
 SLIDE COUNT: ${d.slide_count || 'As needed'}
 KEY MESSAGE / ASK: ${d.key_message || '[fill in]'}
 
@@ -1022,7 +1022,7 @@ Build a complete slide-by-slide outline:
 - Closing / next steps (final slide: the ask or desired outcome)
 - Note where to include data, charts, or product images
 
-Format as a numbered list. Keep bullets short and punchy. Tailor language and emphasis for: ${d.audience || 'the audience'}.`
+Format as a numbered list. Keep bullets short and punchy. Tailor language and emphasis for: ${fv(d.audience, 'the audience')}.`
       },
 
       agenda_builder: {
@@ -1058,17 +1058,17 @@ Format as a numbered list. Keep bullets short and punchy. Tailor language and em
         cat: 'planning', title: 'Research & Reporting', desc: 'Build a framework for QBRs, category reviews, and performance reports.', fields: [
           { id: 'report_type', type: 'chips', label: 'Report Type', opts: ['QBR', 'Category Review', 'Market Sizing', 'Performance Summary', 'Launch Recap', 'Monthly Update'], required: true },
           { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Full Portfolio'] },
-          { id: 'channel', type: 'chips', label: 'Retailer / Channel', opts: CHANNELS },
+          { id: 'channel', type: 'chips', label: 'Retailer / Channel', opts: CHANNELS, multi: true },
           { id: 'period', type: 'select', label: 'Time Period', opts: ['Last 4 weeks', 'Last Quarter', 'Last 6 months', 'Last 12 months', 'YTD'] },
-          { id: 'audience', type: 'chips', label: 'Report Audience', opts: ['My Manager', 'Director', 'VP/SVP', 'Cross-functional Team'] },
+          { id: 'audience', type: 'chips', label: 'Report Audience', opts: ['My Manager', 'Director', 'VP/SVP', 'Cross-functional Team'], multi: true },
           { id: 'key_question', type: 'text', label: 'Key Question to Answer', ph: 'e.g., Why did WiZ underperform at Walmart in Q1?' }
         ], gen: d => `You are a business analyst for Signify North America's consumer lighting division (Philips Hue, WiZ, Philips LED).
 
 REPORT TYPE: ${d.report_type || '[select]'}
 BRAND: ${d.brand || '[select]'}
-CHANNEL / RETAILER: ${d.channel || '[select]'}
+CHANNEL / RETAILER: ${fv(d.channel, '[select]')}
 TIME PERIOD: ${d.period || '[select]'}
-REPORT AUDIENCE: ${d.audience || '[select]'}
+REPORT AUDIENCE: ${fv(d.audience, '[select]')}
 KEY QUESTION: ${d.key_question || '[fill in]'}
 
 Build a complete report framework:
@@ -1080,7 +1080,7 @@ Build a complete report framework:
 6. NARRATIVE ARC -- What story does this data tell? What is the headline?
 7. RECOMMENDED VISUALIZATIONS -- Chart/table types per section
 
-Format for ${d.audience || 'the audience'}. Lead with decisions, not data. Flag estimates clearly.`
+Format for ${fv(d.audience, 'the audience')}. Lead with decisions, not data. Flag estimates clearly.`
       }
 
     };
@@ -1115,6 +1115,10 @@ Format for ${d.audience || 'the audience'}. Lead with decisions, not data. Flag 
       formData = {};
       renderCatBar(); renderTmplBar(); renderBuilder(); resetOut();
     }
+    function fv(v, fallback) {
+      if (Array.isArray(v)) return v.length ? v.join(', ') : (fallback || '');
+      return v || fallback || '';
+    }
     function renderCatBar() {
       const order = ROLE_CAT_ORDER[userRole] || Object.keys(CATS);
       document.getElementById('categoryBar').innerHTML = order.map(k =>
@@ -1148,9 +1152,9 @@ Format for ${d.audience || 'the audience'}. Lead with decisions, not data. Flag 
         if (f.type === 'chips') {
           const opts = f.opts === 'COMP' ? [...COMPETITORS, ...customCompetitors] : f.opts;
           h += `<div class="chip-group" id="cg_${f.id}">`;
-          opts.forEach(o => { const e = o.replace(/'/g, "\\'"); h += `<button class="chip" onclick="selChip(this,'${f.id}','${e}')">${o}</button>`; });
+          opts.forEach(o => { const e = o.replace(/'/g, "\\'"); h += `<button class="chip" onclick="selChip(this,'${f.id}','${e}',${!!f.multi})">${o}</button>`; });
           h += `</div>`;
-          if (f.custom) h += `<div class="add-row"><input class="add-input" id="ci_${f.id}" placeholder="Type a competitor name..." onkeydown="if(event.key==='Enter')addComp('${f.id}')"><button class="add-btn" onclick="addComp('${f.id}')">+ Add</button></div>`;
+          if (f.custom) h += `<div class="add-row"><input class="add-input" id="ci_${f.id}" placeholder="Type a competitor name..." onkeydown="if(event.key==='Enter')addComp('${f.id}',${!!f.multi})"><button class="add-btn" onclick="addComp('${f.id}',${!!f.multi})">+ Add</button></div>`;
         } else if (f.type === 'select') {
           const resolvedOpts = (f.optsByRole && f.optsByRole[userRole]) ? f.optsByRole[userRole] : f.opts;
           h += `<select class="field-select" onchange="uf('${f.id}',this.value)"><option value="">Select...</option>`;
@@ -1166,17 +1170,28 @@ Format for ${d.audience || 'the audience'}. Lead with decisions, not data. Flag 
       p.innerHTML = h;
     }
 
-    function selChip(el, fid, v) { el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); formData[fid] = v; }
+    function selChip(el, fid, v, multi) {
+      if (multi) {
+        el.classList.toggle('selected');
+        formData[fid] = [...el.parentElement.querySelectorAll('.chip.selected')].map(c => c.textContent);
+      } else {
+        el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        formData[fid] = v;
+      }
+    }
     function uf(id, v) { formData[id] = v; }
-    function addComp(fid) {
+    function addComp(fid, multi) {
       const inp = document.getElementById('ci_' + fid), n = inp.value.trim();
       if (!n) return;
       if (!COMPETITORS.includes(n) && !customCompetitors.includes(n)) customCompetitors.push(n);
       const g = document.getElementById('cg_' + fid);
-      g.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+      if (!multi) g.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
       const b = document.createElement('button'); b.className = 'chip selected'; b.textContent = n;
-      b.onclick = function () { selChip(this, fid, n); }; g.appendChild(b);
-      formData[fid] = n; inp.value = '';
+      b.onclick = function () { selChip(this, fid, n, multi); }; g.appendChild(b);
+      if (multi) { if (!Array.isArray(formData[fid])) formData[fid] = []; formData[fid].push(n); }
+      else formData[fid] = n;
+      inp.value = '';
     }
     function gen() {
       const t = T[currentTemplate];
