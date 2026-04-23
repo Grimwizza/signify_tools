@@ -35,19 +35,12 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
       background: var(--sig-dark);
       color: var(--sig-text);
-      min-height: 100vh;
+      height: 100vh;
+      overflow: hidden;
     }
 
     .header {
-      background: linear-gradient(135deg, var(--sig-dark-2) 0%, var(--sig-dark) 50%, var(--sig-dark-2) 100%);
-      border-bottom: 1px solid var(--sig-border);
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      display: none;
     }
 
     .header-left {
@@ -289,7 +282,7 @@
     .main-layout {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      min-height: calc(100vh - 185px);
+      height: calc(100vh - 115px);
     }
 
     @media (max-width: 900px) {
@@ -474,6 +467,13 @@
     .generate-btn:hover {
       transform: translateY(-1px);
       box-shadow: 0 4px 20px var(--sig-green-glow);
+    }
+
+    .generate-footer {
+      position: sticky;
+      bottom: 0;
+      background: var(--sig-dark);
+      padding-top: 4px;
     }
 
     .divider {
@@ -1162,7 +1162,7 @@ Format for ${d.audience || 'the audience'}. Lead with decisions, not data. Flag 
         }
         h += `</div>`;
       });
-      h += `<div class="divider"></div><button class="generate-btn" onclick="gen()">&#9889; Generate Prompt</button><div class="validation-warn" id="validationWarn" style="display:none"></div>`;
+      h += `<div class="generate-footer"><div class="divider"></div><button class="generate-btn" onclick="gen()">&#9889; Generate Prompt</button><div class="validation-warn" id="validationWarn" style="display:none"></div></div>`;
       p.innerHTML = h;
     }
 
