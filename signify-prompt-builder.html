@@ -818,8 +818,8 @@
         cat: 'sales', title: 'Competitive Intel', desc: 'Research a competitor\'s recent moves, product launches, pricing, and positioning.', warn: 'research', fields: [
           { id: 'competitor', type: 'chips', label: 'Competitor', opts: 'COMP', custom: true, required: true, multi: true },
           { id: 'focus', type: 'select', label: 'Research Focus', opts: ['Product launches (last 90 days)', 'Pricing & promotions', 'Retail distribution changes', 'Marketing campaigns', 'Smart home ecosystem partnerships', 'Patent/technology moves', 'Leadership changes'] },
-          { id: 'category', type: 'select', label: 'Product Category', opts: ['All categories', ...CATEGORIES] },
-          { id: 'channel', type: 'chips', label: 'Channel Focus', opts: CHANNELS, multi: true },
+          { id: 'category', type: 'select', label: 'Product Category', opts: ['All categories', ...CATEGORIES], custom: true },
+          { id: 'channel', type: 'chips', label: 'Channel Focus', opts: CHANNELS, custom: true, multi: true },
           { id: 'extra', type: 'text', label: 'Additional Context', ph: 'e.g., "focus on connected lighting at CES 2026"' }
         ], gen: d => `You are a competitive intelligence analyst for Signify North America's consumer lighting division (Philips brand). Research the following and provide a structured brief:
 
@@ -841,9 +841,9 @@ Only include verified information. Flag anything uncertain. Prioritize last 90 d
       battle_card: {
         cat: 'sales', title: 'Battle Card', desc: 'Create a competitive battle card for quick rep reference during buyer conversations.', fields: [
           { id: 'competitor', type: 'chips', label: 'Competitor', opts: 'COMP', custom: true, required: true, multi: true },
-          { id: 'category', type: 'select', label: 'Product Category', opts: CATEGORIES },
+          { id: 'category', type: 'select', label: 'Product Category', opts: CATEGORIES, custom: true },
           { id: 'scenario', type: 'select', label: 'Selling Scenario', opts: ['Head-to-head comparison', 'Displacing incumbent', 'Defending shelf space', 'New product launch', 'Price objection response'] },
-          { id: 'audience', type: 'select', label: 'Buyer Type', opts: AUDIENCES }
+          { id: 'audience', type: 'select', label: 'Buyer Type', opts: AUDIENCES, custom: true }
         ], gen: d => `You are a sales enablement specialist for Signify North America (Philips consumer lighting). Create a battle card scannable in 30 seconds.
 
 COMPETITOR: ${fv(d.competitor, '[select]')}  |  CATEGORY: ${d.category || '[select]'}
@@ -864,7 +864,7 @@ Punchy. No filler. Every bullet usable in conversation.`},
       objection_handling: {
         cat: 'sales', title: 'Objection Handling', desc: 'Generate talk tracks for common buyer objections.', fields: [
           { id: 'objection', type: 'select', label: 'Objection', opts: ['Price is too high', 'Competitor has better smart features', 'Competitor has better app/ecosystem', 'Already committed to another brand', 'Connected lighting too complex', 'Private label is good enough', 'Better competitor reviews', 'Need Matter/Thread support', 'Packaging not competitive', 'Margin doesn\'t work'], required: true },
-          { id: 'audience', type: 'select', label: 'Who Is Objecting', opts: AUDIENCES },
+          { id: 'audience', type: 'select', label: 'Who Is Objecting', opts: AUDIENCES, custom: true },
           { id: 'competitor', type: 'chips', label: 'Competitor Referenced', opts: 'COMP', custom: true, multi: true },
           { id: 'context', type: 'text', label: 'Additional Context', ph: 'e.g., "Lowe\'s buyer meeting next week"' }
         ], gen: d => `Sales enablement coach for Signify NA consumer lighting. Write an objection-handling talk track.
@@ -883,7 +883,7 @@ Conversational, not scripted. Portfolio: Philips Hue (premium smart), WiZ (value
       buyer_email: {
         cat: 'sales', title: 'Buyer Email', desc: 'Draft a professional email to a retail buyer or channel partner.', fields: [
           { id: 'purpose', type: 'select', label: 'Purpose', opts: ['Follow up on line review', 'Introduce new product', 'Respond to competitive threat', 'Propose promo program', 'Share market data', 'Request meeting', 'Address supply issue'], required: true },
-          { id: 'channel', type: 'chips', label: 'Retailer', opts: CHANNELS, multi: true },
+          { id: 'channel', type: 'chips', label: 'Retailer', opts: CHANNELS, custom: true, multi: true },
           { id: 'buyerName', type: 'text', label: 'Buyer Name (optional)', ph: 'e.g., Sarah' },
           { id: 'keyPoints', type: 'textarea', label: 'Key Points', ph: 'What do you want to communicate?' },
           { id: 'tone', type: 'select', label: 'Tone', opts: ['Professional & direct', 'Warm & relationship-building', 'Urgent & action-oriented', 'Data-driven & analytical'] }
@@ -898,7 +898,7 @@ Rules: 3-5 sentences max. Lead with value to THEIR business. Specific CTA with d
       market_research: {
         cat: 'marketing', title: 'Market Research', desc: 'Research market trends, sizing, and dynamics in consumer lighting.', warn: 'research', fields: [
           { id: 'topic', type: 'select', label: 'Topic', opts: ['Market size & growth (TAM/SAM)', 'Consumer trends', 'Smart home adoption rates', 'LED penetration & upgrade cycle', 'Sustainability trends', 'Retail channel shifts', 'New tech (Matter, Thread, AI)', 'Pricing trends'], required: true },
-          { id: 'category', type: 'select', label: 'Category', opts: ['Consumer lighting overall', ...CATEGORIES] },
+          { id: 'category', type: 'select', label: 'Category', opts: ['Consumer lighting overall', ...CATEGORIES], custom: true },
           { id: 'geography', type: 'select', label: 'Geography', opts: ['North America', 'United States', 'Canada', 'Specific region'] },
           { id: 'timeframe', type: 'select', label: 'Timeframe', opts: ['Current snapshot', 'Last 12 months', '3-5 year outlook', 'YoY comparison'] },
           { id: 'extra', type: 'text', label: 'Specific Question', ph: 'e.g., "what % of US homes have a smart bulb?"' }
@@ -919,7 +919,7 @@ Show math on sizing. Label sourced vs estimated. Present conflicting data fairly
         cat: 'marketing', title: 'Product Positioning', desc: 'Develop positioning statements and messaging frameworks.', fields: [
           { id: 'brand', type: 'select', label: 'Signify Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED (non-connected)', 'Cross-portfolio'], required: true },
           { id: 'product', type: 'text', label: 'Product/Line', ph: 'e.g., "Hue Gradient Lightstrip"' },
-          { id: 'audience', type: 'chips', label: 'Target Audience', opts: AUDIENCES, multi: true },
+          { id: 'audience', type: 'chips', label: 'Target Audience', opts: AUDIENCES, custom: true, multi: true },
           { id: 'competitor', type: 'chips', label: 'Position Against', opts: 'COMP', custom: true, multi: true },
           { id: 'differentiator', type: 'text', label: 'Key Differentiator', ph: 'What makes this uniquely valuable?' }
         ], gen: d => `Product marketing strategist for Signify NA. Build positioning framework.
@@ -938,9 +938,9 @@ Concrete > vague. "2x lumens per watt" beats "superior quality."`},
 
       channel_strategy: {
         cat: 'marketing', title: 'Channel Strategy', desc: 'Analyze channel dynamics and develop retail strategies.', fields: [
-          { id: 'channel', type: 'chips', label: 'Retailer', opts: CHANNELS, required: true, multi: true },
+          { id: 'channel', type: 'chips', label: 'Retailer', opts: CHANNELS, custom: true, required: true, multi: true },
           { id: 'objective', type: 'select', label: 'Objective', opts: ['Grow shelf space', 'Defend vs private label', 'Launch new category', 'Optimize assortment', 'Promo strategy', 'Improve margins', 'Counter competitive threat'] },
-          { id: 'category', type: 'select', label: 'Category', opts: CATEGORIES },
+          { id: 'category', type: 'select', label: 'Category', opts: CATEGORIES, custom: true },
           { id: 'context', type: 'textarea', label: 'Situation', ph: 'Current situation, upcoming reviews, threats?' }
         ], gen: d => `Channel marketing strategist for Signify NA.
 
@@ -960,7 +960,7 @@ Frame through partner economics: category growth, margin, turn rate.`},
         cat: 'marketing', title: 'Content Brief', desc: 'Generate briefs for marketing materials and campaigns.', fields: [
           { id: 'type', type: 'select', label: 'Content Type', opts: ['Sell sheet', 'Social campaign', 'Email campaign', 'Blog/article', 'Retailer co-op ad', 'In-store signage', 'E-comm listing copy', 'Press release'], required: true },
           { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Signify Corporate'] },
-          { id: 'audience', type: 'chips', label: 'Audience', opts: AUDIENCES, multi: true },
+          { id: 'audience', type: 'chips', label: 'Audience', opts: AUDIENCES, custom: true, multi: true },
           { id: 'objective', type: 'text', label: 'Objective', ph: 'What should this achieve?' },
           { id: 'keyMessage', type: 'text', label: 'Key Message', ph: 'The one thing to remember' }
         ], gen: d => `Content brief for Signify NA marketing.
@@ -1098,7 +1098,7 @@ Format as a numbered list. Keep bullets short and punchy. Tailor language and em
         cat: 'planning', title: 'Research & Reporting', desc: 'Build a framework for QBRs, category reviews, and performance reports.', warn: 'provided', fields: [
           { id: 'report_type', type: 'chips', label: 'Report Type', opts: ['QBR', 'Category Review', 'Market Sizing', 'Performance Summary', 'Launch Recap', 'Monthly Update'], required: true },
           { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Full Portfolio'] },
-          { id: 'channel', type: 'chips', label: 'Retailer / Channel', opts: CHANNELS, multi: true },
+          { id: 'channel', type: 'chips', label: 'Retailer / Channel', opts: CHANNELS, custom: true, multi: true },
           { id: 'period', type: 'select', label: 'Time Period', opts: ['Last 4 weeks', 'Last Quarter', 'Last 6 months', 'Last 12 months', 'YTD'] },
           { id: 'audience', type: 'chips', label: 'Report Audience', opts: ['My Manager', 'Director', 'VP/SVP', 'Cross-functional Team'], multi: true },
           { id: 'key_question', type: 'text', label: 'Key Question to Answer', ph: 'e.g., Why did WiZ underperform at Walmart in Q1?' }
@@ -1130,7 +1130,7 @@ Format for ${fv(d.audience, 'the audience')}. Lead with decisions, not data. Fla
           { id: 'metric', type: 'select', label: 'P&L Metric', opts: ['Net Revenue / Net Sales', 'Gross Margin', 'Gross Margin %', 'SG&A', 'Operating Income', 'EBITDA', 'Volume / Units', 'Price Realization', 'Mix'], required: true },
           { id: 'period', type: 'select', label: 'Period', opts: ['Current Month', 'Last Month', 'Current Quarter', 'Last Quarter', 'YTD', 'Full Year'] },
           { id: 'variance', type: 'text', label: 'Variance Amount', ph: 'e.g., -$2.3M unfavorable, -180bps' },
-          { id: 'channel', type: 'chips', label: 'Channel / BU', opts: CHANNELS, multi: true },
+          { id: 'channel', type: 'chips', label: 'Channel / BU', opts: CHANNELS, custom: true, multi: true },
           { id: 'audience', type: 'select', label: 'Audience', opts: ['CFO', 'VP/SVP', 'Director-level', 'Business Partner', 'External Auditor'] },
           { id: 'context', type: 'textarea', label: 'Known Drivers', ph: 'What do you already know is driving this variance?' }
         ], gen: d => `You are a financial analyst for Signify North America's consumer lighting division (Philips Hue, WiZ, Philips LED).
@@ -1202,7 +1202,7 @@ Quantify everything possible. Clearly label assumptions. Write for ${d.audience 
 
       channel_pl: {
         cat: 'finance', title: 'Channel P&L Review', desc: 'Analyze channel or retailer P&L performance and generate a structured financial summary.', warn: 'provided', fields: [
-          { id: 'channel', type: 'chips', label: 'Retailer / Channel', opts: CHANNELS, required: true, multi: true },
+          { id: 'channel', type: 'chips', label: 'Retailer / Channel', opts: CHANNELS, custom: true, required: true, multi: true },
           { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Full Portfolio'] },
           { id: 'period', type: 'select', label: 'Period', opts: ['Current Month', 'Last Month', 'Current Quarter', 'Last Quarter', 'YTD', 'Full Year'] },
           { id: 'focus', type: 'chips', label: 'P&L Focus', opts: ['Net Revenue', 'Gross Margin', 'Trade Spend', 'Gross-to-Net', 'Volume / Units', 'Net Price Realization'], multi: true },
@@ -1558,7 +1558,7 @@ Context: Signify NA uses SAP for order-to-cash, financial close, and inventory. 
     };
 
     let copilotType = 'chat'; let userRole = localStorage.getItem('signifyRole') || 'kam';
-    let currentCat = 'sales', currentTemplate = 'competitive_intel', formData = {}, customCompetitors = [];
+    let currentCat = 'sales', currentTemplate = 'competitive_intel', formData = {}, customOpts = {};
 
     function setCopilot(type) {
       copilotType = type;
@@ -1624,15 +1624,19 @@ Context: Signify NA uses SAP for order-to-cash, financial close, and inventory. 
       tmpl.fields.forEach(f => {
         h += `<div class="field-group"><label class="field-label">${f.label}</label>`;
         if (f.type === 'chips') {
-          const opts = f.opts === 'COMP' ? [...COMPETITORS, ...customCompetitors] : f.opts;
+          const baseOpts = f.opts === 'COMP' ? COMPETITORS : f.opts;
+          const opts = [...baseOpts, ...(customOpts[f.id] || [])];
           h += `<div class="chip-group" id="cg_${f.id}">`;
           opts.forEach(o => { const e = o.replace(/'/g, "\\'"); h += `<button class="chip" onclick="selChip(this,'${f.id}','${e}',${!!f.multi})">${o}</button>`; });
           h += `</div>`;
-          if (f.custom) h += `<div class="add-row"><input class="add-input" id="ci_${f.id}" placeholder="Type a competitor name..." onkeydown="if(event.key==='Enter')addComp('${f.id}',${!!f.multi})"><button class="add-btn" onclick="addComp('${f.id}',${!!f.multi})">+ Add</button></div>`;
+          if (f.custom) { const addPh = eph('Add ' + f.label.toLowerCase() + '...'); h += `<div class="add-row"><input class="add-input" id="ci_${f.id}" placeholder="${addPh}" onkeydown="if(event.key==='Enter')addChip('${f.id}',${!!f.multi})"><button class="add-btn" onclick="addChip('${f.id}',${!!f.multi})">+ Add</button></div>`; }
         } else if (f.type === 'select') {
           const resolvedOpts = (f.optsByRole && f.optsByRole[userRole]) ? f.optsByRole[userRole] : f.opts;
-          h += `<select class="field-select" onchange="uf('${f.id}',this.value)"><option value="">Select...</option>`;
-          resolvedOpts.forEach(o => { h += `<option value="${o}"${formData[f.id] === o ? ' selected' : ''}>${o}</option>`; }); h += `</select>`;
+          h += `<select class="field-select" onchange="handleSel('${f.id}',this.value)"><option value="">Select...</option>`;
+          resolvedOpts.forEach(o => { h += `<option value="${o}"${formData[f.id] === o ? ' selected' : ''}>${o}</option>`; });
+          if (f.custom) h += `<option value="__custom__">Other (specify)...</option>`;
+          h += `</select>`;
+          if (f.custom) h += `<input class="field-input" id="cust_${f.id}" type="text" placeholder="${eph('Specify ' + f.label.toLowerCase() + '...')}" style="display:none;margin-top:6px" oninput="uf('${f.id}',this.value)">`;
         } else if (f.type === 'textarea') {
           h += `<textarea class="field-textarea" placeholder="${eph(f.ph)}" oninput="uf('${f.id}',this.value)"></textarea>`;
         } else {
@@ -1655,10 +1659,16 @@ Context: Signify NA uses SAP for order-to-cash, financial close, and inventory. 
       }
     }
     function uf(id, v) { formData[id] = v; }
-    function addComp(fid, multi) {
+    function handleSel(fid, val) {
+      const ci = document.getElementById('cust_' + fid);
+      if (ci) { ci.style.display = val === '__custom__' ? 'block' : 'none'; if (val !== '__custom__') ci.value = ''; }
+      if (val !== '__custom__') uf(fid, val); else uf(fid, '');
+    }
+    function addChip(fid, multi) {
       const inp = document.getElementById('ci_' + fid), n = inp.value.trim();
       if (!n) return;
-      if (!COMPETITORS.includes(n) && !customCompetitors.includes(n)) customCompetitors.push(n);
+      if (!customOpts[fid]) customOpts[fid] = [];
+      if (!customOpts[fid].includes(n)) customOpts[fid].push(n);
       const g = document.getElementById('cg_' + fid);
       if (!multi) g.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
       const b = document.createElement('button'); b.className = 'chip selected'; b.textContent = n;
