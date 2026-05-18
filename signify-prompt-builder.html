@@ -662,6 +662,11 @@
     const CATEGORIES = ['Smart Bulbs', 'Smart Switches/Dimmers', 'Smart Plugs', 'Light Strips', 'Outdoor Lighting', 'LED Bulbs (non-connected)', 'LED Fixtures', 'Decorative Lighting', 'Recessed Lighting', 'Landscape Lighting'];
     const AUDIENCES = ['DIY Homeowner', 'Tech-savvy Consumer', 'Builder/Contractor', 'Property Manager', 'Interior Designer', 'Retail Buyer'];
 
+    const DATA_WARN = {
+      research: 'IMPORTANT: Only include real, verified information with sources. Do not guess, fabricate, or assume any figure, claim, or data point. If something cannot be confirmed, label it [unverified] and describe the limitation — do not fill the gap with an estimate.',
+      provided:  'IMPORTANT: Use only the data and context provided above. Do not invent figures, drivers, or details not explicitly supplied in this prompt. If the provided data is insufficient to answer a section, say so rather than estimating.'
+    };
+
     const CATS = {
       sales: { label: 'Sales Enablement', templates: ['competitive_intel', 'battle_card', 'objection_handling', 'buyer_email'] },
       marketing: { label: 'Marketing', templates: ['market_research', 'product_positioning', 'channel_strategy', 'content_brief'] },
@@ -810,7 +815,7 @@
     const T = {
 
       competitive_intel: {
-        cat: 'sales', title: 'Competitive Intel', desc: 'Research a competitor\'s recent moves, product launches, pricing, and positioning.', fields: [
+        cat: 'sales', title: 'Competitive Intel', desc: 'Research a competitor\'s recent moves, product launches, pricing, and positioning.', warn: 'research', fields: [
           { id: 'competitor', type: 'chips', label: 'Competitor', opts: 'COMP', custom: true, required: true, multi: true },
           { id: 'focus', type: 'select', label: 'Research Focus', opts: ['Product launches (last 90 days)', 'Pricing & promotions', 'Retail distribution changes', 'Marketing campaigns', 'Smart home ecosystem partnerships', 'Patent/technology moves', 'Leadership changes'] },
           { id: 'category', type: 'select', label: 'Product Category', opts: ['All categories', ...CATEGORIES] },
@@ -891,7 +896,7 @@ TONE: ${d.tone || 'Professional & direct'}
 Rules: 3-5 sentences max. Lead with value to THEIR business. Specific CTA with date/time. No "I hope this finds you well." Sign off: [Your Name], Signify North America.`},
 
       market_research: {
-        cat: 'marketing', title: 'Market Research', desc: 'Research market trends, sizing, and dynamics in consumer lighting.', fields: [
+        cat: 'marketing', title: 'Market Research', desc: 'Research market trends, sizing, and dynamics in consumer lighting.', warn: 'research', fields: [
           { id: 'topic', type: 'select', label: 'Topic', opts: ['Market size & growth (TAM/SAM)', 'Consumer trends', 'Smart home adoption rates', 'LED penetration & upgrade cycle', 'Sustainability trends', 'Retail channel shifts', 'New tech (Matter, Thread, AI)', 'Pricing trends'], required: true },
           { id: 'category', type: 'select', label: 'Category', opts: ['Consumer lighting overall', ...CATEGORIES] },
           { id: 'geography', type: 'select', label: 'Geography', opts: ['North America', 'United States', 'Canada', 'Specific region'] },
@@ -1090,7 +1095,7 @@ Format as a numbered list. Keep bullets short and punchy. Tailor language and em
       },
 
       research_report: {
-        cat: 'planning', title: 'Research & Reporting', desc: 'Build a framework for QBRs, category reviews, and performance reports.', fields: [
+        cat: 'planning', title: 'Research & Reporting', desc: 'Build a framework for QBRs, category reviews, and performance reports.', warn: 'provided', fields: [
           { id: 'report_type', type: 'chips', label: 'Report Type', opts: ['QBR', 'Category Review', 'Market Sizing', 'Performance Summary', 'Launch Recap', 'Monthly Update'], required: true },
           { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Full Portfolio'] },
           { id: 'channel', type: 'chips', label: 'Retailer / Channel', opts: CHANNELS, multi: true },
@@ -1121,7 +1126,7 @@ Format for ${fv(d.audience, 'the audience')}. Lead with decisions, not data. Fla
       // ── FINANCE & REPORTING ─────────────────────────────────────────────
 
       variance_analysis: {
-        cat: 'finance', title: 'Variance Analysis', desc: 'Generate a structured budget vs. actual variance narrative for leadership reporting.', fields: [
+        cat: 'finance', title: 'Variance Analysis', desc: 'Generate a structured budget vs. actual variance narrative for leadership reporting.', warn: 'provided', fields: [
           { id: 'metric', type: 'select', label: 'P&L Metric', opts: ['Net Revenue / Net Sales', 'Gross Margin', 'Gross Margin %', 'SG&A', 'Operating Income', 'EBITDA', 'Volume / Units', 'Price Realization', 'Mix'], required: true },
           { id: 'period', type: 'select', label: 'Period', opts: ['Current Month', 'Last Month', 'Current Quarter', 'Last Quarter', 'YTD', 'Full Year'] },
           { id: 'variance', type: 'text', label: 'Variance Amount', ph: 'e.g., -$2.3M unfavorable, -180bps' },
@@ -1146,7 +1151,7 @@ Be direct. Lead with the number. Avoid passive voice. Write for ${d.audience || 
       },
 
       forecast_update: {
-        cat: 'finance', title: 'Forecast Update', desc: 'Write a concise forecast change memo explaining what moved and why.', fields: [
+        cat: 'finance', title: 'Forecast Update', desc: 'Write a concise forecast change memo explaining what moved and why.', warn: 'provided', fields: [
           { id: 'forecast_type', type: 'select', label: 'Forecast Type', opts: ['Full Year', 'Quarter', 'Rolling 12-Month', 'Period Estimate'], required: true },
           { id: 'metric', type: 'select', label: 'Metric', opts: ['Net Revenue', 'Gross Margin', 'Operating Income', 'EBITDA', 'SG&A', 'Volume / Units'] },
           { id: 'period', type: 'text', label: 'Period', ph: 'e.g., FY2025, Q3 FY2025' },
@@ -1170,7 +1175,7 @@ Under 200 words. Assumption-transparent. Write for finance leadership and busine
       },
 
       business_case: {
-        cat: 'finance', title: 'Business Case', desc: 'Build an ROI and cost-benefit framework for an investment or project decision.', fields: [
+        cat: 'finance', title: 'Business Case', desc: 'Build an ROI and cost-benefit framework for an investment or project decision.', warn: 'provided', fields: [
           { id: 'initiative', type: 'text', label: 'Initiative / Investment', ph: 'e.g., New trade promo system, headcount add, capex project', required: true },
           { id: 'cost', type: 'text', label: 'Estimated Cost', ph: 'e.g., $500K one-time + $150K annual' },
           { id: 'benefit', type: 'text', label: 'Expected Benefit', ph: 'e.g., $2M incremental revenue, 3% margin improvement' },
@@ -1196,7 +1201,7 @@ Quantify everything possible. Clearly label assumptions. Write for ${d.audience 
       },
 
       channel_pl: {
-        cat: 'finance', title: 'Channel P&L Review', desc: 'Analyze channel or retailer P&L performance and generate a structured financial summary.', fields: [
+        cat: 'finance', title: 'Channel P&L Review', desc: 'Analyze channel or retailer P&L performance and generate a structured financial summary.', warn: 'provided', fields: [
           { id: 'channel', type: 'chips', label: 'Retailer / Channel', opts: CHANNELS, required: true, multi: true },
           { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Full Portfolio'] },
           { id: 'period', type: 'select', label: 'Period', opts: ['Current Month', 'Last Month', 'Current Quarter', 'Last Quarter', 'YTD', 'Full Year'] },
@@ -1221,7 +1226,7 @@ Think in terms of sell-in economics AND sell-through performance. Frame for Sign
       },
 
       financial_brief: {
-        cat: 'finance', title: 'Financial Brief', desc: 'Create a numbers-first executive summary for financial results or analysis.', fields: [
+        cat: 'finance', title: 'Financial Brief', desc: 'Create a numbers-first executive summary for financial results or analysis.', warn: 'provided', fields: [
           { id: 'topic', type: 'text', label: 'Topic / Report', ph: 'e.g., Q2 FY2025 results, March period close', required: true },
           { id: 'audience', type: 'select', label: 'Audience', opts: ['CFO', 'VP/SVP', 'Board', 'Director-level', 'Cross-functional leadership', 'External stakeholder'] },
           { id: 'format', type: 'select', label: 'Format', opts: ['1-page brief', 'Bullet summary', 'Email narrative', 'Talking points', 'Decision memo'] },
@@ -1243,7 +1248,7 @@ Under 250 words. No jargon. "Revenue grew 8%" not "positive revenue momentum." F
       },
 
       month_end_close: {
-        cat: 'finance', title: 'Month-End Close', desc: 'Generate a close checklist, status update, or period commentary.', fields: [
+        cat: 'finance', title: 'Month-End Close', desc: 'Generate a close checklist, status update, or period commentary.', warn: 'provided', fields: [
           { id: 'period', type: 'text', label: 'Period', ph: 'e.g., April 2025, Period 4 FY2025', required: true },
           { id: 'close_type', type: 'chips', label: 'Close Task', opts: ['Checklist', 'Status Update', 'Close Commentary', 'Issue Log'], required: true },
           { id: 'entity', type: 'text', label: 'Entity / BU', ph: 'e.g., Signify NA Consumer, Philips Hue LLC' },
@@ -1277,7 +1282,7 @@ Be precise. Flag estimates vs. actuals clearly.`
       },
 
       account_recon: {
-        cat: 'finance', title: 'Account Reconciliation', desc: 'Draft a reconciliation narrative or identify reconciling items for review.', fields: [
+        cat: 'finance', title: 'Account Reconciliation', desc: 'Draft a reconciliation narrative or identify reconciling items for review.', warn: 'provided', fields: [
           { id: 'account', type: 'text', label: 'Account / Balance Sheet Line', ph: 'e.g., Accrued Trade Spend, AR - Home Depot', required: true },
           { id: 'period', type: 'text', label: 'Period', ph: 'e.g., March 2025' },
           { id: 'balance', type: 'text', label: 'Book Balance', ph: 'e.g., $4.2M' },
@@ -1300,7 +1305,7 @@ Format suitable for Controller review. Flag any items over 90 days old.`
       },
 
       journal_entry: {
-        cat: 'finance', title: 'Journal Entry Doc', desc: 'Document, draft, or review a journal entry with proper support narrative.', fields: [
+        cat: 'finance', title: 'Journal Entry Doc', desc: 'Document, draft, or review a journal entry with proper support narrative.', warn: 'provided', fields: [
           { id: 'je_type', type: 'select', label: 'JE Type', opts: ['Accrual', 'Prepaid Amortization', 'Reclassification', 'Intercompany', 'Trade Spend / Deduction', 'Correction / True-up', 'Revenue Adjustment'], required: true },
           { id: 'description', type: 'textarea', label: 'What & Why', ph: 'Describe the transaction and the business reason', required: true },
           { id: 'amount', type: 'text', label: 'Amount', ph: 'e.g., $125,000' },
@@ -1324,7 +1329,7 @@ Write in a style suitable for audit review. Be specific about accounts and amoun
       },
 
       audit_prep: {
-        cat: 'finance', title: 'Audit Prep', desc: 'Generate audit request responses, documentation packages, or PBC lists.', fields: [
+        cat: 'finance', title: 'Audit Prep', desc: 'Generate audit request responses, documentation packages, or PBC lists.', warn: 'provided', fields: [
           { id: 'audit_type', type: 'select', label: 'Audit Type', opts: ['External Audit (Annual)', 'Internal Audit', 'SOX Control Testing', 'Tax Audit', 'Interim Review'], required: true },
           { id: 'area', type: 'select', label: 'Focus Area', opts: ['Revenue Recognition', 'Trade Spend / Gross-to-Net', 'Accounts Receivable', 'Inventory', 'Accrued Liabilities', 'Intercompany', 'Internal Controls (SOX)'] },
           { id: 'request', type: 'textarea', label: 'Auditor Request / PBC Item', ph: 'Paste the auditor\'s request or describe what you need to prepare' },
@@ -1673,7 +1678,8 @@ Context: Signify NA uses SAP for order-to-cash, financial close, and inventory. 
       const roleCtx = 'MY ROLE: ' + ROLES[userRole].context + '\n\n';
       const roleFocus = (ROLE_PROMPT_CONTEXT[currentTemplate] || {})[userRole];
       const focusLine = roleFocus ? 'ROLE FOCUS: ' + roleFocus + '\n\n' : '';
-      const pr = roleCtx + focusLine + t.gen(formData);
+      const dataWarn = t.warn ? '\n\n' + DATA_WARN[t.warn] : '';
+      const pr = roleCtx + focusLine + t.gen(formData) + dataWarn;
       const b = document.getElementById('outputBox');
       b.innerHTML = ''; b.textContent = pr;
     }
