@@ -37,6 +37,8 @@
       color: var(--sig-text);
       height: 100vh;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
 
     .header {
@@ -282,7 +284,8 @@
     .main-layout {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      height: calc(100vh - 115px);
+      flex: 1;
+      min-height: 0;
     }
 
     @media (max-width: 900px) {
@@ -594,6 +597,158 @@
       background: var(--sig-border);
       border-radius: 3px;
     }
+
+    /* Flex shrink lock for top bars */
+    .copilot-bar, .category-bar, .template-bar, .search-bar { flex-shrink: 0; }
+
+    /* Search bar */
+    .search-bar {
+      padding: 7px 24px;
+      background: var(--sig-dark);
+      border-bottom: 1px solid var(--sig-border);
+      display: flex;
+      align-items: center;
+    }
+    .search-input {
+      width: 100%;
+      max-width: 380px;
+      padding: 6px 12px 6px 32px;
+      background: var(--sig-dark-2);
+      border: 1px solid var(--sig-border);
+      border-radius: 20px;
+      color: var(--sig-text);
+      font-family: inherit;
+      font-size: 12px;
+      transition: border-color 0.2s;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238899b3' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 10px center;
+      background-size: 14px;
+    }
+    .search-input:focus { outline: none; border-color: var(--sig-green); }
+    .search-input::placeholder { color: var(--sig-text-dim); opacity: 0.5; }
+
+    /* Required field star */
+    .req-star { color: #e6a800; margin-left: 2px; font-weight: 700; }
+
+    /* Generate + Reset row */
+    .generate-row { display: flex; gap: 8px; align-items: stretch; margin-bottom: 6px; }
+    .generate-btn { flex: 1; }
+    .clear-btn {
+      padding: 0 16px;
+      background: var(--sig-dark-3);
+      border: 1px solid var(--sig-border);
+      border-radius: var(--radius);
+      color: var(--sig-text-dim);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .clear-btn:hover { border-color: var(--sig-teal); color: var(--sig-text); }
+
+    /* Output controls row */
+    .output-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .format-toggle {
+      display: flex;
+      gap: 2px;
+      background: var(--sig-dark-3);
+      border: 1px solid var(--sig-border);
+      border-radius: 20px;
+      padding: 3px;
+    }
+    .format-pill {
+      padding: 4px 11px;
+      border-radius: 16px;
+      border: none;
+      background: transparent;
+      color: var(--sig-text-dim);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .format-pill.active { background: var(--sig-surface); color: var(--sig-text); }
+    .output-stats { font-size: 10px; color: var(--sig-text-dim); margin-left: auto; }
+
+    /* Modifier row */
+    .modifier-row {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+      align-items: center;
+    }
+    .modifier-label { font-size: 10px; color: var(--sig-text-dim); white-space: nowrap; }
+    .modifier-btn {
+      padding: 4px 10px;
+      border-radius: 16px;
+      border: 1px solid var(--sig-border);
+      background: transparent;
+      color: var(--sig-text-dim);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .modifier-btn:hover { border-color: var(--sig-teal); color: var(--sig-text); }
+    .modifier-btn.active {
+      background: var(--sig-teal-glow);
+      border-color: var(--sig-teal);
+      color: var(--sig-teal);
+    }
+
+    /* History panel */
+    .history-panel {
+      position: absolute;
+      top: 52px;
+      left: 24px;
+      right: 24px;
+      background: var(--sig-dark-2);
+      border: 1px solid var(--sig-border);
+      border-radius: var(--radius);
+      z-index: 100;
+      max-height: 380px;
+      overflow-y: auto;
+      padding: 6px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .hist-item {
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      margin-bottom: 3px;
+      transition: all 0.15s;
+    }
+    .hist-item:hover { background: var(--sig-dark-3); border-color: var(--sig-border); }
+    .hist-meta { display: flex; align-items: center; gap: 7px; margin-bottom: 3px; }
+    .hist-tmpl { font-size: 12px; font-weight: 700; color: var(--sig-text); }
+    .hist-cat {
+      font-size: 10px; color: var(--sig-teal);
+      background: var(--sig-teal-glow);
+      border: 1px solid rgba(20,211,190,0.2);
+      padding: 1px 6px; border-radius: 8px;
+    }
+    .hist-ts { font-size: 10px; color: var(--sig-text-dim); margin-left: auto; }
+    .hist-role { font-size: 10px; color: var(--sig-text-dim); margin-bottom: 3px; }
+    .hist-preview {
+      font-size: 10px; color: var(--sig-text-dim); line-height: 1.4;
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .hist-empty { padding: 20px; text-align: center; color: var(--sig-text-dim); font-size: 12px; }
   </style>
 </head>
 
@@ -620,6 +775,7 @@
         <option value="leadership">Sales Leadership / Management</option>
         <option value="fp_a">FP&amp;A / Business Finance</option>
         <option value="accounting">Accounting / Controller</option>
+        <option value="pm">Product Manager</option>
       </select>
     </div>
     <div class="bar-divider"></div>
@@ -633,20 +789,43 @@
   </div>
 
   <div class="category-bar" id="categoryBar"></div>
+  <div class="search-bar">
+    <input class="search-input" id="searchInput" placeholder="Search all templates..." oninput="filterSearch(this.value)">
+  </div>
   <div class="template-bar" id="templateBar"></div>
 
   <div class="main-layout">
     <div class="builder-panel" id="builderPanel"></div>
-    <div class="output-panel">
+    <div class="output-panel" style="position:relative">
       <div class="output-header">
         <h2>Generated Prompt</h2>
-        <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">
-          <span id="copyIcon">&#128203;</span> <span id="copyText">Copy</span>
-        </button>
+        <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+          <button class="copy-btn" onclick="toggleHistory()">&#128336; History</button>
+          <button class="copy-btn" id="downloadBtn" onclick="downloadPrompt()">&#8659; Download</button>
+          <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">
+            <span id="copyIcon">&#128203;</span> <span id="copyText">Copy</span>
+          </button>
+        </div>
+      </div>
+      <div class="history-panel" id="historyPanel" style="display:none"></div>
+      <div class="output-controls">
+        <div class="format-toggle">
+          <button class="format-pill active" id="fmt-structured" onclick="setFormat('structured')">Structured</button>
+          <button class="format-pill" id="fmt-narrative" onclick="setFormat('narrative')">Narrative</button>
+          <button class="format-pill" id="fmt-bullets" onclick="setFormat('bullets')">Bullets</button>
+        </div>
+        <span class="output-stats" id="outputStats"></span>
       </div>
       <div class="output-box" id="outputBox">
         <div class="output-placeholder">Select a template, fill in the fields, and click Generate Prompt.<br><br>Your
           copy-paste-ready Copilot prompt will appear here.</div>
+      </div>
+      <div class="modifier-row" id="modifierRow" style="display:none">
+        <span class="modifier-label">Refine:</span>
+        <button class="modifier-btn" id="mod-shorter" onclick="toggleModifier('shorter')">&#8595; Shorter</button>
+        <button class="modifier-btn" id="mod-formal" onclick="toggleModifier('formal')">&#8593; More formal</button>
+        <button class="modifier-btn" id="mod-structure" onclick="toggleModifier('structure')">&#8801; Add structure</button>
+        <button class="modifier-btn" id="mod-email" onclick="toggleModifier('email')">&#9993; Email format</button>
       </div>
       <div class="output-tip"><span class="dot"></span> Paste directly into Microsoft Copilot for best results</div>
     </div>
@@ -667,6 +846,19 @@
       provided:  'IMPORTANT: Use only the data and context provided above. Do not invent figures, drivers, or details not explicitly supplied in this prompt. If the provided data is insufficient to answer a section, say so rather than estimating.'
     };
 
+    const FORMAT_MODS = {
+      structured: '',
+      narrative:  '\n\n---\nFORMAT INSTRUCTION: Write your response as flowing narrative paragraphs. Avoid bullet points, numbered lists, and section headers unless absolutely necessary. Use connected prose throughout.',
+      bullets:    '\n\n---\nFORMAT INSTRUCTION: Format your entire response using bullet points and numbered lists only. No paragraph prose. Each bullet should be one sentence or less. Group related bullets under bold category labels.'
+    };
+
+    const REFINEMENT_MODS = {
+      shorter:   '\n\n---\nADDITIONAL INSTRUCTION: Keep your response concise — aim for under 200 words total. Cut any redundant sections and prioritize the most actionable insights.',
+      formal:    '\n\n---\nADDITIONAL INSTRUCTION: Use highly professional, executive-level business language throughout. Avoid casual phrasing. Suitable for C-suite or board-level communication.',
+      structure: '\n\n---\nADDITIONAL INSTRUCTION: Add clear section headers, numbered steps, and a summary table where applicable. Make the structure immediately scannable.',
+      email:     '\n\n---\nADDITIONAL INSTRUCTION: Format your response as a professional business email. Include: Subject line, greeting, clear body paragraphs, specific call to action, and a professional sign-off.'
+    };
+
     const CATS = {
       sales: { label: 'Sales Enablement', templates: ['competitive_intel', 'battle_card', 'objection_handling', 'buyer_email'] },
       marketing: { label: 'Marketing', templates: ['market_research', 'product_positioning', 'channel_strategy', 'content_brief'] },
@@ -682,7 +874,8 @@
       marcom:     { label: 'Marcom / Brand Marketing',             context: 'Marcom / Brand Marketing Manager at Signify North America' },
       leadership: { label: 'Sales Leadership / Management',        context: 'Sales Director / VP at Signify North America' },
       fp_a:       { label: 'FP&A / Business Finance',              context: 'FP&A / Business Finance Manager at Signify North America' },
-      accounting: { label: 'Accounting / Controller',              context: 'Accounting Manager / Controller at Signify North America' }
+      accounting: { label: 'Accounting / Controller',              context: 'Accounting Manager / Controller at Signify North America' },
+      pm:         { label: 'Product Manager',                      context: 'Product Manager at Signify North America' }
     };
 
     const ROLE_CAT_ORDER = {
@@ -691,7 +884,8 @@
       marcom:     ['marketing', 'planning', 'daily', 'sales'],
       leadership: ['daily', 'planning', 'sales', 'marketing'],
       fp_a:       ['finance', 'excel', 'daily', 'sales', 'planning', 'marketing'],
-      accounting: ['finance', 'daily', 'excel', 'planning', 'sales', 'marketing']
+      accounting: ['finance', 'daily', 'excel', 'planning', 'sales', 'marketing'],
+      pm:         ['planning', 'marketing', 'daily', 'sales']
     };
 
     const ROLE_PREFILLS = {
@@ -732,6 +926,14 @@
         month_end_close: { close_type: 'Checklist' },
         exec_summary:    { audience: 'Director-level', format: '1-page brief' },
         weekly_update:   { format: 'Email to manager' }
+      },
+      pm: {
+        deck_builder:    { audience: 'Internal Team' },
+        exec_summary:    { audience: 'Director-level', format: '1-page brief' },
+        market_research: { geography: 'North America', timeframe: '3-5 year outlook' },
+        content_brief:   { type: 'Press release' },
+        weekly_update:   { format: 'Email to manager' },
+        research_report: { audience: 'Director' }
       }
     };
 
@@ -741,7 +943,8 @@
       marcom:     ['battle_card', 'objection_handling', 'buyer_email'],
       leadership: ['battle_card', 'objection_handling'],
       fp_a:       ['battle_card', 'objection_handling', 'buyer_email', 'content_brief', 'product_positioning', 'product_coach', 'month_end_close', 'account_recon', 'journal_entry', 'audit_prep', 'period_close_email'],
-      accounting: ['battle_card', 'objection_handling', 'buyer_email', 'content_brief', 'product_positioning', 'channel_strategy', 'product_coach', 'variance_analysis', 'forecast_update', 'business_case', 'channel_pl']
+      accounting: ['battle_card', 'objection_handling', 'buyer_email', 'content_brief', 'product_positioning', 'channel_strategy', 'product_coach', 'variance_analysis', 'forecast_update', 'business_case', 'channel_pl'],
+      pm:         ['battle_card', 'objection_handling', 'buyer_email']
     };
 
     const ROLE_PROMPT_CONTEXT = {
@@ -751,24 +954,28 @@
         marcom:     'Prioritize consumer market sizing (TAM/SAM/SOM), category growth trends, brand share data, and consumer insights that inform campaign strategy and brand investment decisions.',
         leadership: 'Prioritize top-line category growth rates, competitive threats, and strategic market position. Frame implications for Signify NA portfolio investment and business strategy.',
         fp_a:       'Prioritize financial metrics: market size in dollars, CAGR, margin benchmarks, and competitor financial performance. Frame for FP&A business planning and investment decisions.',
-        accounting: 'Prioritize financial compliance and regulatory context: relevant accounting standards, industry reporting practices, and tax or audit considerations for consumer lighting.'
+        accounting: 'Prioritize financial compliance and regulatory context: relevant accounting standards, industry reporting practices, and tax or audit considerations for consumer lighting.',
+        pm:         'Prioritize consumer adoption trends, technology shifts (Matter, Thread, AI integration), and competitive product landscape data. Frame for product roadmap prioritization, feature timing decisions, and launch windows.'
       },
       product_positioning: {
         kam:        'Frame for retail buyer conversations: emphasize competitive differentiation at shelf, price/value proof points, and responses to common buyer objections.',
         channel:    'Frame for retail channel execution: emphasize sell-in rationale, planogram justification, and retailer-specific benefits.',
         marcom:     'Frame for brand and campaign strategy: emphasize consumer messaging hierarchy, brand architecture fit, and portfolio positioning within the Signify brand house.',
-        leadership: 'Frame for strategic portfolio decisions: emphasize market differentiation, brand architecture, and long-term positioning implications for the business.'
+        leadership: 'Frame for strategic portfolio decisions: emphasize market differentiation, brand architecture, and long-term positioning implications for the business.',
+        pm:         'Frame for product strategy and go-to-market: define the product\'s unique value proposition, clarify differentiation from competitors at the feature level, and align messaging with the product roadmap.'
       },
       channel_strategy: {
         kam:        'Focus on account-level strategy: winning the sell-in, growing shelf space, and protecting position at specific retail accounts.',
         channel:    'Focus on channel mix and sell-through programs: trade marketing, co-op, and execution tactics to drive category growth across accounts.',
         marcom:     'Focus on brand presence and consumer experience within the channel: in-store marketing, brand blocks, and campaign alignment with channel strategy.',
-        leadership: 'Focus on portfolio-level channel allocation: investment priorities, channel economics, and strategic implications for the Signify NA business.'
+        leadership: 'Focus on portfolio-level channel allocation: investment priorities, channel economics, and strategic implications for the Signify NA business.',
+        pm:         'Focus on product-channel fit: which products belong in which channels, how SKU complexity affects retail execution, and what retailer feedback should inform product decisions.'
       },
       content_brief: {
         channel:    'Frame for retail execution content: sell-in/sell-through materials (sell sheets, co-op ads, in-store signage) with retailer economics and buyer priorities in mind.',
         marcom:     'Frame for brand and consumer-facing content: ensure brand voice consistency, consumer-insight driven messaging, and alignment with Signify brand guidelines.',
-        leadership: 'Frame for executive-level communications: emphasis on strategic narrative, business impact, and stakeholder alignment.'
+        leadership: 'Frame for executive-level communications: emphasis on strategic narrative, business impact, and stakeholder alignment.',
+        pm:         'Frame for product launch or feature announcement content. Lead with the product differentiator, translate technical specs into consumer-facing benefits, and align with Signify brand guidelines.'
       },
       competitive_intel: {
         kam:        'Focus on how this competitor impacts key account relationships: retail buyer preferences, pricing at shelf, promotional activity, and wins/losses at major retailers.',
@@ -776,7 +983,8 @@
         marcom:     'Focus on brand positioning, marketing campaigns, consumer perception, and messaging strategies. Identify differentiation opportunities for Signify brands.',
         leadership: 'Focus on strategic threat level, market share implications, and recommended Signify NA portfolio or investment responses.',
         fp_a:       'Focus on publicly available financial data: revenue estimates, margin trends, pricing strategy, and retail investment levels. Frame implications for Signify NA financial planning.',
-        accounting: 'Focus on publicly available financial data relevant to category benchmarking and audit comparables.'
+        accounting: 'Focus on publicly available financial data relevant to category benchmarking and audit comparables.',
+        pm:         'Focus on product feature benchmarking, technology stack differences, UX/UI comparisons, smart home ecosystem compatibility, and roadmap signals. Identify feature gaps to exploit in Signify\'s product development pipeline.'
       },
       exec_summary: {
         kam:        'Tailor for a sales manager or director. Emphasize account performance, sell-through results, and retailer relationship implications.',
@@ -784,7 +992,8 @@
         marcom:     'Tailor for brand or marketing leadership. Emphasize brand health, campaign performance, and consumer insights.',
         leadership: 'Tailor for VP/SVP or C-suite. Lead with business impact and strategic implications. State the decision or action needed upfront.',
         fp_a:       'Tailor for CFO or VP Finance. Lead with financial performance vs. plan, key variance drivers, and forward-looking implications. State any decision or funding request upfront.',
-        accounting: 'Tailor for Controller or Director of Accounting. Emphasize period close status, material adjustments, compliance items, and any open audit or reporting risks.'
+        accounting: 'Tailor for Controller or Director of Accounting. Emphasize period close status, material adjustments, compliance items, and any open audit or reporting risks.',
+        pm:         'Tailor for product leadership or cross-functional stakeholders. Emphasize product milestone status, key feature decisions, launch readiness, and critical dependencies or risks.'
       },
       deck_builder: {
         kam:        'Orient the deck for a retail buyer or sales meeting. Emphasize account-specific data, competitive differentiation, and a clear sell-in ask.',
@@ -792,7 +1001,8 @@
         marcom:     'Orient for brand or campaign strategy. Emphasize consumer insights, brand positioning, and creative direction.',
         leadership: 'Orient for executive or board-level audiences. Lead with business performance, strategic direction, and key decisions required.',
         fp_a:       'Orient for a financial review or planning session. Lead with performance vs. plan, include variance analysis concepts, and close with outlook or investment ask.',
-        accounting: 'Orient for a financial close or reporting review. Emphasize accuracy of results, compliance, period highlights, and any material items requiring leadership awareness.'
+        accounting: 'Orient for a financial close or reporting review. Emphasize accuracy of results, compliance, period highlights, and any material items requiring leadership awareness.',
+        pm:         'Orient for product reviews or cross-functional alignment sessions. Include roadmap context, feature prioritization rationale, launch timeline, and resource or dependency requirements.'
       },
       research_report: {
         kam:        'Orient for sales planning and account strategy. Emphasize market data relevant to key accounts, competitive dynamics, and sell-in support.',
@@ -800,7 +1010,8 @@
         marcom:     'Orient for brand strategy and marketing investment. Emphasize consumer trends, market sizing, brand share, and campaign implications.',
         leadership: 'Orient for executive consumption. Lead with strategic insights and business implications. Keep it concise — one clear recommendation.',
         fp_a:       'Orient for financial planning and investment decisions. Emphasize market-level financials (TAM, growth rates, margin benchmarks) and their implications for the Signify NA plan.',
-        accounting: 'Orient for accounting and controls. Emphasize financial data accuracy, reconciliation standards, and auditability of sources.'
+        accounting: 'Orient for accounting and controls. Emphasize financial data accuracy, reconciliation standards, and auditability of sources.',
+        pm:         'Orient for product planning decisions. Emphasize consumer insights, competitive product benchmarking, technology adoption curves, and data signals for feature prioritization.'
       },
       weekly_update: {
         kam:        'Focus on account activity: key retailer meetings, sell-through results, competitive threats at accounts, and upcoming line reviews.',
@@ -808,7 +1019,8 @@
         marcom:     'Focus on brand and marketing activity: campaign performance, content launches, consumer insights, and upcoming marketing milestones.',
         leadership: 'Focus on team performance, strategic progress, and key risks or decisions needed. Suitable for peer leadership or upward reporting.',
         fp_a:       'Focus on financial performance vs. plan, key variance drivers, open FP&A deliverables (close, forecasting, planning cycles), and risks or decisions needed from leadership.',
-        accounting: 'Focus on close status, key reconciliations, open items, audit or compliance deadlines, and anything at risk of missing the close calendar.'
+        accounting: 'Focus on close status, key reconciliations, open items, audit or compliance deadlines, and anything at risk of missing the close calendar.',
+        pm:         'Focus on product milestone progress, cross-functional dependencies, launch readiness gates, and upcoming decisions needed from stakeholders.'
       }
     };
 
@@ -1026,7 +1238,7 @@ Lead with answer, not background. Strategic > operational. Clear recommendation.
 
       weekly_update: {
         cat: 'daily', title: 'Weekly Update', desc: 'Compile your weekly status from emails, meetings, and tasks.', fields: [
-          { id: 'team', type: 'select', label: 'Team', opts: ['Channel Marketing', 'Category Marketing', 'Sales Enablement', 'Cross-functional'], optsByRole: { kam: ['Sales Enablement', 'Key Accounts', 'Regional Sales', 'Cross-functional'], channel: ['Channel Marketing', 'Trade Marketing', 'Sales Enablement', 'Cross-functional'], marcom: ['Category Marketing', 'Brand Marketing', 'Digital & Social', 'Cross-functional'], leadership: ['Sales Org', 'Marketing Org', 'Cross-functional', 'Executive Team'] }, required: true },
+          { id: 'team', type: 'select', label: 'Team', opts: ['Channel Marketing', 'Category Marketing', 'Sales Enablement', 'Cross-functional'], optsByRole: { kam: ['Sales Enablement', 'Key Accounts', 'Regional Sales', 'Cross-functional'], channel: ['Channel Marketing', 'Trade Marketing', 'Sales Enablement', 'Cross-functional'], marcom: ['Category Marketing', 'Brand Marketing', 'Digital & Social', 'Cross-functional'], leadership: ['Sales Org', 'Marketing Org', 'Cross-functional', 'Executive Team'], pm: ['Product Team', 'Cross-functional', 'Engineering', 'Go-to-Market'] }, required: true },
           { id: 'format', type: 'select', label: 'Format', opts: ['Email to manager', 'Team Slack post', 'Standup points', 'Weekly report'] },
           { id: 'priorities', type: 'textarea', label: 'Priorities (optional)', ph: 'Top 3-5 this week' },
           { id: 'highlights', type: 'text', label: 'Highlight', ph: 'e.g., "closed HD promo deal"' }
@@ -1557,8 +1769,14 @@ Context: Signify NA uses SAP for order-to-cash, financial close, and inventory. 
 
     };
 
-    let copilotType = 'chat'; let userRole = localStorage.getItem('signifyRole') || 'kam';
-    let currentCat = 'sales', currentTemplate = 'competitive_intel', formData = {}, customOpts = {};
+    let copilotType = 'chat';
+    let userRole = localStorage.getItem('signifyRole') || 'kam';
+    let currentCat = 'sales', currentTemplate = 'competitive_intel';
+    let formData = {}, customOpts = {}, templateFormData = {};
+    let rawPrompt = '', outputFormat = 'structured', activeModifiers = new Set();
+    let memHistory = [];
+
+    // ── Core role / copilot controls ─────────────────────────────────────────
 
     function setCopilot(type) {
       copilotType = type;
@@ -1577,52 +1795,115 @@ Context: Signify NA uses SAP for order-to-cash, financial close, and inventory. 
       renderTmplBar();
       resetOut();
     }
+
     function setRole(r) {
       userRole = r;
       localStorage.setItem('signifyRole', r);
+      templateFormData = {};
       const order = ROLE_CAT_ORDER[r];
       currentCat = order[0];
       const hidden = ROLE_HIDDEN_TEMPLATES[r] || [];
       const visible = CATS[currentCat].templates.filter(t => (copilotType === 'm365' || !T[t].m365) && !hidden.includes(t));
       currentTemplate = visible[0] || CATS[currentCat].templates[0];
       formData = {};
+      const si = document.getElementById('searchInput');
+      if (si) si.value = '';
       renderCatBar(); renderTmplBar(); renderBuilder(); resetOut();
     }
+
     function fv(v, fallback) {
       if (Array.isArray(v)) return v.length ? v.join(', ') : (fallback || '');
       return v || fallback || '';
     }
+
+    // ── Navigation bars ───────────────────────────────────────────────────────
+
     function renderCatBar() {
       const order = ROLE_CAT_ORDER[userRole] || Object.keys(CATS);
       document.getElementById('categoryBar').innerHTML = order.map(k =>
         `<button class="cat-tab ${k === currentCat ? 'active' : ''}" onclick="switchCat('${k}')">${CATS[k].label}</button>`
       ).join('');
     }
+
     function renderTmplBar() {
+      const q = ((document.getElementById('searchInput') || {}).value || '').trim().toLowerCase();
+      if (q) { renderSearchResults(q); return; }
       const hidden = ROLE_HIDDEN_TEMPLATES[userRole] || [];
       const templates = CATS[currentCat].templates.filter(t => (copilotType === 'm365' || !T[t].m365) && !hidden.includes(t));
       document.getElementById('templateBar').innerHTML = templates.map(t =>
         `<button class="tmpl-tab ${t === currentTemplate ? 'active' : ''}" onclick="switchTmpl('${t}')">${T[t].title}${T[t].m365 ? '<span class="m365-badge">M365</span>' : ''}</button>`
       ).join('');
     }
+
+    function filterSearch(q) {
+      q = (q || '').trim().toLowerCase();
+      if (!q) { renderTmplBar(); return; }
+      renderSearchResults(q);
+    }
+
+    function renderSearchResults(q) {
+      const hidden = ROLE_HIDDEN_TEMPLATES[userRole] || [];
+      const roleOrder = ROLE_CAT_ORDER[userRole] || Object.keys(CATS);
+      const results = [];
+      Object.keys(T).forEach(key => {
+        const tmpl = T[key];
+        if (hidden.includes(key)) return;
+        if (tmpl.m365 && copilotType !== 'm365') return;
+        if (!roleOrder.includes(tmpl.cat)) return;
+        const catLabel = CATS[tmpl.cat].label;
+        if ((tmpl.title + ' ' + (tmpl.desc || '') + ' ' + catLabel).toLowerCase().includes(q)) {
+          results.push({ key, tmpl, catLabel });
+        }
+      });
+      const bar = document.getElementById('templateBar');
+      if (!results.length) {
+        bar.innerHTML = '<span style="padding:8px 14px;color:var(--sig-text-dim);font-size:12px">No templates found</span>';
+        return;
+      }
+      bar.innerHTML = results.map(r =>
+        `<button class="tmpl-tab ${r.key === currentTemplate ? 'active' : ''}" onclick="switchTmpl('${r.key}')">` +
+        `<span style="font-size:9px;opacity:0.55;margin-right:5px">${r.catLabel}</span>` +
+        r.tmpl.title + (r.tmpl.m365 ? '<span class="m365-badge">M365</span>' : '') +
+        `</button>`
+      ).join('');
+    }
+
     function switchCat(c) {
+      templateFormData[currentTemplate] = { ...formData };
       currentCat = c;
       const hidden = ROLE_HIDDEN_TEMPLATES[userRole] || [];
       const visible = CATS[c].templates.filter(t => (copilotType === 'm365' || !T[t].m365) && !hidden.includes(t));
       currentTemplate = visible[0] || CATS[c].templates[0];
-      formData = {}; renderCatBar(); renderTmplBar(); renderBuilder(); resetOut();
+      formData = {};
+      const si = document.getElementById('searchInput');
+      if (si) si.value = '';
+      renderCatBar(); renderTmplBar(); renderBuilder(); resetOut();
     }
-    function switchTmpl(t) { currentTemplate = t; formData = {}; renderTmplBar(); renderBuilder(); resetOut(); }
-    function resetOut() { document.getElementById('outputBox').innerHTML = '<div class="output-placeholder">Fill in the fields and click Generate Prompt</div>'; }
+
+    function switchTmpl(t) {
+      templateFormData[currentTemplate] = { ...formData };
+      currentTemplate = t;
+      if (T[t].cat !== currentCat) { currentCat = T[t].cat; renderCatBar(); }
+      formData = {};
+      renderTmplBar(); renderBuilder();
+      const saved = templateFormData[t] || {};
+      Object.assign(formData, saved);
+      syncFormDataToDOM();
+      resetOut();
+    }
+
+    // ── Builder panel ─────────────────────────────────────────────────────────
 
     function eph(s) { return (s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
     function renderBuilder() {
       const tmpl = T[currentTemplate], p = document.getElementById('builderPanel');
       formData = {};
       Object.assign(formData, (ROLE_PREFILLS[userRole] || {})[currentTemplate] || {});
       let h = `<h2>${tmpl.title}</h2><p class="builder-desc">${tmpl.desc}</p>`;
       tmpl.fields.forEach(f => {
-        h += `<div class="field-group"><label class="field-label">${f.label}</label>`;
+        const req = f.required ? '<span class="req-star">*</span>' : '';
+        h += `<div class="field-group"><label class="field-label">${f.label}${req}</label>`;
         if (f.type === 'chips') {
           const baseOpts = f.opts === 'COMP' ? COMPETITORS : f.opts;
           const opts = [...baseOpts, ...(customOpts[f.id] || [])];
@@ -1632,20 +1913,48 @@ Context: Signify NA uses SAP for order-to-cash, financial close, and inventory. 
           if (f.custom) { const addPh = eph('Add ' + f.label.toLowerCase() + '...'); h += `<div class="add-row"><input class="add-input" id="ci_${f.id}" placeholder="${addPh}" onkeydown="if(event.key==='Enter')addChip('${f.id}',${!!f.multi})"><button class="add-btn" onclick="addChip('${f.id}',${!!f.multi})">+ Add</button></div>`; }
         } else if (f.type === 'select') {
           const resolvedOpts = (f.optsByRole && f.optsByRole[userRole]) ? f.optsByRole[userRole] : f.opts;
-          h += `<select class="field-select" onchange="handleSel('${f.id}',this.value)"><option value="">Select...</option>`;
+          h += `<select id="fi_${f.id}" class="field-select" onchange="handleSel('${f.id}',this.value)"><option value="">Select...</option>`;
           resolvedOpts.forEach(o => { h += `<option value="${o}"${formData[f.id] === o ? ' selected' : ''}>${o}</option>`; });
           if (f.custom) h += `<option value="__custom__">Other (specify)...</option>`;
           h += `</select>`;
           if (f.custom) h += `<input class="field-input" id="cust_${f.id}" type="text" placeholder="${eph('Specify ' + f.label.toLowerCase() + '...')}" style="display:none;margin-top:6px" oninput="uf('${f.id}',this.value)">`;
         } else if (f.type === 'textarea') {
-          h += `<textarea class="field-textarea" placeholder="${eph(f.ph)}" oninput="uf('${f.id}',this.value)"></textarea>`;
+          h += `<textarea id="fi_${f.id}" class="field-textarea" placeholder="${eph(f.ph)}" oninput="uf('${f.id}',this.value)"></textarea>`;
         } else {
-          h += `<input class="field-input" type="text" placeholder="${eph(f.ph)}" oninput="uf('${f.id}',this.value)">`;
+          h += `<input id="fi_${f.id}" class="field-input" type="text" placeholder="${eph(f.ph)}" oninput="uf('${f.id}',this.value)">`;
         }
         h += `</div>`;
       });
-      h += `<div class="generate-footer"><div class="divider"></div><button class="generate-btn" onclick="gen()">&#9889; Generate Prompt</button><div class="validation-warn" id="validationWarn" style="display:none"></div></div>`;
+      h += `<div class="generate-footer"><div class="divider"></div>`;
+      h += `<div class="generate-row"><button class="generate-btn" onclick="gen()">&#9889; Generate Prompt</button><button class="clear-btn" onclick="clearFields()">Reset</button></div>`;
+      h += `<div class="validation-warn" id="validationWarn" style="display:none"></div></div>`;
       p.innerHTML = h;
+    }
+
+    function syncFormDataToDOM() {
+      const tmpl = T[currentTemplate];
+      tmpl.fields.forEach(f => {
+        const val = formData[f.id];
+        if (val === undefined || val === null || val === '') return;
+        if (f.type === 'chips') {
+          const group = document.getElementById('cg_' + f.id);
+          if (!group) return;
+          const vals = Array.isArray(val) ? val : [val];
+          group.querySelectorAll('.chip').forEach(chip => {
+            if (vals.includes(chip.textContent)) chip.classList.add('selected');
+          });
+        } else {
+          const el = document.getElementById('fi_' + f.id);
+          if (el) el.value = val;
+        }
+      });
+    }
+
+    function clearFields() {
+      templateFormData[currentTemplate] = {};
+      formData = {};
+      renderBuilder();
+      resetOut();
     }
 
     function selChip(el, fid, v, multi) {
@@ -1658,12 +1967,15 @@ Context: Signify NA uses SAP for order-to-cash, financial close, and inventory. 
         formData[fid] = v;
       }
     }
+
     function uf(id, v) { formData[id] = v; }
+
     function handleSel(fid, val) {
       const ci = document.getElementById('cust_' + fid);
       if (ci) { ci.style.display = val === '__custom__' ? 'block' : 'none'; if (val !== '__custom__') ci.value = ''; }
       if (val !== '__custom__') uf(fid, val); else uf(fid, '');
     }
+
     function addChip(fid, multi) {
       const inp = document.getElementById('ci_' + fid), n = inp.value.trim();
       if (!n) return;
@@ -1677,6 +1989,9 @@ Context: Signify NA uses SAP for order-to-cash, financial close, and inventory. 
       else formData[fid] = n;
       inp.value = '';
     }
+
+    // ── Prompt generation ─────────────────────────────────────────────────────
+
     function gen() {
       const t = T[currentTemplate];
       const req = t.fields.filter(f => f.required && !formData[f.id]);
@@ -1689,14 +2004,168 @@ Context: Signify NA uses SAP for order-to-cash, financial close, and inventory. 
       const roleFocus = (ROLE_PROMPT_CONTEXT[currentTemplate] || {})[userRole];
       const focusLine = roleFocus ? 'ROLE FOCUS: ' + roleFocus + '\n\n' : '';
       const dataWarn = t.warn ? '\n\n' + DATA_WARN[t.warn] : '';
-      const pr = roleCtx + focusLine + t.gen(formData) + dataWarn;
-      const b = document.getElementById('outputBox');
-      b.innerHTML = ''; b.textContent = pr;
+      rawPrompt = roleCtx + focusLine + t.gen(formData) + dataWarn;
+      outputFormat = 'structured';
+      activeModifiers = new Set();
+      renderOutput();
+      saveHistory();
+      const modRow = document.getElementById('modifierRow');
+      if (modRow) modRow.style.display = 'flex';
+      ['structured', 'narrative', 'bullets'].forEach(f => {
+        const el = document.getElementById('fmt-' + f);
+        if (el) el.classList.toggle('active', f === 'structured');
+      });
+      ['shorter', 'formal', 'structure', 'email'].forEach(m => {
+        const el = document.getElementById('mod-' + m);
+        if (el) el.classList.remove('active');
+      });
     }
+
+    function renderOutput() {
+      const fullText = rawPrompt + FORMAT_MODS[outputFormat] + Array.from(activeModifiers).map(m => REFINEMENT_MODS[m]).join('');
+      const b = document.getElementById('outputBox');
+      b.innerHTML = ''; b.textContent = fullText;
+      const words = fullText.trim().split(/\s+/).filter(w => w.length > 0).length;
+      const statsEl = document.getElementById('outputStats');
+      if (statsEl) statsEl.textContent = '~' + words + ' words';
+    }
+
+    function setFormat(f) {
+      if (!rawPrompt) return;
+      outputFormat = f;
+      ['structured', 'narrative', 'bullets'].forEach(id => {
+        const el = document.getElementById('fmt-' + id);
+        if (el) el.classList.toggle('active', id === f);
+      });
+      renderOutput();
+    }
+
+    function toggleModifier(m) {
+      if (!rawPrompt) return;
+      if (activeModifiers.has(m)) activeModifiers.delete(m); else activeModifiers.add(m);
+      const el = document.getElementById('mod-' + m);
+      if (el) el.classList.toggle('active', activeModifiers.has(m));
+      renderOutput();
+    }
+
+    function resetOut() {
+      rawPrompt = '';
+      outputFormat = 'structured';
+      activeModifiers = new Set();
+      document.getElementById('outputBox').innerHTML = '<div class="output-placeholder">Fill in the fields and click Generate Prompt</div>';
+      const statsEl = document.getElementById('outputStats');
+      if (statsEl) statsEl.textContent = '';
+      const modRow = document.getElementById('modifierRow');
+      if (modRow) modRow.style.display = 'none';
+      ['structured', 'narrative', 'bullets'].forEach(f => {
+        const el = document.getElementById('fmt-' + f);
+        if (el) el.classList.toggle('active', f === 'structured');
+      });
+      ['shorter', 'formal', 'structure', 'email'].forEach(m => {
+        const el = document.getElementById('mod-' + m);
+        if (el) el.classList.remove('active');
+      });
+      const hp = document.getElementById('historyPanel');
+      if (hp) hp.style.display = 'none';
+    }
+
+    // ── Prompt history ────────────────────────────────────────────────────────
+
+    function saveHistory() {
+      const entry = {
+        role: ROLES[userRole].label,
+        template: T[currentTemplate].title,
+        cat: CATS[T[currentTemplate].cat].label,
+        prompt: rawPrompt,
+        ts: Date.now()
+      };
+      memHistory.unshift(entry);
+      if (memHistory.length > 10) memHistory = memHistory.slice(0, 10);
+      try {
+        let hist = JSON.parse(localStorage.getItem('signifyHistory') || '[]');
+        hist.unshift(entry);
+        if (hist.length > 10) hist = hist.slice(0, 10);
+        localStorage.setItem('signifyHistory', JSON.stringify(hist));
+      } catch (e) { /* localStorage blocked in cross-origin iframe — memory fallback used */ }
+    }
+
+    function loadHistory() {
+      try {
+        const stored = JSON.parse(localStorage.getItem('signifyHistory') || '[]');
+        if (stored.length) return stored;
+      } catch (e) {}
+      return memHistory;
+    }
+
+    function toggleHistory() {
+      const panel = document.getElementById('historyPanel');
+      if (!panel) return;
+      if (panel.style.display !== 'none') { panel.style.display = 'none'; return; }
+      renderHistoryPanel();
+      panel.style.display = 'block';
+    }
+
+    function renderHistoryPanel() {
+      const hist = loadHistory();
+      const panel = document.getElementById('historyPanel');
+      if (!hist.length) {
+        panel.innerHTML = '<div class="hist-empty">No history yet — generate a prompt to start.</div>';
+        return;
+      }
+      function timeAgo(ts) {
+        const mins = Math.round((Date.now() - ts) / 60000);
+        if (mins < 1) return 'just now';
+        if (mins < 60) return mins + 'm ago';
+        const hrs = Math.round(mins / 60);
+        if (hrs < 24) return hrs + 'h ago';
+        return Math.round(hrs / 24) + 'd ago';
+      }
+      panel.innerHTML = hist.map((e, i) =>
+        `<div class="hist-item" onclick="restoreHistory(${i})">
+          <div class="hist-meta"><span class="hist-tmpl">${e.template}</span><span class="hist-cat">${e.cat}</span><span class="hist-ts">${timeAgo(e.ts)}</span></div>
+          <div class="hist-role">${e.role}</div>
+          <div class="hist-preview">${e.prompt.slice(0, 130).replace(/\n/g, ' ')}…</div>
+        </div>`
+      ).join('');
+    }
+
+    function restoreHistory(i) {
+      const hist = loadHistory();
+      if (!hist[i]) return;
+      rawPrompt = hist[i].prompt;
+      outputFormat = 'structured';
+      activeModifiers = new Set();
+      renderOutput();
+      document.getElementById('historyPanel').style.display = 'none';
+      const modRow = document.getElementById('modifierRow');
+      if (modRow) modRow.style.display = 'flex';
+      ['structured', 'narrative', 'bullets'].forEach(f => {
+        const el = document.getElementById('fmt-' + f);
+        if (el) el.classList.toggle('active', f === 'structured');
+      });
+      ['shorter', 'formal', 'structure', 'email'].forEach(m => {
+        const el = document.getElementById('mod-' + m);
+        if (el) el.classList.remove('active');
+      });
+    }
+
+    // ── Copy / Download ───────────────────────────────────────────────────────
+
+    function downloadPrompt() {
+      const text = document.getElementById('outputBox').textContent.trim();
+      if (!text || text.includes('Fill in the fields') || text.includes('Select a template')) return;
+      const blob = new Blob([text], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const date = new Date().toISOString().slice(0, 10);
+      a.href = url; a.download = 'copilot-prompt-' + currentTemplate + '-' + date + '.txt';
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(url);
+    }
+
     function copyPrompt() {
       const t = document.getElementById('outputBox').textContent.trim();
       if (!t || t.includes('Fill in the fields') || t.includes('Select a template')) return;
-
       function onSuccess() {
         document.getElementById('copyIcon').textContent = '✅';
         document.getElementById('copyText').textContent = 'Copied!';
@@ -1707,7 +2176,6 @@ Context: Signify NA uses SAP for order-to-cash, financial close, and inventory. 
           document.getElementById('copyBtn').classList.remove('copied');
         }, 2000);
       }
-
       if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(t).then(onSuccess).catch(function () { fallbackCopy(t, onSuccess); });
       } else {
@@ -1717,16 +2185,9 @@ Context: Signify NA uses SAP for order-to-cash, financial close, and inventory. 
 
     function fallbackCopy(text, onSuccess) {
       var ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.top = '-9999px';
-      ta.style.left = '-9999px';
-      document.body.appendChild(ta);
-      ta.focus();
-      ta.select();
-      try {
-        if (document.execCommand('copy')) onSuccess();
-      } catch (e) { }
+      ta.value = text; ta.style.position = 'fixed'; ta.style.top = '-9999px'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      try { if (document.execCommand('copy')) onSuccess(); } catch (e) {}
       document.body.removeChild(ta);
     }
 
