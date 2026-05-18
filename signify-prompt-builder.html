@@ -1563,7 +1563,8 @@ Context: Signify NA uses SAP for order-to-cash, financial close, and inventory. 
         ? 'M365 mode — prompts connect to your Outlook, Calendar & Teams'
         : 'Chat mode — paste content manually into Copilot';
       if (type === 'chat' && T[currentTemplate] && T[currentTemplate].m365) {
-        const visible = CATS[currentCat].templates.filter(t => !T[t].m365);
+        const hidden = ROLE_HIDDEN_TEMPLATES[userRole] || [];
+        const visible = CATS[currentCat].templates.filter(t => !T[t].m365 && !hidden.includes(t));
         currentTemplate = visible[0] || CATS[currentCat].templates[0];
         formData = {};
         renderBuilder();
@@ -1577,7 +1578,7 @@ Context: Signify NA uses SAP for order-to-cash, financial close, and inventory. 
       const order = ROLE_CAT_ORDER[r];
       currentCat = order[0];
       const hidden = ROLE_HIDDEN_TEMPLATES[r] || [];
-      const visible = CATS[currentCat].templates.filter(t => !hidden.includes(t));
+      const visible = CATS[currentCat].templates.filter(t => (copilotType === 'm365' || !T[t].m365) && !hidden.includes(t));
       currentTemplate = visible[0] || CATS[currentCat].templates[0];
       formData = {};
       renderCatBar(); renderTmplBar(); renderBuilder(); resetOut();
@@ -1609,6 +1610,7 @@ Context: Signify NA uses SAP for order-to-cash, financial close, and inventory. 
     function switchTmpl(t) { currentTemplate = t; formData = {}; renderTmplBar(); renderBuilder(); resetOut(); }
     function resetOut() { document.getElementById('outputBox').innerHTML = '<div class="output-placeholder">Fill in the fields and click Generate Prompt</div>'; }
 
+    function eph(s) { return (s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
     function renderBuilder() {
       const tmpl = T[currentTemplate], p = document.getElementById('builderPanel');
       formData = {};
@@ -1627,9 +1629,9 @@ Context: Signify NA uses SAP for order-to-cash, financial close, and inventory. 
           h += `<select class="field-select" onchange="uf('${f.id}',this.value)"><option value="">Select...</option>`;
           resolvedOpts.forEach(o => { h += `<option value="${o}"${formData[f.id] === o ? ' selected' : ''}>${o}</option>`; }); h += `</select>`;
         } else if (f.type === 'textarea') {
-          h += `<textarea class="field-textarea" placeholder="${f.ph || ''}" oninput="uf('${f.id}',this.value)"></textarea>`;
+          h += `<textarea class="field-textarea" placeholder="${eph(f.ph)}" oninput="uf('${f.id}',this.value)"></textarea>`;
         } else {
-          h += `<input class="field-input" type="text" placeholder="${f.ph || ''}" oninput="uf('${f.id}',this.value)">`;
+          h += `<input class="field-input" type="text" placeholder="${eph(f.ph)}" oninput="uf('${f.id}',this.value)">`;
         }
         h += `</div>`;
       });
