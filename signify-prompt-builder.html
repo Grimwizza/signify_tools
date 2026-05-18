@@ -618,6 +618,8 @@
         <option value="channel">Channel / Product Marketing</option>
         <option value="marcom">Marcom / Brand Marketing</option>
         <option value="leadership">Sales Leadership / Management</option>
+        <option value="fp_a">FP&amp;A / Business Finance</option>
+        <option value="accounting">Accounting / Controller</option>
       </select>
     </div>
     <div class="bar-divider"></div>
@@ -664,21 +666,27 @@
       sales: { label: 'Sales Enablement', templates: ['competitive_intel', 'battle_card', 'objection_handling', 'buyer_email'] },
       marketing: { label: 'Marketing', templates: ['market_research', 'product_positioning', 'channel_strategy', 'content_brief'] },
       daily: { label: 'Daily Tasks', templates: ['meeting_recap', 'email_search', 'exec_summary', 'weekly_update'] },
-      planning: { label: 'Presentations & Planning', templates: ['deck_builder', 'agenda_builder', 'product_coach', 'research_report'] }
+      planning: { label: 'Presentations & Planning', templates: ['deck_builder', 'agenda_builder', 'product_coach', 'research_report'] },
+      finance: { label: 'Finance & Reporting', templates: ['variance_analysis', 'forecast_update', 'business_case', 'channel_pl', 'financial_brief', 'month_end_close', 'account_recon', 'journal_entry', 'audit_prep', 'period_close_email'] },
+      excel: { label: 'Excel & Data', templates: ['formula_builder', 'lookup_helper', 'conditional_logic', 'data_cleanup', 'pivot_design', 'power_query', 'power_bi_dax', 'sap_extract'] }
     };
 
     const ROLES = {
       kam:        { label: 'Key Account Manager / Sales Analyst', context: 'Key Account Manager / Sales Analyst at Signify North America' },
       channel:    { label: 'Channel / Product Marketing',          context: 'Channel / Product Marketing Manager at Signify North America' },
       marcom:     { label: 'Marcom / Brand Marketing',             context: 'Marcom / Brand Marketing Manager at Signify North America' },
-      leadership: { label: 'Sales Leadership / Management',        context: 'Sales Director / VP at Signify North America' }
+      leadership: { label: 'Sales Leadership / Management',        context: 'Sales Director / VP at Signify North America' },
+      fp_a:       { label: 'FP&A / Business Finance',              context: 'FP&A / Business Finance Manager at Signify North America' },
+      accounting: { label: 'Accounting / Controller',              context: 'Accounting Manager / Controller at Signify North America' }
     };
 
     const ROLE_CAT_ORDER = {
       kam:        ['sales', 'daily', 'marketing', 'planning'],
       channel:    ['marketing', 'sales', 'planning', 'daily'],
       marcom:     ['marketing', 'planning', 'daily', 'sales'],
-      leadership: ['daily', 'planning', 'sales', 'marketing']
+      leadership: ['daily', 'planning', 'sales', 'marketing'],
+      fp_a:       ['finance', 'excel', 'daily', 'sales', 'planning', 'marketing'],
+      accounting: ['finance', 'daily', 'excel', 'planning', 'sales', 'marketing']
     };
 
     const ROLE_PREFILLS = {
@@ -706,6 +714,19 @@
         weekly_update:   { team: 'Cross-functional', format: 'Email to manager' },
         research_report: { audience: 'VP/SVP' },
         market_research: { geography: 'North America', timeframe: '3-5 year outlook' }
+      },
+      fp_a: {
+        variance_analysis: { period: 'Last Quarter', audience: 'VP/SVP' },
+        forecast_update:   { forecast_type: 'Full Year' },
+        exec_summary:      { audience: 'VP/SVP', format: '1-page brief' },
+        weekly_update:     { format: 'Email to manager' },
+        market_research:   { geography: 'North America', timeframe: '3-5 year outlook' },
+        research_report:   { audience: 'VP/SVP' }
+      },
+      accounting: {
+        month_end_close: { close_type: 'Checklist' },
+        exec_summary:    { audience: 'Director-level', format: '1-page brief' },
+        weekly_update:   { format: 'Email to manager' }
       }
     };
 
@@ -713,7 +734,9 @@
       kam:        ['content_brief'],
       channel:    ['battle_card', 'objection_handling'],
       marcom:     ['battle_card', 'objection_handling', 'buyer_email'],
-      leadership: ['battle_card', 'objection_handling']
+      leadership: ['battle_card', 'objection_handling'],
+      fp_a:       ['battle_card', 'objection_handling', 'buyer_email', 'content_brief', 'product_positioning', 'product_coach', 'month_end_close', 'account_recon', 'journal_entry', 'audit_prep', 'period_close_email'],
+      accounting: ['battle_card', 'objection_handling', 'buyer_email', 'content_brief', 'product_positioning', 'channel_strategy', 'product_coach', 'variance_analysis', 'forecast_update', 'business_case', 'channel_pl']
     };
 
     const ROLE_PROMPT_CONTEXT = {
@@ -721,7 +744,9 @@
         kam:        'Prioritize data relevant to key account sell-through: retailer-specific trends, consumer purchase drivers at shelf, and competitive market share at major retail channels.',
         channel:    'Prioritize channel-specific metrics: turns, velocity, share of shelf, and sell-through data. Frame insights for retail execution and sell-in arguments.',
         marcom:     'Prioritize consumer market sizing (TAM/SAM/SOM), category growth trends, brand share data, and consumer insights that inform campaign strategy and brand investment decisions.',
-        leadership: 'Prioritize top-line category growth rates, competitive threats, and strategic market position. Frame implications for Signify NA portfolio investment and business strategy.'
+        leadership: 'Prioritize top-line category growth rates, competitive threats, and strategic market position. Frame implications for Signify NA portfolio investment and business strategy.',
+        fp_a:       'Prioritize financial metrics: market size in dollars, CAGR, margin benchmarks, and competitor financial performance. Frame for FP&A business planning and investment decisions.',
+        accounting: 'Prioritize financial compliance and regulatory context: relevant accounting standards, industry reporting practices, and tax or audit considerations for consumer lighting.'
       },
       product_positioning: {
         kam:        'Frame for retail buyer conversations: emphasize competitive differentiation at shelf, price/value proof points, and responses to common buyer objections.',
@@ -744,31 +769,41 @@
         kam:        'Focus on how this competitor impacts key account relationships: retail buyer preferences, pricing at shelf, promotional activity, and wins/losses at major retailers.',
         channel:    'Focus on channel presence and retail execution: shelf placement, promotional programs, co-op activity, and retailer partnerships.',
         marcom:     'Focus on brand positioning, marketing campaigns, consumer perception, and messaging strategies. Identify differentiation opportunities for Signify brands.',
-        leadership: 'Focus on strategic threat level, market share implications, and recommended Signify NA portfolio or investment responses.'
+        leadership: 'Focus on strategic threat level, market share implications, and recommended Signify NA portfolio or investment responses.',
+        fp_a:       'Focus on publicly available financial data: revenue estimates, margin trends, pricing strategy, and retail investment levels. Frame implications for Signify NA financial planning.',
+        accounting: 'Focus on publicly available financial data relevant to category benchmarking and audit comparables.'
       },
       exec_summary: {
         kam:        'Tailor for a sales manager or director. Emphasize account performance, sell-through results, and retailer relationship implications.',
         channel:    'Tailor for channel or marketing leadership. Emphasize channel performance, program effectiveness, and sell-through results.',
         marcom:     'Tailor for brand or marketing leadership. Emphasize brand health, campaign performance, and consumer insights.',
-        leadership: 'Tailor for VP/SVP or C-suite. Lead with business impact and strategic implications. State the decision or action needed upfront.'
+        leadership: 'Tailor for VP/SVP or C-suite. Lead with business impact and strategic implications. State the decision or action needed upfront.',
+        fp_a:       'Tailor for CFO or VP Finance. Lead with financial performance vs. plan, key variance drivers, and forward-looking implications. State any decision or funding request upfront.',
+        accounting: 'Tailor for Controller or Director of Accounting. Emphasize period close status, material adjustments, compliance items, and any open audit or reporting risks.'
       },
       deck_builder: {
         kam:        'Orient the deck for a retail buyer or sales meeting. Emphasize account-specific data, competitive differentiation, and a clear sell-in ask.',
         channel:    'Orient for channel or trade marketing. Emphasize sell-through programs, retail execution, and channel economics.',
         marcom:     'Orient for brand or campaign strategy. Emphasize consumer insights, brand positioning, and creative direction.',
-        leadership: 'Orient for executive or board-level audiences. Lead with business performance, strategic direction, and key decisions required.'
+        leadership: 'Orient for executive or board-level audiences. Lead with business performance, strategic direction, and key decisions required.',
+        fp_a:       'Orient for a financial review or planning session. Lead with performance vs. plan, include variance analysis concepts, and close with outlook or investment ask.',
+        accounting: 'Orient for a financial close or reporting review. Emphasize accuracy of results, compliance, period highlights, and any material items requiring leadership awareness.'
       },
       research_report: {
         kam:        'Orient for sales planning and account strategy. Emphasize market data relevant to key accounts, competitive dynamics, and sell-in support.',
         channel:    'Orient for channel marketing decisions. Emphasize channel-specific data, sell-through insights, and program effectiveness.',
         marcom:     'Orient for brand strategy and marketing investment. Emphasize consumer trends, market sizing, brand share, and campaign implications.',
-        leadership: 'Orient for executive consumption. Lead with strategic insights and business implications. Keep it concise — one clear recommendation.'
+        leadership: 'Orient for executive consumption. Lead with strategic insights and business implications. Keep it concise — one clear recommendation.',
+        fp_a:       'Orient for financial planning and investment decisions. Emphasize market-level financials (TAM, growth rates, margin benchmarks) and their implications for the Signify NA plan.',
+        accounting: 'Orient for accounting and controls. Emphasize financial data accuracy, reconciliation standards, and auditability of sources.'
       },
       weekly_update: {
         kam:        'Focus on account activity: key retailer meetings, sell-through results, competitive threats at accounts, and upcoming line reviews.',
         channel:    'Focus on channel programs: campaign launches, sell-through performance, retailer partnerships, and upcoming initiatives.',
         marcom:     'Focus on brand and marketing activity: campaign performance, content launches, consumer insights, and upcoming marketing milestones.',
-        leadership: 'Focus on team performance, strategic progress, and key risks or decisions needed. Suitable for peer leadership or upward reporting.'
+        leadership: 'Focus on team performance, strategic progress, and key risks or decisions needed. Suitable for peer leadership or upward reporting.',
+        fp_a:       'Focus on financial performance vs. plan, key variance drivers, open FP&A deliverables (close, forecasting, planning cycles), and risks or decisions needed from leadership.',
+        accounting: 'Focus on close status, key reconciliations, open items, audit or compliance deadlines, and anything at risk of missing the close calendar.'
       }
     };
 
@@ -1081,7 +1116,439 @@ Build a complete report framework:
 7. RECOMMENDED VISUALIZATIONS -- Chart/table types per section
 
 Format for ${fv(d.audience, 'the audience')}. Lead with decisions, not data. Flag estimates clearly.`
-      }
+      },
+
+      // ── FINANCE & REPORTING ─────────────────────────────────────────────
+
+      variance_analysis: {
+        cat: 'finance', title: 'Variance Analysis', desc: 'Generate a structured budget vs. actual variance narrative for leadership reporting.', fields: [
+          { id: 'metric', type: 'select', label: 'P&L Metric', opts: ['Net Revenue / Net Sales', 'Gross Margin', 'Gross Margin %', 'SG&A', 'Operating Income', 'EBITDA', 'Volume / Units', 'Price Realization', 'Mix'], required: true },
+          { id: 'period', type: 'select', label: 'Period', opts: ['Current Month', 'Last Month', 'Current Quarter', 'Last Quarter', 'YTD', 'Full Year'] },
+          { id: 'variance', type: 'text', label: 'Variance Amount', ph: 'e.g., -$2.3M unfavorable, -180bps' },
+          { id: 'channel', type: 'chips', label: 'Channel / BU', opts: CHANNELS, multi: true },
+          { id: 'audience', type: 'select', label: 'Audience', opts: ['CFO', 'VP/SVP', 'Director-level', 'Business Partner', 'External Auditor'] },
+          { id: 'context', type: 'textarea', label: 'Known Drivers', ph: 'What do you already know is driving this variance?' }
+        ], gen: d => `You are a financial analyst for Signify North America's consumer lighting division (Philips Hue, WiZ, Philips LED).
+
+METRIC: ${d.metric || '[select P&L line]'}  |  PERIOD: ${d.period || '[select]'}
+VARIANCE: ${d.variance || '[fill in amount vs. plan]'}
+CHANNEL / BU: ${fv(d.channel, 'Total business')}  |  AUDIENCE: ${d.audience || '[select]'}
+${d.context ? 'KNOWN DRIVERS: ' + d.context + '\n' : ''}
+Provide a structured variance narrative:
+1. HEADLINE (1 sentence — the variance in plain business English)
+2. PRIMARY DRIVERS (top 2-3 factors with quantified impact where possible)
+3. SECONDARY FACTORS (1-2 additional contributors)
+4. WHAT WAS IN PLAN (key assumptions behind the original budget)
+5. ACTIONS / MITIGATION (what is being done to address, if applicable)
+6. REVISED OUTLOOK (implications for remainder of period or full year)
+
+Be direct. Lead with the number. Avoid passive voice. Write for ${d.audience || 'financial leadership'}.`
+      },
+
+      forecast_update: {
+        cat: 'finance', title: 'Forecast Update', desc: 'Write a concise forecast change memo explaining what moved and why.', fields: [
+          { id: 'forecast_type', type: 'select', label: 'Forecast Type', opts: ['Full Year', 'Quarter', 'Rolling 12-Month', 'Period Estimate'], required: true },
+          { id: 'metric', type: 'select', label: 'Metric', opts: ['Net Revenue', 'Gross Margin', 'Operating Income', 'EBITDA', 'SG&A', 'Volume / Units'] },
+          { id: 'period', type: 'text', label: 'Period', ph: 'e.g., FY2025, Q3 FY2025' },
+          { id: 'prev_forecast', type: 'text', label: 'Previous Forecast', ph: 'e.g., $245M' },
+          { id: 'new_forecast', type: 'text', label: 'Revised Forecast', ph: 'e.g., $238M' },
+          { id: 'drivers', type: 'textarea', label: 'Change Drivers', ph: 'What moved the forecast? (volume, pricing, channel mix, wins/losses)' }
+        ], gen: d => `You are a financial planning analyst for Signify North America.
+
+FORECAST: ${d.forecast_type || '[select]'}  |  METRIC: ${d.metric || 'Net Revenue'}  |  PERIOD: ${d.period || '[specify]'}
+PREVIOUS: ${d.prev_forecast || '[fill in]'}  →  REVISED: ${d.new_forecast || '[fill in]'}
+CHANGE DRIVERS: ${d.drivers || '[fill in what changed]'}
+
+Write a concise forecast change memo:
+1. CHANGE SUMMARY (1-2 sentences — what changed and by how much)
+2. KEY DRIVERS (volume / price / mix / channel factors)
+3. RISKS TO FORECAST (what could cause a miss)
+4. UPSIDE OPPORTUNITIES (what could allow us to beat it)
+5. KEY ASSUMPTIONS (what has to be true for this to land)
+
+Under 200 words. Assumption-transparent. Write for finance leadership and business partners.`
+      },
+
+      business_case: {
+        cat: 'finance', title: 'Business Case', desc: 'Build an ROI and cost-benefit framework for an investment or project decision.', fields: [
+          { id: 'initiative', type: 'text', label: 'Initiative / Investment', ph: 'e.g., New trade promo system, headcount add, capex project', required: true },
+          { id: 'cost', type: 'text', label: 'Estimated Cost', ph: 'e.g., $500K one-time + $150K annual' },
+          { id: 'benefit', type: 'text', label: 'Expected Benefit', ph: 'e.g., $2M incremental revenue, 3% margin improvement' },
+          { id: 'timeframe', type: 'select', label: 'Decision Timeframe', opts: ['Immediate (this quarter)', 'Next quarter', 'Next fiscal year', 'Multi-year'] },
+          { id: 'audience', type: 'select', label: 'Decision Maker', opts: ['CFO', 'VP/SVP', 'Director-level', 'Cross-functional leadership', 'Board'] },
+          { id: 'context', type: 'textarea', label: 'Context / Constraints', ph: 'Budget environment, strategic fit, alternatives considered?' }
+        ], gen: d => `You are a corporate finance analyst for Signify North America. Build a business case framework.
+
+INITIATIVE: ${d.initiative || '[specify]'}
+COST: ${d.cost || '[fill in]'}  |  BENEFIT: ${d.benefit || '[fill in]'}
+DECISION TIMEFRAME: ${d.timeframe || '[select]'}  |  DECISION MAKER: ${d.audience || '[select]'}
+${d.context ? 'CONTEXT: ' + d.context + '\n' : ''}
+Build a complete business case:
+1. EXECUTIVE SUMMARY (problem + recommended action, 2-3 sentences)
+2. INVESTMENT REQUIRED (one-time + recurring costs, broken out)
+3. EXPECTED RETURNS (quantified benefits, timeline, confidence level)
+4. ROI / PAYBACK PERIOD (show the math)
+5. RISK ASSESSMENT (top 3 risks with likelihood and mitigation)
+6. ALTERNATIVES CONSIDERED (why this option is preferred)
+7. RECOMMENDATION & ASK (what approval is needed, from whom, by when)
+
+Quantify everything possible. Clearly label assumptions. Write for ${d.audience || 'senior leadership'}.`
+      },
+
+      channel_pl: {
+        cat: 'finance', title: 'Channel P&L Review', desc: 'Analyze channel or retailer P&L performance and generate a structured financial summary.', fields: [
+          { id: 'channel', type: 'chips', label: 'Retailer / Channel', opts: CHANNELS, required: true, multi: true },
+          { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Full Portfolio'] },
+          { id: 'period', type: 'select', label: 'Period', opts: ['Current Month', 'Last Month', 'Current Quarter', 'Last Quarter', 'YTD', 'Full Year'] },
+          { id: 'focus', type: 'chips', label: 'P&L Focus', opts: ['Net Revenue', 'Gross Margin', 'Trade Spend', 'Gross-to-Net', 'Volume / Units', 'Net Price Realization'], multi: true },
+          { id: 'context', type: 'textarea', label: 'Situation / Data Points', ph: 'Paste key numbers or describe what you\'re seeing' }
+        ], gen: d => `You are a channel finance analyst for Signify North America's consumer lighting division (Philips Hue, WiZ, Philips LED).
+
+RETAILER / CHANNEL: ${fv(d.channel, '[select]')}
+BRAND: ${d.brand || 'Full Portfolio'}  |  PERIOD: ${d.period || '[select]'}
+P&L FOCUS: ${fv(d.focus, 'Full P&L')}
+${d.context ? 'DATA / CONTEXT:\n' + d.context + '\n' : ''}
+Provide a structured channel P&L analysis:
+1. PERFORMANCE SUMMARY (headline numbers vs. plan and prior year)
+2. NET REVENUE BRIDGE (volume, price, mix breakdown)
+3. GROSS-TO-NET ANALYSIS (trade spend, returns, allowances as % of gross)
+4. GROSS MARGIN PERFORMANCE (rate and $ vs. plan / prior year, key drivers)
+5. CHANNEL-SPECIFIC INSIGHTS (what is this retailer's business telling us?)
+6. RED FLAGS / RISKS (items requiring attention or escalation)
+7. RECOMMENDED ACTIONS (1-3 specific next steps with owners)
+
+Think in terms of sell-in economics AND sell-through performance. Frame for Signify NA trade investment decisions.`
+      },
+
+      financial_brief: {
+        cat: 'finance', title: 'Financial Brief', desc: 'Create a numbers-first executive summary for financial results or analysis.', fields: [
+          { id: 'topic', type: 'text', label: 'Topic / Report', ph: 'e.g., Q2 FY2025 results, March period close', required: true },
+          { id: 'audience', type: 'select', label: 'Audience', opts: ['CFO', 'VP/SVP', 'Board', 'Director-level', 'Cross-functional leadership', 'External stakeholder'] },
+          { id: 'format', type: 'select', label: 'Format', opts: ['1-page brief', 'Bullet summary', 'Email narrative', 'Talking points', 'Decision memo'] },
+          { id: 'keyMetrics', type: 'textarea', label: 'Key Metrics / Data', ph: 'Paste or describe the numbers you want included' },
+          { id: 'keyMessage', type: 'text', label: 'Key Message', ph: 'The most important takeaway in one sentence' }
+        ], gen: d => `Create a ${d.format || 'financial brief'} for ${d.audience || 'senior leadership'} at Signify North America.
+
+TOPIC: ${d.topic || '[specify]'}  |  AUDIENCE: ${d.audience || '[select]'}
+FORMAT: ${d.format || '[select]'}  |  KEY MESSAGE: ${d.keyMessage || '[specify]'}
+${d.keyMetrics ? 'KEY METRICS / DATA:\n' + d.keyMetrics + '\n' : ''}
+Lead with the answer, not background. Structure:
+1. SITUATION (1 sentence — what period/topic this covers)
+2. HEADLINE RESULT (the number and vs. plan / prior year)
+3. KEY DRIVERS (2-3 bullets — what moved the needle)
+4. RISK / OPPORTUNITY (1-2 items requiring leadership attention)
+5. RECOMMENDATION / ASK (what decision or action is needed)
+
+Under 250 words. No jargon. "Revenue grew 8%" not "positive revenue momentum." Format for ${d.audience || 'leadership'}.`
+      },
+
+      month_end_close: {
+        cat: 'finance', title: 'Month-End Close', desc: 'Generate a close checklist, status update, or period commentary.', fields: [
+          { id: 'period', type: 'text', label: 'Period', ph: 'e.g., April 2025, Period 4 FY2025', required: true },
+          { id: 'close_type', type: 'chips', label: 'Close Task', opts: ['Checklist', 'Status Update', 'Close Commentary', 'Issue Log'], required: true },
+          { id: 'entity', type: 'text', label: 'Entity / BU', ph: 'e.g., Signify NA Consumer, Philips Hue LLC' },
+          { id: 'issues', type: 'textarea', label: 'Known Issues / Open Items', ph: 'Any reconciling items, late entries, or open accruals?' },
+          { id: 'audience', type: 'select', label: 'Audience', opts: ['Controller', 'VP Finance / CFO', 'Audit Team', 'Shared Services', 'Cross-functional'] }
+        ], gen: d => `You are an accounting manager for Signify North America's consumer lighting division.
+
+TASK: ${fv(d.close_type, '[select close task]')}  |  PERIOD: ${d.period || '[specify]'}
+ENTITY / BU: ${d.entity || 'Signify NA Consumer'}  |  AUDIENCE: ${d.audience || '[select]'}
+${d.issues ? 'KNOWN ISSUES / OPEN ITEMS:\n' + d.issues + '\n' : ''}
+${fv(d.close_type, '') === 'Checklist' ? `Generate a complete month-end close checklist for ${d.period}:
+- Pre-close tasks (journal entries, accruals, prepaids, intercompany)
+- System tasks (SAP period lock, reconciliation sign-offs)
+- Revenue recognition steps specific to consumer lighting (retail sell-in timing, trade deductions)
+- Reporting deliverables with due dates and owners
+- Final sign-off / Controller review gate` : ''}
+${fv(d.close_type, '') === 'Status Update' ? `Generate a concise close status update for ${d.period}:
+COMPLETE: [items done]  |  IN PROGRESS: [items in flight with ETA]
+BLOCKED / AT RISK: [items needing escalation]
+OPEN ITEMS: [unresolved with owner and due date]
+ETA TO CLOSE: [expected completion]` : ''}
+${fv(d.close_type, '') === 'Close Commentary' ? `Generate period-end financial commentary for ${d.period} for ${d.audience || 'leadership'}:
+1. PERIOD OVERVIEW (1-2 sentences — headline result vs. plan)
+2. KEY DRIVERS (top 3 factors explaining the result)
+3. NOTABLE ITEMS (significant one-timers, accrual catches, timing items)
+4. BALANCE SHEET HIGHLIGHTS (key movements in AR, inventory, accruals)
+5. OPEN ITEMS / NEXT PERIOD (anything carrying forward)` : ''}
+${fv(d.close_type, '') === 'Issue Log' ? `Generate an accounting issue log template for ${d.period}:
+| Issue | Account/Entity | $ Impact | Root Cause | Owner | Resolution | Due Date | Status |` : ''}
+Be precise. Flag estimates vs. actuals clearly.`
+      },
+
+      account_recon: {
+        cat: 'finance', title: 'Account Reconciliation', desc: 'Draft a reconciliation narrative or identify reconciling items for review.', fields: [
+          { id: 'account', type: 'text', label: 'Account / Balance Sheet Line', ph: 'e.g., Accrued Trade Spend, AR - Home Depot', required: true },
+          { id: 'period', type: 'text', label: 'Period', ph: 'e.g., March 2025' },
+          { id: 'balance', type: 'text', label: 'Book Balance', ph: 'e.g., $4.2M' },
+          { id: 'items', type: 'textarea', label: 'Reconciling Items / Data', ph: 'Paste or describe what doesn\'t tie and why' },
+          { id: 'system', type: 'select', label: 'Source System', opts: ['SAP', 'Excel', 'Power BI', 'Retailer Portal', 'Other'] }
+        ], gen: d => `You are an accounting analyst for Signify North America. Help with an account reconciliation.
+
+ACCOUNT: ${d.account || '[specify account]'}  |  PERIOD: ${d.period || '[specify]'}
+BOOK BALANCE: ${d.balance || '[fill in]'}  |  SOURCE SYSTEM: ${d.system || 'SAP'}
+${d.items ? 'RECONCILING ITEMS / DATA:\n' + d.items + '\n' : ''}
+Provide:
+1. RECONCILIATION SUMMARY (what should tie to what, and the current gap)
+2. IDENTIFIED RECONCILING ITEMS (list each with $, explanation, and aging)
+3. ROOT CAUSE ASSESSMENT (timing difference vs. error vs. missing entry)
+4. REQUIRED JOURNAL ENTRIES (if any, with debit/credit structure)
+5. OPEN ITEMS (unresolved with recommended owner and due date)
+6. RISK RATING (Low / Medium / High — based on $ and audit exposure)
+
+Format suitable for Controller review. Flag any items over 90 days old.`
+      },
+
+      journal_entry: {
+        cat: 'finance', title: 'Journal Entry Doc', desc: 'Document, draft, or review a journal entry with proper support narrative.', fields: [
+          { id: 'je_type', type: 'select', label: 'JE Type', opts: ['Accrual', 'Prepaid Amortization', 'Reclassification', 'Intercompany', 'Trade Spend / Deduction', 'Correction / True-up', 'Revenue Adjustment'], required: true },
+          { id: 'description', type: 'textarea', label: 'What & Why', ph: 'Describe the transaction and the business reason', required: true },
+          { id: 'amount', type: 'text', label: 'Amount', ph: 'e.g., $125,000' },
+          { id: 'accounts', type: 'text', label: 'Accounts Involved', ph: 'e.g., Dr. Trade Spend Expense / Cr. Accrued Trade' },
+          { id: 'period', type: 'text', label: 'Period', ph: 'e.g., April 2025' }
+        ], gen: d => `You are an accounting specialist for Signify North America. Help document a journal entry.
+
+JE TYPE: ${d.je_type || '[select]'}  |  PERIOD: ${d.period || '[specify]'}
+AMOUNT: ${d.amount || '[fill in]'}  |  ACCOUNTS: ${d.accounts || '[fill in]'}
+DESCRIPTION: ${d.description || '[fill in what and why]'}
+
+Provide:
+1. JE DESCRIPTION (clear, audit-ready explanation of the transaction)
+2. DEBIT / CREDIT STRUCTURE (formatted as a proper JE table)
+3. BUSINESS JUSTIFICATION (why this entry is required — ASC 606 / ASC 420 / other GAAP reference if applicable)
+4. SUPPORTING DOCUMENTATION REQUIRED (what should be attached for audit)
+5. PERIOD IMPACT (P&L and balance sheet effect)
+6. REVERSAL NEEDED? (yes/no and when)
+
+Write in a style suitable for audit review. Be specific about accounts and amounts.`
+      },
+
+      audit_prep: {
+        cat: 'finance', title: 'Audit Prep', desc: 'Generate audit request responses, documentation packages, or PBC lists.', fields: [
+          { id: 'audit_type', type: 'select', label: 'Audit Type', opts: ['External Audit (Annual)', 'Internal Audit', 'SOX Control Testing', 'Tax Audit', 'Interim Review'], required: true },
+          { id: 'area', type: 'select', label: 'Focus Area', opts: ['Revenue Recognition', 'Trade Spend / Gross-to-Net', 'Accounts Receivable', 'Inventory', 'Accrued Liabilities', 'Intercompany', 'Internal Controls (SOX)'] },
+          { id: 'request', type: 'textarea', label: 'Auditor Request / PBC Item', ph: 'Paste the auditor\'s request or describe what you need to prepare' },
+          { id: 'period', type: 'text', label: 'Period', ph: 'e.g., FY2025, Q2 2025' }
+        ], gen: d => `You are an accounting manager at Signify North America preparing for an audit. Help draft a response or documentation package.
+
+AUDIT TYPE: ${d.audit_type || '[select]'}  |  FOCUS AREA: ${d.area || '[select]'}
+PERIOD: ${d.period || '[specify]'}
+AUDITOR REQUEST / PBC ITEM: ${d.request || '[paste or describe the request]'}
+
+Provide:
+1. RESPONSE SUMMARY (concise answer to the auditor's question)
+2. DOCUMENTATION TO PROVIDE (list of specific schedules, JEs, contracts, or approvals)
+3. KEY ACCOUNTING POLICY (relevant GAAP guidance — ASC reference if applicable)
+4. CONTROL EVIDENCE (what demonstrates the control was operating effectively)
+5. OPEN ITEMS / EXCEPTIONS (anything that doesn't fully satisfy the request and why)
+6. TALKING POINTS (how to explain this area to the auditor verbally)
+
+Be thorough. Auditors will probe. Anticipate follow-up questions.`
+      },
+
+      period_close_email: {
+        cat: 'finance', title: 'Close Communication', desc: 'Draft close-cycle emails: status updates, deadline reminders, or issue escalations.', fields: [
+          { id: 'email_type', type: 'select', label: 'Email Type', opts: ['Close Calendar Reminder', 'Status Update to Leadership', 'Issue Escalation', 'Late Entry Request', 'Close Complete Notification'], required: true },
+          { id: 'period', type: 'text', label: 'Period', ph: 'e.g., April 2025', required: true },
+          { id: 'audience', type: 'text', label: 'To / Audience', ph: 'e.g., Finance team, Business partners, CFO' },
+          { id: 'keyPoints', type: 'textarea', label: 'Key Points', ph: 'What do you need to communicate?' },
+          { id: 'deadline', type: 'text', label: 'Deadline / Date', ph: 'e.g., Friday May 9 by 3pm CT' }
+        ], gen: d => `Draft a ${d.email_type || 'close communication'} email from the Signify NA Accounting team.
+
+TYPE: ${d.email_type || '[select]'}  |  PERIOD: ${d.period || '[specify]'}
+TO: ${d.audience || '[fill in]'}  |  DEADLINE: ${d.deadline || '[fill in]'}
+KEY POINTS: ${d.keyPoints || '[fill in what to communicate]'}
+
+Rules:
+- Subject line that makes the action/period clear
+- Opening: state the purpose in one sentence
+- Body: clear, specific, no ambiguity about what is needed and by when
+- Use bullet points for action items — include owner name placeholder
+- Closing: escalation path if deadline is missed
+- Sign off: [Your Name], Signify NA Accounting / Finance
+
+Tone: professional but direct. These are time-sensitive close communications.`
+      },
+
+      // ── EXCEL & DATA ─────────────────────────────────────────────────────
+
+      formula_builder: {
+        cat: 'excel', title: 'Formula Builder', desc: 'Build any Excel formula from a plain-language description.', fields: [
+          { id: 'goal', type: 'textarea', label: 'What do you want to calculate?', ph: 'e.g., "Sum sales in column C only where column B says Home Depot and column D is > 0"', required: true },
+          { id: 'columns', type: 'text', label: 'Column Layout', ph: 'e.g., A=Date, B=Retailer, C=Revenue, D=Units' },
+          { id: 'complexity', type: 'select', label: 'Complexity', opts: ['Simple (one function)', 'Moderate (nested functions)', 'Advanced (dynamic arrays, LAMBDA, LET)'] },
+          { id: 'version', type: 'select', label: 'Excel Version', opts: ['Excel 365 (latest)', 'Excel 2021', 'Excel 2019', 'Excel Online'] }
+        ], gen: d => `You are an Excel expert helping a Signify North America finance analyst.
+
+GOAL: ${d.goal || '[describe what to calculate]'}
+COLUMN LAYOUT: ${d.columns || '[describe your columns]'}
+COMPLEXITY: ${d.complexity || 'Moderate'}  |  EXCEL VERSION: ${d.version || 'Excel 365'}
+
+Provide:
+1. THE FORMULA (ready to paste — no explanation yet)
+2. PLAIN ENGLISH EXPLANATION (what each part does)
+3. HOW TO USE IT (where to enter it, how to apply to the full range)
+4. EDGE CASES (what breaks it and how to handle — blanks, errors, duplicates)
+5. ALTERNATIVE APPROACH (if a simpler or more robust version exists)
+
+Common context: data often includes retailer names (Home Depot, Walmart, etc.), brands (Philips Hue, WiZ), and financial metrics (revenue, margin, units, trade spend).`
+      },
+
+      lookup_helper: {
+        cat: 'excel', title: 'XLOOKUP / Index-Match', desc: 'Build lookup formulas to find and pull data across sheets or tables.', fields: [
+          { id: 'find', type: 'text', label: 'What are you looking up?', ph: 'e.g., Find retailer name to pull their Q1 revenue', required: true },
+          { id: 'source', type: 'text', label: 'Where is the data?', ph: 'e.g., Sheet2 columns A-D, a named table called "SalesData"' },
+          { id: 'match_type', type: 'select', label: 'Match Type', opts: ['Exact match', 'Approximate match', 'Wildcard / partial match', 'Multiple criteria match'] },
+          { id: 'version', type: 'select', label: 'Excel Version', opts: ['Excel 365 (XLOOKUP available)', 'Excel 2019 or older (use INDEX/MATCH)'] }
+        ], gen: d => `You are an Excel expert helping a Signify North America finance analyst build a lookup formula.
+
+LOOKUP GOAL: ${d.find || '[describe what you want to find and return]'}
+DATA LOCATION: ${d.source || '[describe where the source data lives]'}
+MATCH TYPE: ${d.match_type || 'Exact match'}  |  VERSION: ${d.version || 'Excel 365'}
+
+Provide:
+1. PRIMARY FORMULA (XLOOKUP or INDEX/MATCH — ready to paste)
+2. FORMULA BREAKDOWN (explain each argument in plain English)
+3. MULTI-CRITERIA VERSION (if the lookup needs to match on more than one column)
+4. ERROR HANDLING (wrap with IFERROR — show what to display when not found)
+5. PERFORMANCE NOTE (if the dataset is large, flag any speed considerations)
+
+Tip: flag if XLOOKUP is not available in the specified Excel version and provide the INDEX/MATCH equivalent.`
+      },
+
+      conditional_logic: {
+        cat: 'excel', title: 'Conditional Logic', desc: 'Build IF, IFS, SWITCH, or nested logic formulas.', fields: [
+          { id: 'scenario', type: 'textarea', label: 'Describe the logic', ph: 'e.g., "If column B = Home Depot AND column C > 100000 then show \'Tier 1\', if > 50000 show \'Tier 2\', else \'Standard\'"', required: true },
+          { id: 'conditions', type: 'text', label: 'Number of Conditions', ph: 'e.g., 3 tiers, 5 categories' },
+          { id: 'output', type: 'text', label: 'Output Values', ph: 'e.g., text labels, numbers, colors via conditional format' },
+          { id: 'version', type: 'select', label: 'Excel Version', opts: ['Excel 365 (IFS, SWITCH available)', 'Excel 2016 or older (nested IF only)'] }
+        ], gen: d => `You are an Excel expert helping a Signify North America finance analyst build conditional logic.
+
+LOGIC TO BUILD: ${d.scenario || '[describe the conditions and outcomes]'}
+CONDITIONS: ${d.conditions || '[specify]'}  |  OUTPUTS: ${d.output || '[specify]'}
+EXCEL VERSION: ${d.version || 'Excel 365'}
+
+Provide:
+1. THE FORMULA (complete, ready to paste)
+2. LOGIC MAP (a plain-English table showing each condition → outcome)
+3. ALTERNATIVE FUNCTIONS (IFS vs. nested IF vs. SWITCH — which is best here and why)
+4. EDGE CASES (what happens with blanks, typos, unexpected values)
+5. CONDITIONAL FORMATTING RULE (if color-coding the output is useful, provide the rule setup)
+
+Keep logic readable. Prefer IFS or SWITCH over deeply nested IF chains where possible.`
+      },
+
+      data_cleanup: {
+        cat: 'excel', title: 'Data Cleanup', desc: 'Get step-by-step instructions to clean, normalize, or reformat a dataset.', fields: [
+          { id: 'problem', type: 'textarea', label: 'What\'s wrong with the data?', ph: 'e.g., Retailer names are inconsistent ("Home Depot", "HD", "THE HOME DEPOT"), dates in mixed formats, duplicate rows', required: true },
+          { id: 'source', type: 'select', label: 'Data Source', opts: ['SAP export', 'Power BI export', 'Retailer portal download', 'Manual Excel file', 'Other system export'] },
+          { id: 'rows', type: 'text', label: 'Approx. Row Count', ph: 'e.g., 500 rows, 50,000 rows' },
+          { id: 'goal', type: 'text', label: 'End Goal', ph: 'e.g., Ready for pivot table, ready to merge with another file, ready for Power BI' }
+        ], gen: d => `You are an Excel data preparation expert helping a Signify North America finance analyst clean a dataset.
+
+PROBLEM: ${d.problem || '[describe what is wrong with the data]'}
+DATA SOURCE: ${d.source || '[specify]'}  |  ROW COUNT: ${d.rows || '[specify]'}
+END GOAL: ${d.goal || '[what do you need the clean data for?]'}
+
+Provide step-by-step cleanup instructions:
+1. QUICK ASSESSMENT (what type of problem is this — formatting, duplicates, inconsistency, structure?)
+2. EXCEL STEPS (numbered, specific — functions like TRIM, PROPER, SUBSTITUTE, Remove Duplicates, Text to Columns, Flash Fill)
+3. FORMULA-BASED FIXES (where formulas are faster than manual steps)
+4. POWER QUERY APPROACH (if the dataset is large or this cleanup will recur — provide the steps)
+5. VALIDATION CHECK (how to verify the data is clean before using it)
+
+Common Signify data issues: inconsistent retailer names, mixed date formats from SAP exports, leading/trailing spaces, merged cells from portal downloads.`
+      },
+
+      pivot_design: {
+        cat: 'excel', title: 'Pivot Table Design', desc: 'Get the right pivot table structure and settings for your analysis.', fields: [
+          { id: 'goal', type: 'textarea', label: 'What do you want to analyze?', ph: 'e.g., Revenue by retailer by month, margin % by brand vs. prior year', required: true },
+          { id: 'columns', type: 'text', label: 'Available Columns', ph: 'e.g., Date, Retailer, Brand, Revenue, Units, COGS, Trade Spend' },
+          { id: 'output', type: 'select', label: 'Output Format', opts: ['Summary table', 'Year-over-year comparison', 'Variance vs. budget', 'Ranking / top-N', 'Trend over time'] }
+        ], gen: d => `You are an Excel pivot table expert helping a Signify North America finance analyst.
+
+ANALYSIS GOAL: ${d.goal || '[describe what you want to see]'}
+AVAILABLE COLUMNS: ${d.columns || '[list your column headers]'}
+OUTPUT FORMAT: ${d.output || '[select]'}
+
+Provide:
+1. PIVOT TABLE SETUP
+   - Rows: [which fields, in what order]
+   - Columns: [which fields, if any]
+   - Values: [which fields, with what aggregation — SUM, AVERAGE, COUNT, etc.]
+   - Filters: [which fields to put in the filter area]
+2. CALCULATED FIELDS (any custom calculations to add inside the pivot — e.g., Margin %)
+3. FORMATTING TIPS (number format, % vs. $, conditional formatting to highlight variances)
+4. SLICER RECOMMENDATIONS (which fields work best as slicers for this analysis)
+5. COMMON MISTAKE TO AVOID (one thing that usually trips people up with this type of pivot)
+
+Context: financial data at Signify NA typically includes retailer/channel dimensions, brand (Hue, WiZ, LED), and P&L metrics.`
+      },
+
+      power_query: {
+        cat: 'excel', title: 'Power Query', desc: 'Build a Power Query transformation to automate data prep.', fields: [
+          { id: 'task', type: 'textarea', label: 'What transformation do you need?', ph: 'e.g., Combine 12 monthly SAP export tabs into one table, unpivot retailer columns into rows', required: true },
+          { id: 'source', type: 'select', label: 'Data Source', opts: ['Excel file (same workbook)', 'Excel file (external)', 'SAP export (.csv or .xlsx)', 'SharePoint folder', 'Power BI dataflow', 'Other'] },
+          { id: 'recurrence', type: 'select', label: 'How often will this run?', opts: ['One-time cleanup', 'Monthly refresh', 'Weekly refresh', 'Daily refresh'] }
+        ], gen: d => `You are a Power Query expert helping a Signify North America finance analyst automate data preparation.
+
+TRANSFORMATION NEEDED: ${d.task || '[describe what you want Power Query to do]'}
+DATA SOURCE: ${d.source || '[specify]'}  |  FREQUENCY: ${d.recurrence || '[select]'}
+
+Provide step-by-step Power Query instructions:
+1. HOW TO OPEN POWER QUERY (from the Data tab — Get Data path for this source type)
+2. TRANSFORMATION STEPS (numbered, in order — be specific about which buttons/menus to use)
+3. M CODE SNIPPET (the Power Query formula language version — for advanced users or automation)
+4. REFRESH SETUP (how to set up automatic or on-demand refresh)
+5. COMMON ERRORS (what usually goes wrong with this transformation and how to fix it)
+
+Context: common Signify NA use cases include combining SAP period exports, normalizing retailer names, unpivoting monthly columns, and merging sell-through data with budget files.`
+      },
+
+      power_bi_dax: {
+        cat: 'excel', title: 'Power BI / DAX', desc: 'Build a DAX measure or calculated column for Power BI reporting.', fields: [
+          { id: 'measure', type: 'textarea', label: 'What do you want to calculate?', ph: 'e.g., Gross Margin %, YoY Revenue Change, Rolling 13-week sell-through', required: true },
+          { id: 'tables', type: 'text', label: 'Table / Column Names', ph: 'e.g., Sales[Revenue], Budget[Target], DimDate[Month]' },
+          { id: 'type', type: 'select', label: 'DAX Type', opts: ['Measure (aggregated)', 'Calculated Column (row-level)', 'Calculated Table'] },
+          { id: 'context', type: 'text', label: 'Filter Context', ph: 'e.g., filtered by retailer, brand, and date slicer' }
+        ], gen: d => `You are a Power BI and DAX expert helping a Signify North America finance analyst.
+
+CALCULATION NEEDED: ${d.measure || '[describe what metric to build]'}
+TABLE / COLUMN NAMES: ${d.tables || '[provide your table and column references]'}
+DAX TYPE: ${d.type || 'Measure'}  |  FILTER CONTEXT: ${d.context || '[describe how it will be filtered]'}
+
+Provide:
+1. THE DAX FORMULA (complete, ready to paste into Power BI Desktop)
+2. PLAIN ENGLISH EXPLANATION (what each function does — CALCULATE, FILTER, ALL, DIVIDE, etc.)
+3. FILTER CONTEXT NOTES (how slicers and relationships will affect this measure)
+4. FORMATTING RECOMMENDATION (number format to apply to this measure)
+5. RELATED MEASURES (1-2 companion measures that are typically built alongside this one)
+6. PERFORMANCE NOTE (if the measure uses expensive functions like FILTER over large tables)
+
+Common Signify NA measures: Gross Margin %, Gross-to-Net %, YoY variance, Budget vs. Actual, Trade Spend as % of Revenue.`
+      },
+
+      sap_extract: {
+        cat: 'excel', title: 'SAP Data Helper', desc: 'Get guidance on SAP report extraction, transaction codes, or data interpretation.', fields: [
+          { id: 'need', type: 'textarea', label: 'What data do you need from SAP?', ph: 'e.g., Monthly revenue by customer/material, open AR aging, trade deduction accruals', required: true },
+          { id: 'tcode', type: 'text', label: 'Transaction Code (if known)', ph: 'e.g., VF05, MB52, FBL5N, S_ALR_87012186' },
+          { id: 'task', type: 'select', label: 'Task', opts: ['Find the right T-code', 'Extract and format data', 'Interpret SAP output', 'Reconcile SAP to another source', 'Automate with a macro or query'] }
+        ], gen: d => `You are an SAP and finance data expert helping a Signify North America analyst.
+
+DATA NEEDED: ${d.need || '[describe what you need from SAP]'}
+TRANSACTION CODE: ${d.tcode || '[not yet known]'}
+TASK: ${d.task || '[select]'}
+
+Provide:
+1. RECOMMENDED T-CODE(S) (most relevant SAP transaction codes for this data need)
+2. EXTRACTION STEPS (how to run the report — key selection parameters, variants to use)
+3. KEY FIELDS TO INCLUDE (which output columns matter for this use case)
+4. COMMON DATA ISSUES (what SAP exports typically need cleaned — leading zeros, date formats, material descriptions)
+5. EXCEL / POWER QUERY NEXT STEPS (how to prepare this export for analysis or pivot)
+6. RECONCILIATION TIP (how to verify the SAP data ties to your GL or reporting system)
+
+Context: Signify NA uses SAP for order-to-cash, financial close, and inventory. Common data needs include revenue by customer/material, AR aging, and period close transaction details.`
+      },
 
     };
 
