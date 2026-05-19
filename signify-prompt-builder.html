@@ -598,6 +598,42 @@
       border-radius: 3px;
     }
 
+    /* Channel group shortcuts */
+    .channel-shortcuts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 6px;
+      align-items: center;
+    }
+    .shortcuts-label {
+      font-size: 10px;
+      color: var(--sig-text-dim);
+      white-space: nowrap;
+      margin-right: 2px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .shortcut-pill {
+      padding: 3px 9px;
+      border-radius: 12px;
+      border: 1px solid var(--sig-border);
+      background: var(--sig-dark-3);
+      color: var(--sig-teal);
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .shortcut-pill:hover {
+      background: var(--sig-teal);
+      color: var(--sig-dark);
+      border-color: var(--sig-teal);
+    }
+
     /* Flex shrink lock for top bars */
     .copilot-bar, .category-bar, .template-bar, .search-bar { flex-shrink: 0; }
 
@@ -838,7 +874,18 @@
       'Feit Electric', 'Wyze', 'LIFX', 'Cree Lighting', 'Sylvania (Ledvance)',
       'Ring (Amazon)', 'Nanoleaf', 'Lutron (Caseta)', 'Sengled', 'Hue (Philips)'
     ];
-    const CHANNELS = ['Amazon', 'Best Buy', 'Home Depot', "Lowe's", 'Walmart', 'Target', 'Costco', 'Do it Best', 'Ace Hardware', 'Menards'];
+    const CHANNELS = ['Amazon', 'Best Buy', 'Home Depot', "Lowe's", 'Walmart', 'Target', 'Costco', 'Do it Best', 'Ace Hardware', 'Kroger', 'Publix', 'DTC'];
+
+    const CHANNEL_GROUPS = [
+      { label: 'Grocery',                 channels: ['Kroger', 'Publix'] },
+      { label: 'Club',                    channels: ['Costco'] },
+      { label: 'Mass',                    channels: ['Walmart', 'Target'] },
+      { label: 'E-Commerce',              channels: ['Amazon', 'DTC'] },
+      { label: 'DIY',                     channels: ["Home Depot", "Lowe's"] },
+      { label: 'Hardware',                channels: ['Do it Best', 'Ace Hardware'] },
+      { label: 'Electronics & Specialty', channels: ['Best Buy'] },
+      { label: 'Regional Retail',         channels: [] }
+    ];
     const CATEGORIES = ['Smart Bulbs', 'Smart Switches/Dimmers', 'Smart Plugs', 'Light Strips', 'Outdoor Lighting', 'LED Bulbs (non-connected)', 'LED Fixtures', 'Decorative Lighting', 'Recessed Lighting', 'Landscape Lighting'];
     const AUDIENCES = ['DIY Homeowner', 'Tech-savvy Consumer', 'Builder/Contractor', 'Property Manager', 'Interior Designer', 'Retail Buyer'];
 
@@ -2063,6 +2110,11 @@ Reference Signify NA's portfolio (Philips Hue, WiZ, Philips LED) for cannibaliza
           h += `<div class="chip-group" id="cg_${f.id}">`;
           opts.forEach(o => { const e = o.replace(/'/g, "\\'"); h += `<button class="chip" onclick="selChip(this,'${f.id}','${e}',${!!f.multi})">${o}</button>`; });
           h += `</div>`;
+          if (f.opts === CHANNELS) {
+            h += `<div class="channel-shortcuts"><span class="shortcuts-label">Quick select:</span>`;
+            CHANNEL_GROUPS.forEach((grp, i) => { h += `<button class="shortcut-pill" onclick="selectGroup('${f.id}',${i})">${eph(grp.label)}</button>`; });
+            h += `</div>`;
+          }
           if (f.custom) { const addPh = eph('Add ' + f.label.toLowerCase() + '...'); h += `<div class="add-row"><input class="add-input" id="ci_${f.id}" placeholder="${addPh}" onkeydown="if(event.key==='Enter')addChip('${f.id}',${!!f.multi})"><button class="add-btn" onclick="addChip('${f.id}',${!!f.multi})">+ Add</button></div>`; }
         } else if (f.type === 'select') {
           const resolvedOpts = (f.optsByRole && f.optsByRole[userRole]) ? f.optsByRole[userRole] : f.opts;
@@ -2118,6 +2170,36 @@ Reference Signify NA's portfolio (Philips Hue, WiZ, Philips LED) for cannibaliza
         el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
         el.classList.add('selected');
         formData[fid] = v;
+      }
+    }
+
+    function selectGroup(fid, groupIdx) {
+      const grp = CHANNEL_GROUPS[groupIdx];
+      if (!grp) return;
+      const g = document.getElementById('cg_' + fid);
+      if (!g) return;
+      if (!Array.isArray(formData[fid])) formData[fid] = [];
+      if (grp.channels.length === 0) {
+        // Regional Retail: add as a custom chip if not already present
+        const label = grp.label;
+        if (!customOpts[fid]) customOpts[fid] = [];
+        if (!customOpts[fid].includes(label)) {
+          customOpts[fid].push(label);
+          const b = document.createElement('button'); b.className = 'chip selected'; b.textContent = label;
+          b.onclick = function() { selChip(this, fid, label, true); }; g.appendChild(b);
+        } else {
+          g.querySelectorAll('.chip').forEach(c => { if (c.textContent === label) c.classList.add('selected'); });
+        }
+        if (!formData[fid].includes(label)) formData[fid].push(label);
+      } else {
+        grp.channels.forEach(ch => {
+          g.querySelectorAll('.chip').forEach(chip => {
+            if (chip.textContent === ch && !chip.classList.contains('selected')) {
+              chip.classList.add('selected');
+              if (!formData[fid].includes(ch)) formData[fid].push(ch);
+            }
+          });
+        });
       }
     }
 
