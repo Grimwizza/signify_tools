@@ -770,12 +770,13 @@
       <span class="role-label">My Role</span>
       <select class="role-select" id="roleSelect" onchange="setRole(this.value)">
         <option value="kam">Key Account Manager / Sales Analyst</option>
-        <option value="channel">Channel / Product Marketing</option>
+        <option value="channel">Channel Marketing</option>
         <option value="marcom">Marcom / Brand Marketing</option>
         <option value="leadership">Sales Leadership / Management</option>
         <option value="fp_a">FP&amp;A / Business Finance</option>
         <option value="accounting">Accounting / Controller</option>
         <option value="pm">Product Manager</option>
+        <option value="bp">Business Planner</option>
       </select>
     </div>
     <div class="bar-divider"></div>
@@ -865,17 +866,19 @@
       daily: { label: 'Daily Tasks', templates: ['meeting_recap', 'email_search', 'exec_summary', 'weekly_update'] },
       planning: { label: 'Presentations & Planning', templates: ['deck_builder', 'agenda_builder', 'product_coach', 'research_report'] },
       finance: { label: 'Finance & Reporting', templates: ['variance_analysis', 'forecast_update', 'business_case', 'channel_pl', 'financial_brief', 'month_end_close', 'account_recon', 'journal_entry', 'audit_prep', 'period_close_email'] },
-      excel: { label: 'Excel & Data', templates: ['formula_builder', 'lookup_helper', 'conditional_logic', 'data_cleanup', 'pivot_design', 'power_query', 'power_bi_dax', 'sap_extract'] }
+      excel:   { label: 'Excel & Data',      templates: ['formula_builder', 'lookup_helper', 'conditional_logic', 'data_cleanup', 'pivot_design', 'power_query', 'power_bi_dax', 'sap_extract'] },
+      demand:  { label: 'Demand Planning',   templates: ['demand_forecast', 'saop_review', 'forecast_accuracy', 'promo_lift', 'npi_forecast'] }
     };
 
     const ROLES = {
       kam:        { label: 'Key Account Manager / Sales Analyst', context: 'Key Account Manager / Sales Analyst at Signify North America' },
-      channel:    { label: 'Channel / Product Marketing',          context: 'Channel / Product Marketing Manager at Signify North America' },
+      channel:    { label: 'Channel Marketing',                     context: 'Channel Marketing Manager at Signify North America' },
       marcom:     { label: 'Marcom / Brand Marketing',             context: 'Marcom / Brand Marketing Manager at Signify North America' },
       leadership: { label: 'Sales Leadership / Management',        context: 'Sales Director / VP at Signify North America' },
       fp_a:       { label: 'FP&A / Business Finance',              context: 'FP&A / Business Finance Manager at Signify North America' },
       accounting: { label: 'Accounting / Controller',              context: 'Accounting Manager / Controller at Signify North America' },
-      pm:         { label: 'Product Manager',                      context: 'Product Manager at Signify North America' }
+      pm:         { label: 'Product Manager',                      context: 'Product Manager at Signify North America' },
+      bp:         { label: 'Business Planner',                     context: 'Business Planner / Demand & Forecast Analyst at Signify North America' }
     };
 
     const ROLE_CAT_ORDER = {
@@ -885,7 +888,8 @@
       leadership: ['daily', 'planning', 'sales', 'marketing'],
       fp_a:       ['finance', 'excel', 'daily', 'sales', 'planning', 'marketing'],
       accounting: ['finance', 'daily', 'excel', 'planning', 'sales', 'marketing'],
-      pm:         ['planning', 'marketing', 'daily', 'sales']
+      pm:         ['planning', 'marketing', 'daily', 'sales'],
+      bp:         ['demand', 'planning', 'excel', 'finance', 'daily', 'sales', 'marketing']
     };
 
     const ROLE_PREFILLS = {
@@ -934,6 +938,13 @@
         content_brief:   { type: 'Press release' },
         weekly_update:   { format: 'Email to manager' },
         research_report: { audience: 'Director' }
+      },
+      bp: {
+        variance_analysis: { period: 'Last Quarter', metric: 'Volume / Units' },
+        forecast_update:   { forecast_type: 'Full Year', metric: 'Volume / Units' },
+        exec_summary:      { audience: 'Director-level', format: '1-page brief' },
+        weekly_update:     { format: 'Email to manager' },
+        research_report:   { audience: 'Director' }
       }
     };
 
@@ -944,7 +955,8 @@
       leadership: ['battle_card', 'objection_handling'],
       fp_a:       ['battle_card', 'objection_handling', 'buyer_email', 'content_brief', 'product_positioning', 'product_coach', 'month_end_close', 'account_recon', 'journal_entry', 'audit_prep', 'period_close_email'],
       accounting: ['battle_card', 'objection_handling', 'buyer_email', 'content_brief', 'product_positioning', 'channel_strategy', 'product_coach', 'variance_analysis', 'forecast_update', 'business_case', 'channel_pl'],
-      pm:         ['battle_card', 'objection_handling', 'buyer_email']
+      pm:         ['battle_card', 'objection_handling', 'buyer_email'],
+      bp:         ['battle_card', 'objection_handling', 'buyer_email', 'content_brief', 'product_positioning', 'channel_strategy', 'product_coach', 'month_end_close', 'account_recon', 'journal_entry', 'audit_prep', 'period_close_email']
     };
 
     const ROLE_PROMPT_CONTEXT = {
@@ -955,7 +967,8 @@
         leadership: 'Prioritize top-line category growth rates, competitive threats, and strategic market position. Frame implications for Signify NA portfolio investment and business strategy.',
         fp_a:       'Prioritize financial metrics: market size in dollars, CAGR, margin benchmarks, and competitor financial performance. Frame for FP&A business planning and investment decisions.',
         accounting: 'Prioritize financial compliance and regulatory context: relevant accounting standards, industry reporting practices, and tax or audit considerations for consumer lighting.',
-        pm:         'Prioritize consumer adoption trends, technology shifts (Matter, Thread, AI integration), and competitive product landscape data. Frame for product roadmap prioritization, feature timing decisions, and launch windows.'
+        pm:         'Prioritize consumer adoption trends, technology shifts (Matter, Thread, AI integration), and competitive product landscape data. Frame for product roadmap prioritization, feature timing decisions, and launch windows.',
+        bp:         'Prioritize demand-side data: consumer purchase rates, category volume trends, seasonal patterns, and macroeconomic factors that drive demand signals. Frame for statistical forecast calibration and baseline assumptions.'
       },
       product_positioning: {
         kam:        'Frame for retail buyer conversations: emphasize competitive differentiation at shelf, price/value proof points, and responses to common buyer objections.',
@@ -984,7 +997,8 @@
         leadership: 'Focus on strategic threat level, market share implications, and recommended Signify NA portfolio or investment responses.',
         fp_a:       'Focus on publicly available financial data: revenue estimates, margin trends, pricing strategy, and retail investment levels. Frame implications for Signify NA financial planning.',
         accounting: 'Focus on publicly available financial data relevant to category benchmarking and audit comparables.',
-        pm:         'Focus on product feature benchmarking, technology stack differences, UX/UI comparisons, smart home ecosystem compatibility, and roadmap signals. Identify feature gaps to exploit in Signify\'s product development pipeline.'
+        pm:         'Focus on product feature benchmarking, technology stack differences, UX/UI comparisons, smart home ecosystem compatibility, and roadmap signals. Identify feature gaps to exploit in Signify\'s product development pipeline.',
+        bp:         'Focus on volume and market share data: competitor sell-through trends, new SKU launches that could shift category demand, and pricing changes that affect consumer purchase behavior. Frame for demand forecast assumptions.'
       },
       exec_summary: {
         kam:        'Tailor for a sales manager or director. Emphasize account performance, sell-through results, and retailer relationship implications.',
@@ -993,7 +1007,8 @@
         leadership: 'Tailor for VP/SVP or C-suite. Lead with business impact and strategic implications. State the decision or action needed upfront.',
         fp_a:       'Tailor for CFO or VP Finance. Lead with financial performance vs. plan, key variance drivers, and forward-looking implications. State any decision or funding request upfront.',
         accounting: 'Tailor for Controller or Director of Accounting. Emphasize period close status, material adjustments, compliance items, and any open audit or reporting risks.',
-        pm:         'Tailor for product leadership or cross-functional stakeholders. Emphasize product milestone status, key feature decisions, launch readiness, and critical dependencies or risks.'
+        pm:         'Tailor for product leadership or cross-functional stakeholders. Emphasize product milestone status, key feature decisions, launch readiness, and critical dependencies or risks.',
+        bp:         'Tailor for demand planning leadership or S&OP stakeholders. Emphasize forecast position vs. budget and prior year, key volume drivers, and risks or opportunities to the demand plan.'
       },
       deck_builder: {
         kam:        'Orient the deck for a retail buyer or sales meeting. Emphasize account-specific data, competitive differentiation, and a clear sell-in ask.',
@@ -1002,7 +1017,8 @@
         leadership: 'Orient for executive or board-level audiences. Lead with business performance, strategic direction, and key decisions required.',
         fp_a:       'Orient for a financial review or planning session. Lead with performance vs. plan, include variance analysis concepts, and close with outlook or investment ask.',
         accounting: 'Orient for a financial close or reporting review. Emphasize accuracy of results, compliance, period highlights, and any material items requiring leadership awareness.',
-        pm:         'Orient for product reviews or cross-functional alignment sessions. Include roadmap context, feature prioritization rationale, launch timeline, and resource or dependency requirements.'
+        pm:         'Orient for product reviews or cross-functional alignment sessions. Include roadmap context, feature prioritization rationale, launch timeline, and resource or dependency requirements.',
+        bp:         'Orient for a demand review or S&OP meeting. Lead with the statistical baseline, overlay risk and opportunity scenarios, and close with the consensus forecast recommendation and key assumptions.'
       },
       research_report: {
         kam:        'Orient for sales planning and account strategy. Emphasize market data relevant to key accounts, competitive dynamics, and sell-in support.',
@@ -1011,7 +1027,8 @@
         leadership: 'Orient for executive consumption. Lead with strategic insights and business implications. Keep it concise — one clear recommendation.',
         fp_a:       'Orient for financial planning and investment decisions. Emphasize market-level financials (TAM, growth rates, margin benchmarks) and their implications for the Signify NA plan.',
         accounting: 'Orient for accounting and controls. Emphasize financial data accuracy, reconciliation standards, and auditability of sources.',
-        pm:         'Orient for product planning decisions. Emphasize consumer insights, competitive product benchmarking, technology adoption curves, and data signals for feature prioritization.'
+        pm:         'Orient for product planning decisions. Emphasize consumer insights, competitive product benchmarking, technology adoption curves, and data signals for feature prioritization.',
+        bp:         'Orient for demand planning analysis. Emphasize volume metrics (units, weeks of supply, turns), forecast accuracy trends, and market signals that inform the statistical baseline.'
       },
       weekly_update: {
         kam:        'Focus on account activity: key retailer meetings, sell-through results, competitive threats at accounts, and upcoming line reviews.',
@@ -1020,7 +1037,8 @@
         leadership: 'Focus on team performance, strategic progress, and key risks or decisions needed. Suitable for peer leadership or upward reporting.',
         fp_a:       'Focus on financial performance vs. plan, key variance drivers, open FP&A deliverables (close, forecasting, planning cycles), and risks or decisions needed from leadership.',
         accounting: 'Focus on close status, key reconciliations, open items, audit or compliance deadlines, and anything at risk of missing the close calendar.',
-        pm:         'Focus on product milestone progress, cross-functional dependencies, launch readiness gates, and upcoming decisions needed from stakeholders.'
+        pm:         'Focus on product milestone progress, cross-functional dependencies, launch readiness gates, and upcoming decisions needed from stakeholders.',
+        bp:         'Focus on demand plan status vs. budget, key forecast changes since last week, active promotional events and their lift assumptions, and any supply or inventory risks flagged by the demand signal.'
       }
     };
 
@@ -1238,7 +1256,7 @@ Lead with answer, not background. Strategic > operational. Clear recommendation.
 
       weekly_update: {
         cat: 'daily', title: 'Weekly Update', desc: 'Compile your weekly status from emails, meetings, and tasks.', fields: [
-          { id: 'team', type: 'select', label: 'Team', opts: ['Channel Marketing', 'Category Marketing', 'Sales Enablement', 'Cross-functional'], optsByRole: { kam: ['Sales Enablement', 'Key Accounts', 'Regional Sales', 'Cross-functional'], channel: ['Channel Marketing', 'Trade Marketing', 'Sales Enablement', 'Cross-functional'], marcom: ['Category Marketing', 'Brand Marketing', 'Digital & Social', 'Cross-functional'], leadership: ['Sales Org', 'Marketing Org', 'Cross-functional', 'Executive Team'], pm: ['Product Team', 'Cross-functional', 'Engineering', 'Go-to-Market'] }, required: true },
+          { id: 'team', type: 'select', label: 'Team', opts: ['Channel Marketing', 'Category Marketing', 'Sales Enablement', 'Cross-functional'], optsByRole: { kam: ['Sales Enablement', 'Key Accounts', 'Regional Sales', 'Cross-functional'], channel: ['Channel Marketing', 'Trade Marketing', 'Sales Enablement', 'Cross-functional'], marcom: ['Category Marketing', 'Brand Marketing', 'Digital & Social', 'Cross-functional'], leadership: ['Sales Org', 'Marketing Org', 'Cross-functional', 'Executive Team'], pm: ['Product Team', 'Cross-functional', 'Engineering', 'Go-to-Market'], bp: ['Demand Planning', 'S&OP', 'Cross-functional', 'Supply Chain'] }, required: true },
           { id: 'format', type: 'select', label: 'Format', opts: ['Email to manager', 'Team Slack post', 'Standup points', 'Weekly report'] },
           { id: 'priorities', type: 'textarea', label: 'Priorities (optional)', ph: 'Top 3-5 this week' },
           { id: 'highlights', type: 'text', label: 'Highlight', ph: 'e.g., "closed HD promo deal"' }
@@ -1765,6 +1783,138 @@ Provide:
 6. RECONCILIATION TIP (how to verify the SAP data ties to your GL or reporting system)
 
 Context: Signify NA uses SAP for order-to-cash, financial close, and inventory. Common data needs include revenue by customer/material, AR aging, and period close transaction details.`
+      },
+
+      // ── DEMAND PLANNING ──────────────────────────────────────────────────────
+
+      demand_forecast: {
+        cat: 'demand', title: 'Demand Forecast Build', desc: 'Create or review a demand forecast with methodology, assumptions, and risk scenarios.', warn: 'provided', fields: [
+          { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Full Portfolio'], required: true },
+          { id: 'channel', type: 'chips', label: 'Channel / Retailer', opts: CHANNELS, custom: true, multi: true },
+          { id: 'period', type: 'select', label: 'Forecast Horizon', opts: ['Next 4 Weeks', 'Next Quarter', 'Next 6 Months', 'Full Year', 'Rolling 18-Month'] },
+          { id: 'method', type: 'chips', label: 'Forecast Method', opts: ['Statistical Baseline', 'Bottom-Up Sales Input', 'Market-Driven', 'Consensus Blend'] },
+          { id: 'tool', type: 'select', label: 'Planning Tool', opts: ['SAP IBP', 'Excel', 'Both (SAP IBP + Excel)'] },
+          { id: 'drivers', type: 'textarea', label: 'Key Drivers / Assumptions', ph: 'e.g., seasonal lift, new distribution at Walmart, competitive price change' }
+        ], gen: d => `You are a demand planning expert for Signify North America's consumer lighting division (Philips Hue, WiZ, Philips LED).
+
+BRAND: ${d.brand || '[select]'}  |  CHANNEL / RETAILER: ${fv(d.channel, 'All channels')}
+FORECAST HORIZON: ${d.period || '[select]'}  |  METHOD: ${d.method || '[select]'}
+PLANNING TOOL: ${d.tool || '[select]'}
+${d.drivers ? 'KEY DRIVERS / ASSUMPTIONS:\n' + d.drivers + '\n' : ''}
+Build a structured demand forecast framework:
+1. BASELINE METHODOLOGY (how to build the statistical baseline — historical periods to use, seasonality approach, trend adjustment)
+2. FORECAST BUILD STEPS (step-by-step in ${d.tool || 'the planning tool'} — how to set up, run, and validate the baseline)
+3. DRIVER ADJUSTMENTS (how to layer in the known drivers above as uplift or downside on the baseline)
+4. RISK / UPSIDE SCENARIOS (low / base / high range with key trigger assumptions for each)
+5. DATA VALIDATION (POS sell-through, retailer POS, Nielsen/IRI, or SAP sell-in — what to cross-check and how)
+6. REVIEW CADENCE (recommended frequency and stakeholders for forecast review)
+
+Frame for a Signify NA demand planner working with ${d.tool || 'planning tools'}. Be specific about formula logic or IBP configuration steps where applicable.`
+      },
+
+      saop_review: {
+        cat: 'demand', title: 'S&OP Review', desc: 'Prepare a demand review for a Sales & Operations Planning cycle.', warn: 'provided', fields: [
+          { id: 'period', type: 'text', label: 'S&OP Cycle / Period', ph: 'e.g., May 2025 S&OP cycle', required: true },
+          { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Full Portfolio'] },
+          { id: 'channel', type: 'chips', label: 'Channel / Retailer', opts: CHANNELS, custom: true, multi: true },
+          { id: 'position', type: 'select', label: 'Review Stage', opts: ['Demand Review (statistical + sales input)', 'Demand vs. Supply Reconciliation', 'Consensus Forecast Review', 'Executive S&OP'] },
+          { id: 'gap', type: 'text', label: 'Key Tension / Gap', ph: 'e.g., "+12% demand vs. constrained supply at WiZ A19"' },
+          { id: 'context', type: 'textarea', label: 'Forecast Position & Changes', ph: 'Current forecast vs. budget, key changes since last cycle, open issues' }
+        ], gen: d => `You are a demand planning lead facilitating an S&OP cycle for Signify North America's consumer lighting division (Philips Hue, WiZ, Philips LED).
+
+S&OP CYCLE: ${d.period || '[specify]'}  |  BRAND: ${d.brand || 'Full Portfolio'}
+CHANNEL / RETAILER: ${fv(d.channel, 'All channels')}
+REVIEW STAGE: ${d.position || '[select]'}
+${d.gap ? 'KEY TENSION / GAP: ' + d.gap + '\n' : ''}${d.context ? 'FORECAST POSITION & CHANGES:\n' + d.context + '\n' : ''}
+Produce a structured S&OP demand review:
+1. DEMAND SUMMARY (headline: forecast vs. budget and vs. prior year — units and $)
+2. KEY CHANGES FROM LAST CYCLE (what moved, by how much, and root cause for each change)
+3. RISK & OPPORTUNITY REGISTER (table: item | driver | unit impact | $ impact | probability | owner)
+4. CONSENSUS FORECAST RECOMMENDATION (the number to commit, confidence level, and key assumptions)
+5. SUPPLY & FINANCE ALIGNMENT QUESTIONS (open items to resolve with supply chain and FP&A)
+6. DECISION LOG (any decisions needed from leadership before close of cycle)
+
+Write for a cross-functional S&OP audience (Sales, Supply Chain, Finance, Leadership). Lead with numbers. Flag anything that needs a decision before the cycle closes.`
+      },
+
+      forecast_accuracy: {
+        cat: 'demand', title: 'Forecast Accuracy Review', desc: 'Analyze forecast vs. actual performance and identify root causes of misses.', warn: 'provided', fields: [
+          { id: 'period', type: 'text', label: 'Review Period', ph: 'e.g., Q1 FY2025, April 2025', required: true },
+          { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Full Portfolio'] },
+          { id: 'channel', type: 'chips', label: 'Channel / Retailer', opts: CHANNELS, custom: true, multi: true },
+          { id: 'metric', type: 'chips', label: 'Accuracy Metric', opts: ['MAPE', 'Bias', 'Forecast vs. Actual Units', 'Forecast vs. Actual Revenue'], multi: true },
+          { id: 'data', type: 'textarea', label: 'Forecast vs. Actual Data', ph: 'Paste or describe your forecast and actual figures — by SKU, retailer, or period', required: true }
+        ], gen: d => `You are a forecast analyst for Signify North America's consumer lighting division (Philips Hue, WiZ, Philips LED).
+
+REVIEW PERIOD: ${d.period || '[specify]'}  |  BRAND: ${d.brand || 'Full Portfolio'}
+CHANNEL / RETAILER: ${fv(d.channel, 'All channels')}
+ACCURACY METRICS: ${fv(d.metric, 'MAPE, Bias')}
+
+FORECAST VS. ACTUAL DATA:
+${d.data || '[paste or describe forecast and actual figures]'}
+
+Provide a structured forecast accuracy analysis:
+1. ACCURACY HEADLINE (overall MAPE %, bias direction and magnitude — over/under-forecast)
+2. ROOT CAUSE BREAKDOWN (top 3-5 miss drivers — by SKU, channel, event, or timing)
+3. SYSTEMATIC vs. ONE-TIME (classify each miss: is this a model problem or a one-time event?)
+4. MODEL ADJUSTMENT RECOMMENDATIONS (specific changes to baseline parameters, seasonality factors, or input assumptions)
+5. ACCURACY TARGETS FOR NEXT PERIOD (recommended MAPE and bias targets with rationale)
+6. PROCESS IMPROVEMENTS (any changes to the forecast process — cadence, inputs, review gates — that would reduce error)
+
+Be precise about what drove each miss. Distinguish between demand signal errors and execution gaps (e.g., out-of-stock, late shipment).`
+      },
+
+      promo_lift: {
+        cat: 'demand', title: 'Promotional Lift Model', desc: 'Estimate volume uplift and cannibalization for an upcoming promotional event.', warn: 'provided', fields: [
+          { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED'], required: true },
+          { id: 'channel', type: 'chips', label: 'Retailer', opts: CHANNELS, custom: true, required: true, multi: true },
+          { id: 'promo_type', type: 'select', label: 'Promo Type', opts: ['TPR (Temporary Price Reduction)', 'Feature + Display', 'Digital Promotion', 'Buy X Get Y', 'Bundle / Multi-Pack', 'Seasonal Event / Holiday'] },
+          { id: 'period', type: 'text', label: 'Promo Window', ph: 'e.g., Memorial Day week, May 26–June 1, 2025' },
+          { id: 'baseline', type: 'text', label: 'Baseline (non-promo avg)', ph: 'e.g., 2,400 units/week avg last 8 weeks' },
+          { id: 'context', type: 'textarea', label: 'Historical Data / Context', ph: 'Prior lift events, comparable promotions, constraints, or known cannibalization' }
+        ], gen: d => `You are a demand planner modeling promotional volume lift for Signify North America.
+
+BRAND: ${d.brand || '[select]'}  |  RETAILER: ${fv(d.channel, '[select]')}
+PROMO TYPE: ${d.promo_type || '[select]'}  |  PROMO WINDOW: ${d.period || '[specify]'}
+BASELINE (non-promo avg): ${d.baseline || '[fill in]'}
+${d.context ? 'HISTORICAL DATA / CONTEXT:\n' + d.context + '\n' : ''}
+Build a promotional lift model:
+1. INCREMENTAL LIFT ESTIMATE (low / base / high range as % above baseline — show the math)
+2. ABSOLUTE UNIT UPLIFT (translate % lift to incremental units for each scenario)
+3. CANNIBALIZATION ANALYSIS (impact on other SKUs in the same brand and adjacent brands — estimated % and units)
+4. PULL-FORWARD EFFECT (estimated post-event dip in weeks following the promo — depth and duration)
+5. NET INCREMENTAL DEMAND (total net uplift for the planning period after cannibalization and pull-forward)
+6. KEY ASSUMPTIONS (what has to be true for the base case to land — depth of feature, display compliance, in-stock rate)
+7. DATA TO IMPROVE CONFIDENCE (what historical or retailer data would sharpen this estimate)
+
+Reference comparable Signify NA promotions at similar retailers where relevant. Flag if baseline is insufficient for a reliable model.`
+      },
+
+      npi_forecast: {
+        cat: 'demand', title: 'NPI Launch Forecast', desc: 'Build a new product introduction forecast with ramp curve, analog, and risk scenarios.', warn: 'provided', fields: [
+          { id: 'product', type: 'text', label: 'New Product', ph: 'e.g., WiZ Smart Filament A19, Hue Gradient Spot', required: true },
+          { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED'] },
+          { id: 'channel', type: 'chips', label: 'Launch Channels', opts: CHANNELS, custom: true, multi: true },
+          { id: 'launch_date', type: 'text', label: 'Target Launch Date', ph: 'e.g., September 2025' },
+          { id: 'horizon', type: 'select', label: 'Forecast Horizon', opts: ['First 13 Weeks', 'First 26 Weeks', 'Full Year 1', '2-Year Outlook'] },
+          { id: 'analog', type: 'text', label: 'Launch Analog', ph: 'e.g., WiZ A19 2-pack launch, Q3 2023' },
+          { id: 'context', type: 'textarea', label: 'Distribution & Support Assumptions', ph: 'Door count, pricing, marketing spend, cannibalization targets, supply constraints' }
+        ], gen: d => `You are a demand planner building a new product introduction forecast for Signify North America.
+
+NEW PRODUCT: ${d.product || '[specify]'}  |  BRAND: ${d.brand || '[select]'}
+LAUNCH CHANNELS: ${fv(d.channel, '[select]')}  |  TARGET LAUNCH: ${d.launch_date || '[specify]'}
+FORECAST HORIZON: ${d.horizon || '[select]'}
+${d.analog ? 'LAUNCH ANALOG: ' + d.analog + '\n' : ''}${d.context ? 'DISTRIBUTION & SUPPORT ASSUMPTIONS:\n' + d.context + '\n' : ''}
+Build a structured NPI launch forecast:
+1. RAMP CURVE RECOMMENDATION (week-by-week velocity build for weeks 1–13 — as % of steady-state rate)
+2. ANALOG BENCHMARKING (how ${d.analog || 'the comparable launch'} performed vs. its forecast, and adjustments for this launch)
+3. DISTRIBUTION BUILD (door count × average velocity per door = forecast — show by key retailer)
+4. CANNIBALIZATION IMPACT (which existing SKUs are most at risk, estimated unit shift, and net portfolio impact)
+5. SCENARIOS (base / upside / downside — define the key variable that splits them, e.g., distribution attainment, marketing effectiveness)
+6. RISK REGISTER (top 3 risks to forecast accuracy — supply, distribution miss, consumer trial rate — with mitigation)
+7. FORECAST REVIEW TRIGGERS (what events in weeks 1–4 would cause a forecast revision)
+
+Reference Signify NA's portfolio (Philips Hue, WiZ, Philips LED) for cannibalization context. Flag if analog data is insufficient for a reliable ramp curve.`
       },
 
     };
