@@ -1868,6 +1868,9 @@ Be precise about what drove each miss. Distinguish between demand signal errors 
         cat: 'demand', title: 'Promotional Lift Model', desc: 'Estimate volume uplift and cannibalization for an upcoming promotional event.', warn: 'provided', fields: [
           { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED'], required: true },
           { id: 'channel', type: 'chips', label: 'Retailer', opts: CHANNELS, custom: true, required: true, multi: true },
+          { id: 'nc12', type: 'text', label: '12NC(s)', ph: 'e.g., 929002469201 — separate multiple with commas' },
+          { id: 'nc6', type: 'text', label: '6NC(s)', ph: 'e.g., 929002 — separate multiple with commas' },
+          { id: 'asin', type: 'text', label: 'ASIN(s)', ph: 'e.g., B08XYZ1234 — separate multiple with commas' },
           { id: 'promo_type', type: 'select', label: 'Promo Type', opts: ['TPR (Temporary Price Reduction)', 'Feature + Display', 'Digital Promotion', 'Buy X Get Y', 'Bundle / Multi-Pack', 'Seasonal Event / Holiday'] },
           { id: 'period', type: 'text', label: 'Promo Window', ph: 'e.g., Memorial Day week, May 26–June 1, 2025' },
           { id: 'baseline', type: 'text', label: 'Baseline (non-promo avg)', ph: 'e.g., 2,400 units/week avg last 8 weeks' },
@@ -1875,7 +1878,7 @@ Be precise about what drove each miss. Distinguish between demand signal errors 
         ], gen: d => `You are a demand planner modeling promotional volume lift for Signify North America.
 
 BRAND: ${d.brand || '[select]'}  |  RETAILER: ${fv(d.channel, '[select]')}
-PROMO TYPE: ${d.promo_type || '[select]'}  |  PROMO WINDOW: ${d.period || '[specify]'}
+${d.nc12 ? '12NC: ' + d.nc12 + '\n' : ''}${d.nc6 ? '6NC: ' + d.nc6 + '\n' : ''}${d.asin ? 'ASIN: ' + d.asin + '\n' : ''}PROMO TYPE: ${d.promo_type || '[select]'}  |  PROMO WINDOW: ${d.period || '[specify]'}
 BASELINE (non-promo avg): ${d.baseline || '[fill in]'}
 ${d.context ? 'HISTORICAL DATA / CONTEXT:\n' + d.context + '\n' : ''}
 Build a promotional lift model:
