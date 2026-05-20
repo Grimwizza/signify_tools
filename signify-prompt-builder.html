@@ -785,6 +785,69 @@
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .hist-empty { padding: 20px; text-align: center; color: var(--sig-text-dim); font-size: 12px; }
+
+    /* Help button */
+    .help-btn {
+      padding: 5px 12px; border-radius: 16px; border: 1px solid var(--sig-border);
+      background: var(--sig-dark-3); color: var(--sig-text-dim); font-family: inherit;
+      font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0; margin-left: auto;
+    }
+    .help-btn:hover { border-color: var(--sig-teal); color: var(--sig-teal); }
+    .help-btn.active { border-color: var(--sig-teal); color: var(--sig-teal); background: var(--sig-teal-glow); }
+
+    /* Tour overlay */
+    .tour-overlay {
+      position: fixed; inset: 0; background: rgba(0,10,28,0.78); z-index: 1001; pointer-events: none;
+    }
+    .tour-highlight {
+      position: relative; z-index: 1002 !important; border-radius: 8px;
+      box-shadow: 0 0 0 3px var(--sig-green), 0 0 0 9px rgba(0,228,135,0.18) !important;
+    }
+    .tour-card {
+      position: fixed; z-index: 1003; background: var(--sig-dark-2);
+      border: 1px solid rgba(0,228,135,0.5); border-radius: var(--radius);
+      padding: 16px 18px; width: 300px; box-shadow: 0 8px 40px rgba(0,0,0,0.6); pointer-events: all;
+    }
+    .tour-card-title {
+      font-size: 10px; font-weight: 700; color: var(--sig-green); letter-spacing: 0.5px;
+      text-transform: uppercase; margin-bottom: 7px;
+    }
+    .tour-card-body { font-size: 13px; color: var(--sig-text); line-height: 1.6; margin-bottom: 14px; }
+    .tour-footer { display: flex; align-items: center; gap: 8px; }
+    .tour-dots { display: flex; gap: 5px; align-items: center; flex: 1; }
+    .tour-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sig-border); transition: background 0.15s; }
+    .tour-dot.active { background: var(--sig-green); }
+    .tour-nav { display: flex; gap: 6px; }
+    .tour-btn {
+      padding: 6px 13px; border-radius: 8px; border: 1px solid var(--sig-border);
+      background: var(--sig-dark-3); color: var(--sig-text); font-family: inherit;
+      font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+    }
+    .tour-btn:hover { border-color: var(--sig-teal); color: var(--sig-teal); }
+    .tour-btn.primary { background: var(--sig-green); border-color: var(--sig-green); color: var(--sig-dark); }
+    .tour-btn.primary:hover { background: var(--sig-green-dark); border-color: var(--sig-green-dark); }
+    .tour-skip {
+      font-size: 10px; color: var(--sig-text-dim); background: none; border: none;
+      cursor: pointer; font-family: inherit; padding: 0; display: block; margin-top: 10px;
+    }
+    .tour-skip:hover { color: var(--sig-text); }
+
+    /* Field help badges */
+    .field-help-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 14px; height: 14px; border-radius: 50%; background: transparent;
+      border: 1px solid var(--sig-teal); color: var(--sig-teal); font-size: 9px;
+      font-weight: 700; cursor: pointer; margin-left: 5px; vertical-align: middle;
+      font-family: inherit; transition: all 0.15s; position: relative; top: -1px;
+    }
+    .field-help-btn:hover { background: var(--sig-teal); color: var(--sig-dark); }
+    .field-tip {
+      position: fixed; z-index: 1500; background: var(--sig-surface);
+      border: 1px solid var(--sig-teal); border-radius: 8px; padding: 9px 12px;
+      font-size: 12px; color: var(--sig-text); max-width: 260px; line-height: 1.5;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5); pointer-events: none;
+    }
   </style>
 </head>
 
@@ -823,6 +886,7 @@
           class="tier-badge tier-badge-paid">PAID</span></button>
     </div>
     <span class="copilot-hint" id="copilotHint">Chat mode &#8212; paste content manually into Copilot</span>
+    <button class="help-btn" id="helpBtn" onclick="toggleHelp()" title="Guided tour &amp; field tips">&#63; Help</button>
   </div>
 
   <div class="category-bar" id="categoryBar"></div>
@@ -867,6 +931,9 @@
       <div class="output-tip"><span class="dot"></span> Paste directly into Microsoft Copilot for best results</div>
     </div>
   </div>
+
+  <div class="tour-overlay" id="tourOverlay" style="display:none"></div>
+  <div class="tour-card" id="tourCard" style="display:none"></div>
 
   <script>
     let COMPETITORS = [
@@ -1975,6 +2042,7 @@ Reference Signify NA's portfolio (Philips Hue, WiZ, Philips LED) for cannibaliza
     let formData = {}, customOpts = {}, templateFormData = {};
     let rawPrompt = '', outputFormat = 'structured', activeModifiers = new Set();
     let memHistory = [];
+    let helpMode = false, helpModeShownOnce = false, tourStep = 0, tourActive = false;
 
     // ── Core role / copilot controls ─────────────────────────────────────────
 
@@ -2103,7 +2171,10 @@ Reference Signify NA's portfolio (Philips Hue, WiZ, Philips LED) for cannibaliza
       let h = `<h2>${tmpl.title}</h2><p class="builder-desc">${tmpl.desc}</p>`;
       tmpl.fields.forEach(f => {
         const req = f.required ? '<span class="req-star">*</span>' : '';
-        h += `<div class="field-group"><label class="field-label">${f.label}${req}</label>`;
+        const helpBadge = helpMode
+          ? `<button class="field-help-btn" data-label="${eph(f.label)}" data-ph="${eph(f.ph||'')}" onmouseenter="showFieldHelp(event,this)" onmouseleave="hideFieldHelp()">?</button>`
+          : '';
+        h += `<div class="field-group"><label class="field-label">${f.label}${req}${helpBadge}</label>`;
         if (f.type === 'chips') {
           const baseOpts = f.opts === 'COMP' ? COMPETITORS : f.opts;
           const opts = [...baseOpts, ...(customOpts[f.id] || [])];
@@ -2424,6 +2495,156 @@ Reference Signify NA's portfolio (Philips Hue, WiZ, Philips LED) for cannibaliza
       document.body.appendChild(ta); ta.focus(); ta.select();
       try { if (document.execCommand('copy')) onSuccess(); } catch (e) {}
       document.body.removeChild(ta);
+    }
+
+    // ── Help / Tour System ────────────────────────────────────────────────────
+
+    const TOUR_STEPS = [
+      {
+        sel: '#roleSelect',
+        title: 'Step 1 of 5 — Choose Your Role',
+        body: 'Your role personalizes every template. Select the one that best matches your job — categories and templates will update automatically.',
+        pos: 'below'
+      },
+      {
+        sel: '#categoryBar',
+        title: 'Step 2 of 5 — Browse Categories',
+        body: 'Templates are organized into categories. Your role determines which appear first. Click any tab to switch categories.',
+        pos: 'below'
+      },
+      {
+        sel: '#templateBar',
+        title: 'Step 3 of 5 — Select a Template',
+        body: 'Each template is purpose-built for a specific task — competitive research, a weekly update, a forecast review, and more. Click one to load its fields.',
+        pos: 'below'
+      },
+      {
+        sel: '#builderPanel',
+        title: 'Step 4 of 5 — Fill In the Fields',
+        body: 'Use chips, dropdowns, and text fields to customize your prompt. Required fields (✱) must be filled. Toggle Help Mode anytime for per-field guidance.',
+        pos: 'right'
+      },
+      {
+        sel: '.generate-btn',
+        title: 'Step 5 of 5 — Generate & Copy',
+        body: 'Click Generate Prompt to build your ready-to-use Copilot prompt. Then use Copy to paste it directly into Microsoft Copilot Chat or M365 Copilot.',
+        pos: 'above'
+      }
+    ];
+
+    function startTour() {
+      tourStep = 0;
+      tourActive = true;
+      document.getElementById('tourOverlay').style.display = 'block';
+      renderTourStep();
+    }
+
+    function renderTourStep() {
+      const step = TOUR_STEPS[tourStep];
+      const target = document.querySelector(step.sel);
+      document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
+      if (target) target.classList.add('tour-highlight');
+
+      const card = document.getElementById('tourCard');
+      const isFirst = tourStep === 0;
+      const isLast = tourStep === TOUR_STEPS.length - 1;
+      const dots = TOUR_STEPS.map((_, i) => `<span class="tour-dot${i === tourStep ? ' active' : ''}"></span>`).join('');
+
+      card.innerHTML = `
+        <div class="tour-card-title">${step.title}</div>
+        <div class="tour-card-body">${step.body}</div>
+        <div class="tour-footer">
+          <div class="tour-dots">${dots}</div>
+          <div class="tour-nav">
+            ${!isFirst ? `<button class="tour-btn" onclick="tourNav(-1)">&#8592; Back</button>` : ''}
+            <button class="tour-btn primary" onclick="${isLast ? 'endTour()' : 'tourNav(1)'}">${isLast ? 'Done ✓' : 'Next &#8594;'}</button>
+          </div>
+        </div>
+        ${!isLast ? `<button class="tour-skip" onclick="endTour()">Skip tour</button>` : ''}
+      `;
+      card.style.display = 'block';
+      positionTourCard(target, step.pos, card);
+    }
+
+    function positionTourCard(target, pos, card) {
+      const cw = 300, margin = 14;
+      const vw = window.innerWidth, vh = window.innerHeight;
+      if (!target) { card.style.top = '50%'; card.style.left = '50%'; card.style.transform = 'translate(-50%,-50%)'; return; }
+      card.style.transform = '';
+      const r = target.getBoundingClientRect();
+      let top, left;
+      if (pos === 'below') {
+        top = r.bottom + margin;
+        left = Math.min(Math.max(r.left, 16), vw - cw - 16);
+      } else if (pos === 'above') {
+        top = r.top - 165 - margin;
+        left = Math.min(Math.max(r.left + r.width / 2 - cw / 2, 16), vw - cw - 16);
+      } else {
+        top = Math.min(Math.max(r.top + r.height / 2 - 80, 16), vh - 180);
+        left = r.right + margin;
+        if (left + cw > vw - 16) left = r.left - cw - margin;
+      }
+      top = Math.max(16, Math.min(top, vh - 180));
+      card.style.top = top + 'px';
+      card.style.left = Math.max(16, left) + 'px';
+    }
+
+    function tourNav(dir) {
+      tourStep = Math.max(0, Math.min(TOUR_STEPS.length - 1, tourStep + dir));
+      renderTourStep();
+    }
+
+    function endTour() {
+      tourActive = false;
+      document.getElementById('tourOverlay').style.display = 'none';
+      document.getElementById('tourCard').style.display = 'none';
+      document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
+      helpMode = true;
+      updateHelpBtn();
+      renderBuilder();
+    }
+
+    function toggleHelp() {
+      if (!helpModeShownOnce) {
+        helpModeShownOnce = true;
+        startTour();
+      } else if (!tourActive) {
+        helpMode = !helpMode;
+        updateHelpBtn();
+        renderBuilder();
+      }
+    }
+
+    function updateHelpBtn() {
+      const btn = document.getElementById('helpBtn');
+      if (!btn) return;
+      btn.classList.toggle('active', helpMode);
+      btn.title = helpMode ? 'Click to hide field tips' : 'Click to show field tips (tour available on first click)';
+    }
+
+    function showFieldHelp(event, btn) {
+      hideFieldHelp();
+      const label = btn.getAttribute('data-label');
+      const ph = btn.getAttribute('data-ph');
+      const text = ph || ('Fill in: ' + label);
+      const tip = document.createElement('div');
+      tip.className = 'field-tip';
+      tip.id = 'activeFldTip';
+      tip.textContent = text;
+      document.body.appendChild(tip);
+      const r = btn.getBoundingClientRect();
+      const tw = 260;
+      let top = r.bottom + 6;
+      let left = r.left - tw / 2 + 7;
+      left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+      if (top + 80 > window.innerHeight) top = r.top - 80;
+      tip.style.top = top + 'px';
+      tip.style.left = left + 'px';
+    }
+
+    function hideFieldHelp() {
+      const t = document.getElementById('activeFldTip');
+      if (t) t.remove();
     }
 
     document.getElementById('roleSelect').value = userRole;
