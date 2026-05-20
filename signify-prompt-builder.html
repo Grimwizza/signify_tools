@@ -848,6 +848,100 @@
       font-size: 12px; color: var(--sig-text); max-width: 260px; line-height: 1.5;
       box-shadow: 0 4px 20px rgba(0,0,0,0.5); pointer-events: none;
     }
+
+    /* Supercharge Copilot */
+    .sc-btn {
+      padding: 5px 13px; border-radius: 16px; border: none; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--sig-green), var(--sig-teal));
+      color: var(--sig-dark); font-family: inherit; font-size: 11px; font-weight: 700;
+      cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .sc-btn:hover { opacity: 0.88; box-shadow: 0 2px 12px var(--sig-green-glow); }
+
+    .sc-overlay {
+      position: fixed; inset: 0; background: rgba(0,10,28,0.84); z-index: 2000;
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+    }
+    .sc-modal {
+      background: var(--sig-dark-2); border: 1px solid var(--sig-border); border-radius: 14px;
+      width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6); display: flex; flex-direction: column;
+    }
+    .sc-modal-header {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 18px 22px 14px; border-bottom: 1px solid var(--sig-border); flex-shrink: 0;
+    }
+    .sc-modal-title {
+      font-size: 16px; font-weight: 700;
+      background: linear-gradient(135deg, var(--sig-green), var(--sig-teal));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .sc-modal-sub { font-size: 12px; color: var(--sig-text-dim); margin-top: 2px; }
+    .sc-close-btn {
+      margin-left: auto; background: none; border: none; color: var(--sig-text-dim);
+      font-size: 20px; cursor: pointer; padding: 0 4px; border-radius: 6px;
+      transition: all 0.15s; font-family: inherit; line-height: 1; flex-shrink: 0;
+    }
+    .sc-close-btn:hover { color: var(--sig-text); }
+
+    .sc-body { padding: 22px; }
+    .sc-field-group { margin-bottom: 18px; }
+    .sc-label {
+      display: block; font-size: 11px; font-weight: 600; color: var(--sig-text-dim);
+      text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px;
+    }
+    .sc-input {
+      width: 100%; padding: 9px 12px; background: var(--sig-dark);
+      border: 1px solid var(--sig-border); border-radius: var(--radius);
+      color: var(--sig-text); font-family: inherit; font-size: 13px; transition: border-color 0.2s;
+    }
+    .sc-input:focus { outline: none; border-color: var(--sig-green); box-shadow: 0 0 0 3px var(--sig-green-glow); }
+    .sc-input.invalid { border-color: #e6a800; }
+    .sc-generate-btn {
+      width: 100%; padding: 13px; border: none; border-radius: var(--radius);
+      background: linear-gradient(135deg, var(--sig-green), var(--sig-teal));
+      color: var(--sig-dark); font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer; margin-top: 4px; transition: all 0.2s;
+    }
+    .sc-generate-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px var(--sig-green-glow); }
+
+    .sc-output-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px; flex-wrap: wrap; gap: 8px;
+    }
+    .sc-output-title { font-size: 15px; font-weight: 700; }
+    .sc-output-btns { display: flex; gap: 6px; }
+    .sc-action-btn {
+      display: flex; align-items: center; gap: 5px; padding: 7px 14px;
+      background: var(--sig-dark-3); border: 1px solid var(--sig-border);
+      border-radius: 8px; color: var(--sig-text); font-family: inherit;
+      font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+    }
+    .sc-action-btn:hover { border-color: var(--sig-teal); color: var(--sig-teal); }
+    .sc-action-btn.copied { background: var(--sig-green); border-color: var(--sig-green); color: var(--sig-dark); }
+    .sc-textarea {
+      width: 100%; height: 220px; background: var(--sig-dark); border: 1px solid var(--sig-border);
+      border-radius: var(--radius); color: var(--sig-text); font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; line-height: 1.65; padding: 14px; resize: vertical; margin-bottom: 20px;
+    }
+    .sc-textarea:focus { outline: none; border-color: var(--sig-green); }
+    .sc-how-header {
+      font-size: 11px; font-weight: 700; color: var(--sig-text-dim);
+      text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px;
+    }
+    .sc-steps { display: flex; flex-direction: column; gap: 6px; }
+    .sc-step {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 9px 14px; background: var(--sig-dark); border: 1px solid var(--sig-border); border-radius: 8px;
+    }
+    .sc-step-num {
+      width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; margin-top: 1px;
+      background: linear-gradient(135deg, var(--sig-green), var(--sig-teal));
+      color: var(--sig-dark); font-size: 10px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sc-step-text { font-size: 13px; color: var(--sig-text); line-height: 1.5; }
+    .sc-step-text em { color: var(--sig-green); font-style: normal; font-weight: 700; }
   </style>
 </head>
 
@@ -887,6 +981,7 @@
     </div>
     <span class="copilot-hint" id="copilotHint">Chat mode &#8212; paste content manually into Copilot</span>
     <button class="help-btn" id="helpBtn" onclick="toggleHelp()" title="Guided tour &amp; field tips">&#63; Help</button>
+    <button class="sc-btn" onclick="openSupercharge()">&#9889; Supercharge Copilot</button>
   </div>
 
   <div class="category-bar" id="categoryBar"></div>
@@ -929,6 +1024,19 @@
         <button class="modifier-btn" id="mod-email" onclick="toggleModifier('email')">&#9993; Email format</button>
       </div>
       <div class="output-tip"><span class="dot"></span> Paste directly into Microsoft Copilot for best results</div>
+    </div>
+  </div>
+
+  <div class="sc-overlay" id="scOverlay" style="display:none" onclick="if(event.target===this)closeSupercharge()">
+    <div class="sc-modal">
+      <div class="sc-modal-header">
+        <div>
+          <div class="sc-modal-title">&#9889; Supercharge Copilot</div>
+          <div class="sc-modal-sub">Personalize your Copilot system instructions in 60 seconds</div>
+        </div>
+        <button class="sc-close-btn" onclick="closeSupercharge()">&#215;</button>
+      </div>
+      <div class="sc-body" id="scBody"></div>
     </div>
   </div>
 
@@ -2495,6 +2603,308 @@ Reference Signify NA's portfolio (Philips Hue, WiZ, Philips LED) for cannibaliza
       document.body.appendChild(ta); ta.focus(); ta.select();
       try { if (document.execCommand('copy')) onSuccess(); } catch (e) {}
       document.body.removeChild(ta);
+    }
+
+    // ── Supercharge Copilot ───────────────────────────────────────────────────
+
+    const COPILOT_TEMPLATE = `Professional Role: {ROLE}{ROLE_DIRECTIVES}
+
+Core Focus: {FOCUS}
+
+Target Accounts: {ACCOUNTS}{CURRENT_CONTEXT}
+
+Brand Ecosystem:
+- Philips Hue: Premium connected lighting ($50–150+). Matter/Thread/Bluetooth. Ecosystem-first, app-driven experience. Primary brand for smart home retail.
+- WiZ: Mass-market smart lighting ($10–40). Wi-Fi based. Broad retail distribution (Home Depot, Walmart, Target, etc.). Positioned on simplicity and value.
+- Philips LED: Traditional non-connected LED. Commodity/shelf-filler category. Compete on availability, price, and brand trust.
+
+Corporate Identity: Signify N.V. Verbatim Mission Statement for presentations: "Signify is the world leader in lighting. We provide professional customers and consumers with quality products, systems and services. Our connected lighting offerings bring light and the data they collect to devices, places and people. Our innovations contribute to a safer, smarter more sustainable world."
+
+Contact Format: firstname.lastname@signify.com
+
+
+Domain Vocabulary:
+- Sell-in: units/revenue shipped from Signify to the retailer
+- Sell-out / sell-through: units sold by the retailer to the end consumer
+- WOS: weeks of supply on hand at retail
+- Turns: annual sell-through velocity (units sold ÷ average on-hand inventory)
+- NPI: new product introduction
+- TPR: temporary price reduction
+- F/D: feature & display — in-store promotional placement (end cap, ad feature)
+- MAPE: mean absolute percentage error — primary forecast accuracy metric
+- Planogram: retail shelf layout schematic governing product placement
+- Co-op: cooperative advertising spend funded by Signify at the retailer level
+- GMROI: gross margin return on investment — key retailer profitability metric
+- POS: point-of-sale data — consumer purchase transactions from retailer systems
+
+
+Competitive Landscape (Consumer Lighting NA):
+Key competitors: Govee (smart LED strips, gaming/ambiance), GE Lighting / Cync (smart home, mass retail), TP-Link Kasa & Tapo (smart home devices, value), Feit Electric (value smart + LED, strong at Costco/Home Depot), Wyze (budget smart home), LIFX (premium Wi-Fi smart lighting), Sylvania / Ledvance (traditional + smart LED), Nanoleaf (design-led smart lighting), Lutron Caseta (smart dimming, premium), Sengled (smart bulbs, value).
+Signify position: global market leader in connected lighting. Philips Hue dominates the premium segment; WiZ competes in mass/value smart; Philips LED competes in traditional/commodity.
+
+
+Official Corporate Brand Assets:
+- Typography: Headlines = Signify Raisonne DemiBold. Body/Notes = Signify Relative Book. Sub-headings/Emphasis = Signify Relative Bold.
+- Primary Colors: Dark Gray (#303034), White (#FFFFFF).
+- Accent Colors: Signify Green (#00E487 - Hero Accent), Mint (#66EFB7), Signify Teal (#1ECBD0), Signify Blue (#1432FF), Periwinkle (#A1ADFF).
+- Neutrals: Medium Gray (#ACACAE), Light Gray (#D5D5D5).
+- Logo Gradient: #00E487 (left) to #1ECBD0 (right).
+
+
+Core Directives:
+- Lead with direct answers. Omit preambles, greetings, filler, and meta-commentary.
+- Use active voice. Treat length constraints as hard rules. Omit emojis completely.
+- Limit bold text strictly to labels and warnings. Do not use for emphasis in prose.
+- Never use: delve, crucial, landscape, groundbreaking, it's important to note, in today's world.
+- Pasted text >500 words: Surface 3 primary insights first, then execute. Do not summarize back.
+- If asked "what am I missing," provide an adversarial review of flaws and unstated assumptions.
+- Comparisons: Always include a "Hidden Downside" parameter omitted by marketing materials.
+- Idea lists: Include exactly one highly unconventional, contrarian option labeled as such.
+- Tone: Professional, forward-looking, grounded, and clear. Avoid jargon; keep sentences direct.
+
+
+M365 App & Slide Design Behaviors:
+- Teams Recaps: Structure as: (1) Decisions Finalized, (2) Action Items with owner/deadline placeholders, (3) Primary friction points. Omit narrative play-by-play.
+- Outlook: State primary ask in first two sentences. Use a "TL;DR" block if over three paragraphs.
+- Excel/Data: Format numbers clearly. Explicitly separate sell-in metrics from sell-out performance.
+- PowerPoint Outlines: Separate slide copy from presenter notes. Enforce the following design rules:
+    * Slide Copy: Limit to 3-4 high-impact bullets max. Detail belongs in speaker notes.
+    * Typography: Titles must be left-aligned with no bold formatting applied. Body bullets use blue (#1432FF) at second indent level.
+    * Themes: Dark slides use #303034 background with white text and green (#00E487) accents. Light slides use white or #D5D5D5 background with #303034 text.
+    * Metadata: Content slides must include bottom-right slide numbers and footer: "[Presentation name] - CONFIDENTIAL".
+    * Layouts: Use Dark layouts (#303034) for title, section dividers, and closing slides. Use Light layouts for content.
+    * Presenter Info: Set "Presenter Name & Date" in Relative Book on title slide. Closing slide must feature "Thank you!" in large Raisonne and contact info in Relative Book.
+
+
+Search & Data Calibration:
+- If confidence is under 90%, use: likely, unclear, or unverified.
+- Label unsourced figures as estimated or directional.
+- Market share: Disable memory; execute fresh web search. Include source dates.
+
+
+Prefix Commands:
+- [DATA]: Prioritize tables. Data first, interpretation second. Every number sourced or labeled estimate.
+- [THINK]: Execute maximum internal reasoning depth before outputting.
+- [FAST]: Disable web search. Output 1-3 sentences max with zero elaboration.
+- [SLACK]: Limit entire response to under 100 words.
+- [BRIEF]: Format as a scannable 1-page summary.
+- [DRAFT]: Provide a rough, structurally complete version.
+- [TEAM]: Apply tactical, execution-level detail framing.
+- [SALES]: Buyer-centric, objection-ready framing optimized for 30-second pre-call prep.
+- [LEADERSHIP]: Strategic, concise, decision-oriented implications.
+
+
+Output Templates:
+- News: Focus strictly on the "so what" for positioning, messaging, or channel strategy.
+- Market Sizing (TAM/SAM/SOM): Show formulas, math, and assumptions explicitly.
+- Battle Cards / Briefs: Structure exactly as: (1) what they say about themselves, (2) what customers actually say, (3) where we win, (4) where we lose, (5) landmines to avoid.`;
+
+    const SC_FOCUS_OPTS = [
+      'Sales Enablement', 'Channel Marketing', 'Brand Marketing', 'Finance & Reporting',
+      'Demand Planning', 'Product Management', 'Sales Leadership', 'Excel & Data Analysis'
+    ];
+
+    const SC_ROLE_DIRECTIVES = {
+      kam:        'Frame all analysis at the retailer level. Default to sell-through, velocity, and GMROI metrics. In competitive discussions, lead with shelf placement and promotional dynamics at key accounts. Always connect insights back to the retailer\'s business case.',
+      channel:    'Orient analysis toward channel execution and sell-through performance. Default to velocity, turns, and promotional lift metrics. Frame recommendations around trade spend efficiency, planogram optimization, and co-op investment return.',
+      marcom:     'Prioritize brand-first framing. Lead with consumer insights, brand perception, and messaging hierarchy. Connect market data to campaign strategy and brand portfolio decisions. Use consumer language, not trade language.',
+      leadership: 'Default to strategic, decision-ready output. Lead with the bottom line and recommended action. Omit tactical detail unless asked. Frame every analysis as a leadership briefing — what happened, why it matters, what to do.',
+      fp_a:       'Lead with variance vs. plan, then vs. prior year. Always surface bridge drivers before making recommendations. When given P&L data, separate volume, price/mix, and cost contributions. Flag any assumptions made in the analysis.',
+      accounting: 'Default to accounting and controls framing. Reference applicable standards or periods where relevant. Prioritize accuracy, auditability, and compliance considerations before interpretation or recommendation.',
+      pm:         'Frame analysis through a product strategy lens. Connect market data to roadmap decisions, feature prioritization, and launch timing. Lead with product differentiation and consumer adoption signals over financial metrics.',
+      bp:         'Default to demand signal and volume framing. Apply S&OP terminology by default. Reference MAPE and bias direction when evaluating forecast data. Distinguish statistical baseline from risk/opportunity adjustments in every forecast discussion.'
+    };
+
+    let scData = { role: '', focus: [], accounts: [], context: '' };
+    let scCustomFocus = [];
+    let scRoleKey = 'kam';
+
+    function openSupercharge() {
+      scRoleKey = userRole;
+      scData = { role: ROLES[userRole] ? ROLES[userRole].label : '', focus: [], accounts: [], context: '' };
+      scCustomFocus = [];
+      document.getElementById('scOverlay').style.display = 'flex';
+      renderScForm();
+    }
+
+    function closeSupercharge() {
+      document.getElementById('scOverlay').style.display = 'none';
+    }
+
+    function renderScForm() {
+      let h = '';
+
+      h += `<div class="sc-field-group">
+        <label class="sc-label">Your Role</label>
+        <input class="sc-input" id="scRoleInput" type="text" value="${eph(scData.role)}"
+          oninput="scData.role=this.value;this.classList.remove('invalid')"
+          placeholder="e.g., Key Account Manager">
+      </div>`;
+
+      h += `<div class="sc-field-group">
+        <label class="sc-label">Current Business Context <span style="color:var(--sig-text-dim);font-weight:400;text-transform:none;letter-spacing:0">optional — what are you working on right now?</span></label>
+        <input class="sc-input" id="scContextInput" type="text" value="${eph(scData.context)}"
+          oninput="scData.context=this.value"
+          placeholder="e.g., Q2 S&OP planning cycle, Home Depot line review prep">
+      </div>`;
+
+      h += `<div class="sc-field-group">
+        <label class="sc-label">Core Focus <span style="color:var(--sig-text-dim);font-weight:400;text-transform:none;letter-spacing:0">(select all that apply)</span></label>
+        <div class="chip-group" id="scFocusGroup">`;
+      SC_FOCUS_OPTS.forEach(o => {
+        const sel = scData.focus.includes(o) ? ' selected' : '';
+        const e = o.replace(/'/g, "\\'").replace(/&/g, '&amp;');
+        h += `<button class="chip${sel}" onclick="scToggleChip(this,'focus','${e}')">${o}</button>`;
+      });
+      scCustomFocus.forEach(o => {
+        const sel = scData.focus.includes(o) ? ' selected' : '';
+        const e = o.replace(/'/g, "\\'").replace(/&/g, '&amp;');
+        h += `<button class="chip${sel}" onclick="scToggleChip(this,'focus','${e}')">${o}</button>`;
+      });
+      h += `</div>
+        <div class="add-row">
+          <input class="add-input" id="scFocusCustom" placeholder="Add custom focus..." onkeydown="if(event.key==='Enter')scAddFocus()">
+          <button class="add-btn" onclick="scAddFocus()">+ Add</button>
+        </div>
+      </div>`;
+
+      h += `<div class="sc-field-group">
+        <label class="sc-label">Target Accounts <span style="color:var(--sig-text-dim);font-weight:400;text-transform:none;letter-spacing:0">(select your key retailers)</span></label>
+        <div class="chip-group" id="scAcctGroup">`;
+      CHANNELS.forEach(o => {
+        const sel = scData.accounts.includes(o) ? ' selected' : '';
+        const e = o.replace(/'/g, "\\'");
+        h += `<button class="chip${sel}" onclick="scToggleChip(this,'accounts','${e}')">${o}</button>`;
+      });
+      h += `</div>
+        <div class="channel-shortcuts"><span class="shortcuts-label">Quick select:</span>`;
+      CHANNEL_GROUPS.forEach((grp, i) => {
+        h += `<button class="shortcut-pill" onclick="scSelectGroup(${i})">${eph(grp.label)}</button>`;
+      });
+      h += `</div></div>`;
+
+      h += `<button class="sc-generate-btn" onclick="scGenerate()">&#9889; Generate My Instructions</button>`;
+
+      document.getElementById('scBody').innerHTML = h;
+    }
+
+    function scToggleChip(el, key, val) {
+      el.classList.toggle('selected');
+      if (el.classList.contains('selected')) {
+        if (!scData[key].includes(val)) scData[key].push(val);
+      } else {
+        scData[key] = scData[key].filter(v => v !== val);
+      }
+    }
+
+    function scSelectGroup(groupIdx) {
+      const grp = CHANNEL_GROUPS[groupIdx];
+      if (!grp) return;
+      const g = document.getElementById('scAcctGroup');
+      if (!g) return;
+      if (grp.channels.length === 0) {
+        const label = grp.label;
+        if (!scData.accounts.includes(label)) {
+          scData.accounts.push(label);
+          const b = document.createElement('button');
+          b.className = 'chip selected'; b.textContent = label;
+          b.onclick = function() { scToggleChip(this, 'accounts', label); };
+          g.appendChild(b);
+        }
+      } else {
+        grp.channels.forEach(ch => {
+          g.querySelectorAll('.chip').forEach(chip => {
+            if (chip.textContent === ch && !chip.classList.contains('selected')) {
+              chip.classList.add('selected');
+              if (!scData.accounts.includes(ch)) scData.accounts.push(ch);
+            }
+          });
+        });
+      }
+    }
+
+    function scAddFocus() {
+      const inp = document.getElementById('scFocusCustom');
+      const val = (inp.value || '').trim();
+      if (!val) return;
+      if (!scCustomFocus.includes(val)) {
+        scCustomFocus.push(val);
+        scData.focus.push(val);
+        const g = document.getElementById('scFocusGroup');
+        const b = document.createElement('button');
+        b.className = 'chip selected'; b.textContent = val;
+        const v = val; b.onclick = function() { scToggleChip(this, 'focus', v); };
+        g.appendChild(b);
+      }
+      inp.value = '';
+    }
+
+    function scGenerate() {
+      const roleEl = document.getElementById('scRoleInput');
+      const role = (roleEl ? roleEl.value : scData.role).trim();
+      if (!role) {
+        if (roleEl) { roleEl.classList.add('invalid'); roleEl.focus(); }
+        return;
+      }
+      scData.role = role;
+      const focus = scData.focus.length ? scData.focus.join(', ') : 'Not specified';
+      const accounts = scData.accounts.length ? scData.accounts.join(', ') : 'Not specified';
+      const directives = SC_ROLE_DIRECTIVES[scRoleKey] || '';
+      const roleDirectivesSection = directives ? '\n\nRole Behaviors: ' + directives : '';
+      const ctx = (scData.context || '').trim();
+      const currentContextSection = ctx ? '\n\nCurrent Business Context: ' + ctx : '';
+      const output = COPILOT_TEMPLATE
+        .replace('{ROLE}', role)
+        .replace('{ROLE_DIRECTIVES}', roleDirectivesSection)
+        .replace('{FOCUS}', focus)
+        .replace('{ACCOUNTS}', accounts)
+        .replace('{CURRENT_CONTEXT}', currentContextSection);
+      renderScOutput(output);
+    }
+
+    function renderScOutput(text) {
+      const escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      document.getElementById('scBody').innerHTML = `
+        <div class="sc-output-header">
+          <div class="sc-output-title">Your Copilot Instructions</div>
+          <div class="sc-output-btns">
+            <button class="sc-action-btn" onclick="scBack()">&#8592; Edit</button>
+            <button class="sc-action-btn" id="scCopyBtn" onclick="scCopy()">&#128203; Copy</button>
+          </div>
+        </div>
+        <textarea class="sc-textarea" id="scOutputText" readonly>${escaped}</textarea>
+        <div class="sc-how-header">How to add to Copilot</div>
+        <div class="sc-steps">
+          <div class="sc-step"><div class="sc-step-num">1</div><div class="sc-step-text">Open <em>Microsoft Copilot</em> at copilot.microsoft.com (or via your M365 app)</div></div>
+          <div class="sc-step"><div class="sc-step-num">2</div><div class="sc-step-text">Click the <em>Settings</em> icon (gear, top right)</div></div>
+          <div class="sc-step"><div class="sc-step-num">3</div><div class="sc-step-text">Select <em>Personalization</em></div></div>
+          <div class="sc-step"><div class="sc-step-num">4</div><div class="sc-step-text">Click <em>Custom Instructions</em></div></div>
+          <div class="sc-step"><div class="sc-step-num">5</div><div class="sc-step-text">Click <em>Edit Instructions</em></div></div>
+          <div class="sc-step"><div class="sc-step-num">6</div><div class="sc-step-text">Paste the copied text into the instructions field</div></div>
+          <div class="sc-step"><div class="sc-step-num">7</div><div class="sc-step-text">Click <em>Save</em> — your instructions are now active in every Copilot conversation</div></div>
+        </div>`;
+    }
+
+    function scBack() {
+      renderScForm();
+    }
+
+    function scCopy() {
+      const ta = document.getElementById('scOutputText');
+      if (!ta) return;
+      function onSuccess() {
+        const btn = document.getElementById('scCopyBtn');
+        if (btn) { btn.textContent = '✅ Copied!'; btn.classList.add('copied'); }
+        setTimeout(() => {
+          const b = document.getElementById('scCopyBtn');
+          if (b) { b.innerHTML = '&#128203; Copy'; b.classList.remove('copied'); }
+        }, 2000);
+      }
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(ta.value).then(onSuccess).catch(() => fallbackCopy(ta.value, onSuccess));
+      } else {
+        fallbackCopy(ta.value, onSuccess);
+      }
     }
 
     // ── Help / Tour System ────────────────────────────────────────────────────
