@@ -223,6 +223,39 @@
     .role-select option { background: var(--sig-dark); color: var(--sig-text); }
     .bar-divider { width: 1px; height: 20px; background: var(--sig-border); flex-shrink: 0; }
 
+    .region-toggle {
+      display: flex;
+      background: var(--sig-dark-3);
+      border: 1px solid var(--sig-border);
+      border-radius: 20px;
+      padding: 3px;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    .region-pill {
+      padding: 4px 12px;
+      border-radius: 16px;
+      border: none;
+      background: transparent;
+      color: var(--sig-text-dim);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .region-pill.active {
+      background: var(--sig-teal);
+      color: var(--sig-dark);
+    }
+
+    .region-pill:not(.active):hover {
+      color: var(--sig-text);
+    }
+
     .category-bar {
       display: flex;
       gap: 0;
@@ -1012,6 +1045,13 @@
       </select>
     </div>
     <div class="bar-divider"></div>
+    <div class="region-toggle" id="regionToggle">
+      <button class="region-pill active" data-region="North America" onclick="setRegion('North America')">North America</button>
+      <button class="region-pill" data-region="United States" onclick="setRegion('United States')">United States</button>
+      <button class="region-pill" data-region="Canada" onclick="setRegion('Canada')">Canada</button>
+      <button class="region-pill" data-region="NOLA" onclick="setRegion('NOLA')">NOLA</button>
+    </div>
+    <div class="bar-divider"></div>
     <div class="copilot-toggle">
       <button id="toggleChat" class="toggle-pill active" onclick="setCopilot('chat')">Copilot Chat <span
           class="tier-badge tier-badge-free">FREE</span></button>
@@ -1083,23 +1123,84 @@
   <div class="tour-card" id="tourCard" style="display:none"></div>
 
   <script>
-    let COMPETITORS = [
+    const ALL_COMPETITORS = [
       'Govee', 'GE Lighting (Savant)', 'TP-Link (Kasa/Tapo)', 'Great Value (Walmart)',
       'Feit Electric', 'Wyze', 'LIFX', 'Cree Lighting', 'Sylvania (Ledvance)',
       'Ring (Amazon)', 'Nanoleaf', 'Lutron (Caseta)', 'Sengled', 'Hue (Philips)'
     ];
-    const CHANNELS = ['Amazon', 'Best Buy', 'Home Depot', "Lowe's", 'Walmart', 'Target', 'Costco', 'Do it Best', 'Ace Hardware', 'Kroger', 'Publix', 'DTC'];
 
-    const CHANNEL_GROUPS = [
-      { label: 'Grocery',                 channels: ['Kroger', 'Publix'] },
-      { label: 'Club',                    channels: ['Costco'] },
-      { label: 'Mass',                    channels: ['Walmart', 'Target'] },
-      { label: 'E-Commerce',              channels: ['Amazon', 'DTC'] },
-      { label: 'DIY',                     channels: ["Home Depot", "Lowe's"] },
-      { label: 'Hardware',                channels: ['Do it Best', 'Ace Hardware'] },
-      { label: 'Electronics & Specialty', channels: ['Best Buy'] },
-      { label: 'Regional Retail',         channels: [] }
-    ];
+    const REGION_DATA = {
+      'North America': {
+        geo:         'North America',
+        channels:    ['Amazon', 'Best Buy', 'Home Depot', "Lowe's", 'Walmart', 'Target',
+                      'Costco', 'Do it Best', 'Ace Hardware', 'Kroger', 'Publix', 'DTC',
+                      'Canadian Tire', 'RONA', 'Home Hardware'],
+        competitors: ALL_COMPETITORS,
+        channelGroups: [
+          { label: 'Grocery',                 channels: ['Kroger', 'Publix'] },
+          { label: 'Club',                    channels: ['Costco'] },
+          { label: 'Mass',                    channels: ['Walmart', 'Target'] },
+          { label: 'E-Commerce',              channels: ['Amazon', 'DTC'] },
+          { label: 'DIY',                     channels: ["Home Depot", "Lowe's"] },
+          { label: 'US Hardware',             channels: ['Do it Best', 'Ace Hardware'] },
+          { label: 'CA Hardware',             channels: ['Canadian Tire', 'RONA', 'Home Hardware'] },
+          { label: 'Electronics & Specialty', channels: ['Best Buy'] },
+          { label: 'Regional Retail',         channels: [] }
+        ]
+      },
+      'United States': {
+        geo:         'United States',
+        channels:    ['Amazon', 'Best Buy', 'Home Depot', "Lowe's", 'Walmart', 'Target',
+                      'Costco', 'Do it Best', 'Ace Hardware', 'Kroger', 'Publix', 'DTC'],
+        competitors: ALL_COMPETITORS,
+        channelGroups: [
+          { label: 'Grocery',                 channels: ['Kroger', 'Publix'] },
+          { label: 'Club',                    channels: ['Costco'] },
+          { label: 'Mass',                    channels: ['Walmart', 'Target'] },
+          { label: 'E-Commerce',              channels: ['Amazon', 'DTC'] },
+          { label: 'DIY',                     channels: ["Home Depot", "Lowe's"] },
+          { label: 'Hardware',                channels: ['Do it Best', 'Ace Hardware'] },
+          { label: 'Electronics & Specialty', channels: ['Best Buy'] },
+          { label: 'Regional Retail',         channels: [] }
+        ]
+      },
+      'Canada': {
+        geo:         'Canada',
+        channels:    ['Amazon', 'Best Buy', 'Home Depot', "Lowe's", 'Walmart',
+                      'Costco', 'Canadian Tire', 'RONA', 'Home Hardware', 'DTC'],
+        competitors: ALL_COMPETITORS.filter(c => c !== 'Great Value (Walmart)'),
+        channelGroups: [
+          { label: 'Club',                    channels: ['Costco'] },
+          { label: 'Mass',                    channels: ['Walmart'] },
+          { label: 'E-Commerce',              channels: ['Amazon', 'DTC'] },
+          { label: 'DIY',                     channels: ["Home Depot", "Lowe's"] },
+          { label: 'Hardware',                channels: ['Canadian Tire', 'RONA', 'Home Hardware'] },
+          { label: 'Electronics & Specialty', channels: ['Best Buy'] },
+          { label: 'Regional Retail',         channels: [] }
+        ]
+      },
+      'NOLA': {
+        geo:         'Northern Latin America',
+        channels:    ['Amazon', 'Walmart', 'Costco', 'Home Depot', 'DTC',
+                      'Liverpool', 'Coppel', 'Elektra'],
+        competitors: ['Govee', 'TP-Link (Kasa/Tapo)', 'Ring (Amazon)', 'Feit Electric',
+                      'Wyze', 'GE Lighting (Savant)', 'Nanoleaf', 'Sengled'],
+        channelGroups: [
+          { label: 'Club',        channels: ['Costco'] },
+          { label: 'Mass',        channels: ['Walmart'] },
+          { label: 'E-Commerce',  channels: ['Amazon', 'DTC'] },
+          { label: 'DIY',         channels: ['Home Depot'] },
+          { label: 'LATAM Retail',channels: ['Liverpool', 'Coppel', 'Elektra'] },
+          { label: 'Regional',    channels: [] }
+        ]
+      }
+    };
+
+    // Dynamic globals — reassigned by setRegion()
+    let COMPETITORS   = REGION_DATA['North America'].competitors;
+    let CHANNELS      = REGION_DATA['North America'].channels;
+    let CHANNEL_GROUPS = REGION_DATA['North America'].channelGroups;
+    let selectedRegion = localStorage.getItem('signifyRegion') || 'North America';
     const CATEGORIES = ['Smart Bulbs', 'Smart Switches/Dimmers', 'Smart Plugs', 'Light Strips', 'Outdoor Lighting', 'LED Bulbs (non-connected)', 'LED Fixtures', 'Decorative Lighting', 'Recessed Lighting', 'Landscape Lighting'];
     const AUDIENCES = ['DIY Homeowner', 'Tech-savvy Consumer', 'Builder/Contractor', 'Property Manager', 'Interior Designer', 'Retail Buyer'];
 
@@ -1310,7 +1411,7 @@
           { id: 'competitor', type: 'chips', label: 'Competitor', opts: 'COMP', custom: true, required: true, multi: true },
           { id: 'focus', type: 'select', label: 'Research Focus', opts: ['Product launches (last 90 days)', 'Pricing & promotions', 'Retail distribution changes', 'Marketing campaigns', 'Smart home ecosystem partnerships', 'Patent/technology moves', 'Leadership changes'] },
           { id: 'category', type: 'select', label: 'Product Category', opts: ['All categories', ...CATEGORIES], custom: true },
-          { id: 'channel', type: 'chips', label: 'Channel Focus', opts: CHANNELS, custom: true, multi: true },
+          { id: 'channel', type: 'chips', label: 'Channel Focus', opts: 'CHANNELS', custom: true, multi: true },
           { id: 'extra', type: 'text', label: 'Additional Context', ph: 'e.g., "focus on connected lighting at CES 2026"' }
         ], gen: d => `You are a competitive intelligence analyst for Signify North America's consumer lighting division (Philips brand). Research the following and provide a structured brief:
 
@@ -1374,7 +1475,7 @@ Conversational, not scripted. Portfolio: Philips Hue (premium smart), WiZ (value
       buyer_email: {
         cat: 'sales', title: 'Buyer Email', desc: 'Draft a professional email to a retail buyer or channel partner.', fields: [
           { id: 'purpose', type: 'select', label: 'Purpose', opts: ['Follow up on line review', 'Introduce new product', 'Respond to competitive threat', 'Propose promo program', 'Share market data', 'Request meeting', 'Address supply issue'], required: true },
-          { id: 'channel', type: 'chips', label: 'Retailer', opts: CHANNELS, custom: true, multi: true },
+          { id: 'channel', type: 'chips', label: 'Retailer', opts: 'CHANNELS', custom: true, multi: true },
           { id: 'buyerName', type: 'text', label: 'Buyer Name (optional)', ph: 'e.g., Sarah' },
           { id: 'keyPoints', type: 'textarea', label: 'Key Points', ph: 'What do you want to communicate?' },
           { id: 'tone', type: 'select', label: 'Tone', opts: ['Professional & direct', 'Warm & relationship-building', 'Urgent & action-oriented', 'Data-driven & analytical'] }
@@ -1390,7 +1491,7 @@ Rules: 3-5 sentences max. Lead with value to THEIR business. Specific CTA with d
         cat: 'marketing', title: 'Market Research', desc: 'Research market trends, sizing, and dynamics in consumer lighting.', warn: 'research', fields: [
           { id: 'topic', type: 'select', label: 'Topic', opts: ['Market size & growth (TAM/SAM)', 'Consumer trends', 'Smart home adoption rates', 'LED penetration & upgrade cycle', 'Sustainability trends', 'Retail channel shifts', 'New tech (Matter, Thread, AI)', 'Pricing trends'], required: true },
           { id: 'category', type: 'select', label: 'Category', opts: ['Consumer lighting overall', ...CATEGORIES], custom: true },
-          { id: 'geography', type: 'select', label: 'Geography', opts: ['North America', 'United States', 'Canada', 'Specific region'] },
+          { id: 'geography', type: 'select', label: 'Geography', opts: ['North America', 'United States', 'Canada', 'Northern Latin America', 'Specific region'] },
           { id: 'timeframe', type: 'select', label: 'Timeframe', opts: ['Current snapshot', 'Last 12 months', '3-5 year outlook', 'YoY comparison'] },
           { id: 'extra', type: 'text', label: 'Specific Question', ph: 'e.g., "what % of US homes have a smart bulb?"' }
         ], gen: d => `Market research analyst for Signify NA consumer lighting strategy. Research:
@@ -1429,7 +1530,7 @@ Concrete > vague. "2x lumens per watt" beats "superior quality."`},
 
       channel_strategy: {
         cat: 'marketing', title: 'Channel Strategy', desc: 'Analyze channel dynamics and develop retail strategies.', fields: [
-          { id: 'channel', type: 'chips', label: 'Retailer', opts: CHANNELS, custom: true, required: true, multi: true },
+          { id: 'channel', type: 'chips', label: 'Retailer', opts: 'CHANNELS', custom: true, required: true, multi: true },
           { id: 'objective', type: 'select', label: 'Objective', opts: ['Grow shelf space', 'Defend vs private label', 'Launch new category', 'Optimize assortment', 'Promo strategy', 'Improve margins', 'Counter competitive threat'] },
           { id: 'category', type: 'select', label: 'Category', opts: CATEGORIES, custom: true },
           { id: 'context', type: 'textarea', label: 'Situation', ph: 'Current situation, upcoming reviews, threats?' }
@@ -1589,7 +1690,7 @@ Format as a numbered list. Keep bullets short and punchy. Tailor language and em
         cat: 'planning', title: 'Research & Reporting', desc: 'Build a framework for QBRs, category reviews, and performance reports.', warn: 'provided', fields: [
           { id: 'report_type', type: 'chips', label: 'Report Type', opts: ['QBR', 'Category Review', 'Market Sizing', 'Performance Summary', 'Launch Recap', 'Monthly Update'], required: true },
           { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Full Portfolio'] },
-          { id: 'channel', type: 'chips', label: 'Retailer / Channel', opts: CHANNELS, custom: true, multi: true },
+          { id: 'channel', type: 'chips', label: 'Retailer / Channel', opts: 'CHANNELS', custom: true, multi: true },
           { id: 'period', type: 'select', label: 'Time Period', opts: ['Last 4 weeks', 'Last Quarter', 'Last 6 months', 'Last 12 months', 'YTD'] },
           { id: 'audience', type: 'chips', label: 'Report Audience', opts: ['My Manager', 'Director', 'VP/SVP', 'Cross-functional Team'], multi: true },
           { id: 'key_question', type: 'text', label: 'Key Question to Answer', ph: 'e.g., Why did WiZ underperform at Walmart in Q1?' }
@@ -1621,7 +1722,7 @@ Format for ${fv(d.audience, 'the audience')}. Lead with decisions, not data. Fla
           { id: 'metric', type: 'select', label: 'P&L Metric', opts: ['Net Revenue / Net Sales', 'Gross Margin', 'Gross Margin %', 'SG&A', 'Operating Income', 'EBITDA', 'Volume / Units', 'Price Realization', 'Mix'], required: true },
           { id: 'period', type: 'select', label: 'Period', opts: ['Current Month', 'Last Month', 'Current Quarter', 'Last Quarter', 'YTD', 'Full Year'] },
           { id: 'variance', type: 'text', label: 'Variance Amount', ph: 'e.g., -$2.3M unfavorable, -180bps' },
-          { id: 'channel', type: 'chips', label: 'Channel / BU', opts: CHANNELS, custom: true, multi: true },
+          { id: 'channel', type: 'chips', label: 'Channel / BU', opts: 'CHANNELS', custom: true, multi: true },
           { id: 'audience', type: 'select', label: 'Audience', opts: ['CFO', 'VP/SVP', 'Director-level', 'Business Partner', 'External Auditor'] },
           { id: 'context', type: 'textarea', label: 'Known Drivers', ph: 'What do you already know is driving this variance?' }
         ], gen: d => `You are a financial analyst for Signify North America's consumer lighting division (Philips Hue, WiZ, Philips LED).
@@ -1693,7 +1794,7 @@ Quantify everything possible. Clearly label assumptions. Write for ${d.audience 
 
       channel_pl: {
         cat: 'finance', title: 'Channel P&L Review', desc: 'Analyze channel or retailer P&L performance and generate a structured financial summary.', warn: 'provided', fields: [
-          { id: 'channel', type: 'chips', label: 'Retailer / Channel', opts: CHANNELS, custom: true, required: true, multi: true },
+          { id: 'channel', type: 'chips', label: 'Retailer / Channel', opts: 'CHANNELS', custom: true, required: true, multi: true },
           { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Full Portfolio'] },
           { id: 'period', type: 'select', label: 'Period', opts: ['Current Month', 'Last Month', 'Current Quarter', 'Last Quarter', 'YTD', 'Full Year'] },
           { id: 'focus', type: 'chips', label: 'P&L Focus', opts: ['Net Revenue', 'Gross Margin', 'Trade Spend', 'Gross-to-Net', 'Volume / Units', 'Net Price Realization'], multi: true },
@@ -2051,7 +2152,7 @@ Context: Signify NA uses SAP for order-to-cash, financial close, and inventory. 
       demand_forecast: {
         cat: 'demand', title: 'Demand Forecast Build', desc: 'Create or review a demand forecast with methodology, assumptions, and risk scenarios.', warn: 'provided', fields: [
           { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Full Portfolio'], required: true },
-          { id: 'channel', type: 'chips', label: 'Channel / Retailer', opts: CHANNELS, custom: true, multi: true },
+          { id: 'channel', type: 'chips', label: 'Channel / Retailer', opts: 'CHANNELS', custom: true, multi: true },
           { id: 'period', type: 'select', label: 'Forecast Horizon', opts: ['Next 4 Weeks', 'Next Quarter', 'Next 6 Months', 'Full Year', 'Rolling 18-Month'] },
           { id: 'method', type: 'chips', label: 'Forecast Method', opts: ['Statistical Baseline', 'Bottom-Up Sales Input', 'Market-Driven', 'Consensus Blend'] },
           { id: 'tool', type: 'select', label: 'Planning Tool', opts: ['SAP IBP', 'Excel', 'Both (SAP IBP + Excel)'] },
@@ -2077,7 +2178,7 @@ Frame for a Signify NA demand planner working with ${d.tool || 'planning tools'}
         cat: 'demand', title: 'S&OP Review', desc: 'Prepare a demand review for a Sales & Operations Planning cycle.', warn: 'provided', fields: [
           { id: 'period', type: 'text', label: 'S&OP Cycle / Period', ph: 'e.g., May 2025 S&OP cycle', required: true },
           { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Full Portfolio'] },
-          { id: 'channel', type: 'chips', label: 'Channel / Retailer', opts: CHANNELS, custom: true, multi: true },
+          { id: 'channel', type: 'chips', label: 'Channel / Retailer', opts: 'CHANNELS', custom: true, multi: true },
           { id: 'position', type: 'select', label: 'Review Stage', opts: ['Demand Review (statistical + sales input)', 'Demand vs. Supply Reconciliation', 'Consensus Forecast Review', 'Executive S&OP'] },
           { id: 'gap', type: 'text', label: 'Key Tension / Gap', ph: 'e.g., "+12% demand vs. constrained supply at WiZ A19"' },
           { id: 'context', type: 'textarea', label: 'Forecast Position & Changes', ph: 'Current forecast vs. budget, key changes since last cycle, open issues' }
@@ -2102,7 +2203,7 @@ Write for a cross-functional S&OP audience (Sales, Supply Chain, Finance, Leader
         cat: 'demand', title: 'Forecast Accuracy Review', desc: 'Analyze forecast vs. actual performance and identify root causes of misses.', warn: 'provided', fields: [
           { id: 'period', type: 'text', label: 'Review Period', ph: 'e.g., Q1 FY2025, April 2025', required: true },
           { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED', 'Full Portfolio'] },
-          { id: 'channel', type: 'chips', label: 'Channel / Retailer', opts: CHANNELS, custom: true, multi: true },
+          { id: 'channel', type: 'chips', label: 'Channel / Retailer', opts: 'CHANNELS', custom: true, multi: true },
           { id: 'metric', type: 'chips', label: 'Accuracy Metric', opts: ['MAPE', 'Bias', 'Forecast vs. Actual Units', 'Forecast vs. Actual Revenue'], multi: true },
           { id: 'data', type: 'textarea', label: 'Forecast vs. Actual Data', ph: 'Paste or describe your forecast and actual figures — by SKU, retailer, or period', required: true }
         ], gen: d => `You are a forecast analyst for Signify North America's consumer lighting division (Philips Hue, WiZ, Philips LED).
@@ -2128,7 +2229,7 @@ Be precise about what drove each miss. Distinguish between demand signal errors 
       promo_lift: {
         cat: 'demand', title: 'Promotional Lift Model', desc: 'Estimate volume uplift and cannibalization for an upcoming promotional event.', warn: 'provided', fields: [
           { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED'], required: true },
-          { id: 'channel', type: 'chips', label: 'Retailer', opts: CHANNELS, custom: true, required: true, multi: true },
+          { id: 'channel', type: 'chips', label: 'Retailer', opts: 'CHANNELS', custom: true, required: true, multi: true },
           { id: 'nc12', type: 'text', label: '12NC(s)', ph: 'e.g., 929002469201 — separate multiple with commas' },
           { id: 'nc6', type: 'text', label: '6NC(s)', ph: 'e.g., 929002 — separate multiple with commas' },
           { id: 'asin', type: 'text', label: 'ASIN(s)', ph: 'e.g., B08XYZ1234 — separate multiple with commas' },
@@ -2158,7 +2259,7 @@ Reference comparable Signify NA promotions at similar retailers where relevant. 
         cat: 'demand', title: 'NPI Launch Forecast', desc: 'Build a new product introduction forecast with ramp curve, analog, and risk scenarios.', warn: 'provided', fields: [
           { id: 'product', type: 'text', label: 'New Product', ph: 'e.g., WiZ Smart Filament A19, Hue Gradient Spot', required: true },
           { id: 'brand', type: 'select', label: 'Brand', opts: ['Philips Hue', 'WiZ', 'Philips LED'] },
-          { id: 'channel', type: 'chips', label: 'Launch Channels', opts: CHANNELS, custom: true, multi: true },
+          { id: 'channel', type: 'chips', label: 'Launch Channels', opts: 'CHANNELS', custom: true, multi: true },
           { id: 'launch_date', type: 'text', label: 'Target Launch Date', ph: 'e.g., September 2025' },
           { id: 'horizon', type: 'select', label: 'Forecast Horizon', opts: ['First 13 Weeks', 'First 26 Weeks', 'Full Year 1', '2-Year Outlook'] },
           { id: 'analog', type: 'text', label: 'Launch Analog', ph: 'e.g., WiZ A19 2-pack launch, Q3 2023' },
@@ -2224,6 +2325,29 @@ Reference Signify NA's portfolio (Philips Hue, WiZ, Philips LED) for cannibaliza
       const si = document.getElementById('searchInput');
       if (si) si.value = '';
       renderCatBar(); renderTmplBar(); renderBuilder(); resetOut();
+    }
+
+    function setRegion(r) {
+      selectedRegion = r;
+      localStorage.setItem('signifyRegion', r);
+      const rd = REGION_DATA[r];
+      CHANNELS       = rd.channels;
+      COMPETITORS    = rd.competitors;
+      CHANNEL_GROUPS = rd.channelGroups;
+
+      // Auto-sync geography field if current template has one
+      const tmpl = T[currentTemplate];
+      if (tmpl) {
+        const geoField = tmpl.fields.find(f => f.id === 'geography');
+        if (geoField) formData.geography = rd.geo;
+      }
+
+      // Update toggle button states
+      document.querySelectorAll('.region-pill').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.region === r);
+      });
+
+      renderBuilder();
     }
 
     function fv(v, fallback) {
@@ -2315,6 +2439,10 @@ Reference Signify NA's portfolio (Philips Hue, WiZ, Philips LED) for cannibaliza
       const tmpl = T[currentTemplate], p = document.getElementById('builderPanel');
       formData = {};
       Object.assign(formData, (ROLE_PREFILLS[userRole] || {})[currentTemplate] || {});
+      // Region geography overrides role prefill so the selected region is always reflected
+      if (tmpl.fields.find(f => f.id === 'geography')) {
+        formData.geography = REGION_DATA[selectedRegion].geo;
+      }
       let h = `<h2>${tmpl.title}</h2><p class="builder-desc">${tmpl.desc}</p>`;
       tmpl.fields.forEach(f => {
         const req = f.required ? '<span class="req-star">*</span>' : '';
@@ -2323,12 +2451,12 @@ Reference Signify NA's portfolio (Philips Hue, WiZ, Philips LED) for cannibaliza
           : '';
         h += `<div class="field-group"><label class="field-label">${f.label}${req}${helpBadge}</label>`;
         if (f.type === 'chips') {
-          const baseOpts = f.opts === 'COMP' ? COMPETITORS : f.opts;
+          const baseOpts = f.opts === 'COMP' ? COMPETITORS : f.opts === 'CHANNELS' ? CHANNELS : f.opts;
           const opts = [...baseOpts, ...(customOpts[f.id] || [])];
           h += `<div class="chip-group" id="cg_${f.id}">`;
           opts.forEach(o => { const e = o.replace(/'/g, "\\'"); h += `<button class="chip" onclick="selChip(this,'${f.id}','${e}',${!!f.multi})">${o}</button>`; });
           h += `</div>`;
-          if (f.opts === CHANNELS) {
+          if (f.opts === 'CHANNELS') {
             h += `<div class="channel-shortcuts"><span class="shortcuts-label">Quick select:</span>`;
             CHANNEL_GROUPS.forEach((grp, i) => { h += `<button class="shortcut-pill" onclick="selectGroup('${f.id}',${i})">${eph(grp.label)}</button>`; });
             h += `</div>`;
@@ -3181,6 +3309,17 @@ Output Templates:
     }
 
     document.getElementById('roleSelect').value = userRole;
+    // Apply saved region before setRole so CHANNELS/COMPETITORS are correct when renderBuilder() fires
+    if (selectedRegion !== 'North America') {
+      const rd = REGION_DATA[selectedRegion];
+      CHANNELS       = rd.channels;
+      COMPETITORS    = rd.competitors;
+      CHANNEL_GROUPS = rd.channelGroups;
+    }
+    // Mark the correct region pill as active
+    document.querySelectorAll('.region-pill').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.region === selectedRegion);
+    });
     setRole(userRole);
     handlePrefills();
   </script>
