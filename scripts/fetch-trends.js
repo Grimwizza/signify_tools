@@ -22,12 +22,14 @@ const CONFIG = {
     { name: 'connected1',   keywords: ['Philips Hue', 'Govee', 'Lutron', 'Nanoleaf', 'Sengled'] },
     { name: 'connected2',   keywords: ['Philips Hue', 'Wyze', 'LIFX', 'TP-Link Kasa'] },
     { name: 'traditional1', keywords: ['Philips Hue', 'GE Lighting', 'Sylvania', 'Cree Lighting', 'Great Value'] },
-    { name: 'traditional2', keywords: ['Philips Hue', 'Feit Electric', 'EcoSmart', 'Commercial Electric'] }
+    { name: 'traditional2', keywords: ['Philips Hue', 'Feit Electric', 'EcoSmart', 'Commercial Electric'] },
+    { name: 'regional',     keywords: ['Philips Hue', 'NOMA', 'Globe Electric', 'Tecnolite', 'Steren'] }
   ],
   allBrands: [
     'Philips Hue', 'Philips LED', 'Philips Smart Lighting', 'Philips Wifi', 'WiZ',
     'Govee', 'Lutron', 'Nanoleaf', 'Sengled', 'Wyze', 'LIFX', 'TP-Link Kasa',
-    'GE Lighting', 'Sylvania', 'Cree Lighting', 'Great Value', 'Feit Electric', 'EcoSmart', 'Commercial Electric'
+    'GE Lighting', 'Sylvania', 'Cree Lighting', 'Great Value', 'Feit Electric', 'EcoSmart', 'Commercial Electric',
+    'NOMA', 'Globe Electric', 'Tecnolite', 'Steren'
   ],
   categories: ['Smart Lighting', 'LED Bulbs', 'Smart Home'],
   // gprop values: '' = web, 'froogle' = shopping, 'news' = news, 'youtube' = youtube
@@ -75,7 +77,11 @@ function generateFallbackBrands(channel = 'web') {
     'Great Value':          (i, ch) => base(ch === 'shopping' ? 52 : 18, 5, i, 20),
     'Feit Electric':        (i, ch) => base(ch === 'shopping' ? 40 : 26, 6, i, 35),
     'EcoSmart':             (i, ch) => base(ch === 'shopping' ? 24 : 14, 3, i, 45),
-    'Commercial Electric':  (i, _ch) => base(6, 2, i, 50)
+    'Commercial Electric':  (i, _ch) => base(6, 2, i, 50),
+    'NOMA':                 (i, ch) => base(ch === 'shopping' ? 22 : 15, 4, i, 35),
+    'Globe Electric':       (i, ch) => base(ch === 'shopping' ? 26 : 18, 5, i, 30),
+    'Tecnolite':            (i, ch) => base(ch === 'shopping' ? 18 : 12, 3, i, 40),
+    'Steren':               (i, ch) => base(ch === 'youtube' ? 24 : 20, 5, i, 25)
   };
 
   function base(center, amp, i, period) {
@@ -185,6 +191,7 @@ function normalizeGroups(groupTimelines) {
     const g3 = (groupTimelines[2][i] || { values: [0, 0, 0, 0] }).values;
     const g4 = (groupTimelines[3][i] || { values: [0, 0, 0, 0, 0] }).values;
     const g5 = (groupTimelines[4][i] || { values: [0, 0, 0, 0] }).values;
+    const g6 = (groupTimelines[5][i] || { values: [0, 0, 0, 0, 0] }).values; // regional: [Hue, NOMA, Globe Electric, Tecnolite, Steren]
 
     const scale = (vals, groupIdx) => vals.slice(1).map(v => Math.min(100, Math.round(v * scales[groupIdx])));
 
@@ -194,7 +201,8 @@ function normalizeGroups(groupTimelines) {
       values: [
         ...g1,
         ...scale(g2, 1), ...scale(g3, 2),
-        ...scale(g4, 3), ...scale(g5, 4)
+        ...scale(g4, 3), ...scale(g5, 4),
+        ...scale(g6, 5)
       ]
     };
   });
@@ -265,10 +273,12 @@ async function main() {
     output[chan.key] = { brands: { timeline: [] }, categories: { timeline: [] } };
   }
 
-  console.log('Launching browser...');
-  const browser = await chromium.launch({ headless: false }); // visible so you can solve CAPTCHAs if needed
-  const context = await browser.newContext({ locale: 'en-US', timezoneId: 'America/New_York' });
-  const page = await context.newPage();
+  const forceSynthetic = process.argv.includes('--synthetic');
+
+  console.log(forceSynthetic ? 'Starting in synthetic mode...' : 'Launching browser...');
+  const browser = forceSynthetic ? null : await chromium.launch({ headless: false }); // visible so you can solve CAPTCHAs if needed
+  const context = forceSynthetic ? null : await browser.newContext({ locale: 'en-US', timezoneId: 'America/New_York' });
+  const page = forceSynthetic ? null : await context.newPage();
 
   for (let cIdx = 0; cIdx < CONFIG.channels.length; cIdx++) {
     const chan = CONFIG.channels[cIdx];
@@ -276,23 +286,25 @@ async function main() {
 
     let brandTimeline = [];
     let categoryTimeline = [];
-    let success = true;
+    let success = !forceSynthetic;
 
-    for (let gIdx = 0; gIdx < CONFIG.groups.length; gIdx++) {
-      const grp = CONFIG.groups[gIdx];
-      try {
-        console.log(`  Fetching group "${grp.name}": ${grp.keywords.join(', ')}`);
-        const tl = await fetchGroupWithBrowser(page, grp.keywords, chan.gprop);
-        brandTimeline.push(tl);
-        console.log(`  ✓ Got ${tl.length} data points`);
-      } catch (err) {
-        console.error(`  ✗ Failed: ${err.message}`);
-        success = false;
-        break;
-      }
-      if (gIdx < CONFIG.groups.length - 1) {
-        console.log(`  Waiting ${CONFIG.fetchDelay / 1000}s before next group...`);
-        await delay(CONFIG.fetchDelay);
+    if (success) {
+      for (let gIdx = 0; gIdx < CONFIG.groups.length; gIdx++) {
+        const grp = CONFIG.groups[gIdx];
+        try {
+          console.log(`  Fetching group "${grp.name}": ${grp.keywords.join(', ')}`);
+          const tl = await fetchGroupWithBrowser(page, grp.keywords, chan.gprop);
+          brandTimeline.push(tl);
+          console.log(`  ✓ Got ${tl.length} data points`);
+        } catch (err) {
+          console.error(`  ... Failed: ${err.message}`);
+          success = false;
+          break;
+        }
+        if (gIdx < CONFIG.groups.length - 1) {
+          console.log(`  Waiting ${CONFIG.fetchDelay / 1000}s before next group...`);
+          await delay(CONFIG.fetchDelay);
+        }
       }
     }
 
@@ -353,50 +365,136 @@ async function main() {
 
   output.geo = existingData.geo || {};
 
-  for (const chan of CONFIG.channels) {
-    if (!output.geo[chan.key]) output.geo[chan.key] = { brands: {}, categories: {} };
-    for (const brand of GEO_BRANDS_TO_FETCH) {
-      await delay(CONFIG.fetchDelay);
-      try {
-        console.log(`  Geo: ${brand} (${chan.key})`);
-        const stateScores = await fetchGeoData(page, brand, chan.gprop);
-        output.geo[chan.key].brands[brand] = stateScores;
-        console.log(`  ✓ Got ${Object.keys(stateScores).length} states`);
-      } catch (err) {
-        console.error(`  ✗ Geo failed for ${brand}/${chan.key}: ${err.message}`);
-        // Keep existing data if available
-        if (existingData.geo && existingData.geo[chan.key] && existingData.geo[chan.key].brands[brand]) {
-          output.geo[chan.key].brands[brand] = existingData.geo[chan.key].brands[brand];
+  if (!forceSynthetic) {
+    for (const chan of CONFIG.channels) {
+      if (!output.geo[chan.key]) output.geo[chan.key] = { brands: {}, categories: {} };
+      for (const brand of GEO_BRANDS_TO_FETCH) {
+        await delay(CONFIG.fetchDelay);
+        try {
+          console.log(`  Geo: ${brand} (${chan.key})`);
+          const stateScores = await fetchGeoData(page, brand, chan.gprop);
+          output.geo[chan.key].brands[brand] = stateScores;
+          console.log(`  ✓ Got ${Object.keys(stateScores).length} states`);
+        } catch (err) {
+          console.error(`  ✗ Geo failed for ${brand}/${chan.key}: ${err.message}`);
+          // Keep existing data if available
+          if (existingData.geo && existingData.geo[chan.key] && existingData.geo[chan.key].brands[brand]) {
+            output.geo[chan.key].brands[brand] = existingData.geo[chan.key].brands[brand];
+          }
+        }
+      }
+      // Carry over remaining brands from existing data / synthetic
+      for (const brand of CONFIG.allBrands) {
+        if (!output.geo[chan.key].brands[brand]) {
+          if (existingData.geo && existingData.geo[chan.key] && existingData.geo[chan.key].brands[brand]) {
+            output.geo[chan.key].brands[brand] = existingData.geo[chan.key].brands[brand];
+          }
+        }
+      }
+      // Categories geo
+      for (const cat of CONFIG.categories) {
+        await delay(CONFIG.fetchDelay);
+        try {
+          console.log(`  Geo: ${cat} (${chan.key})`);
+          output.geo[chan.key].categories[cat] = await fetchGeoData(page, cat, chan.gprop);
+        } catch (err) {
+          console.error(`  ✗ Geo category failed for ${cat}/${chan.key}: ${err.message}`);
+          if (existingData.geo && existingData.geo[chan.key] && existingData.geo[chan.key].categories[cat]) {
+            output.geo[chan.key].categories[cat] = existingData.geo[chan.key].categories[cat];
+          }
         }
       }
     }
-    // Carry over remaining brands from existing data / synthetic
-    for (const brand of CONFIG.allBrands) {
-      if (!output.geo[chan.key].brands[brand]) {
-        if (existingData.geo && existingData.geo[chan.key] && existingData.geo[chan.key].brands[brand]) {
-          output.geo[chan.key].brands[brand] = existingData.geo[chan.key].brands[brand];
-        }
-      }
-    }
-    // Categories geo
-    for (const cat of CONFIG.categories) {
-      await delay(CONFIG.fetchDelay);
-      try {
-        console.log(`  Geo: ${cat} (${chan.key})`);
-        output.geo[chan.key].categories[cat] = await fetchGeoData(page, cat, chan.gprop);
-      } catch (err) {
-        console.error(`  ✗ Geo category failed for ${cat}/${chan.key}: ${err.message}`);
-        if (existingData.geo && existingData.geo[chan.key] && existingData.geo[chan.key].categories[cat]) {
-          output.geo[chan.key].categories[cat] = existingData.geo[chan.key].categories[cat];
-        }
-      }
-    }
+  } else {
+    console.log('  Bypassing live geo fetching in synthetic mode.');
   }
 
-  await browser.close();
+  backfillGeoData(output);
+
+  if (browser) await browser.close();
 
   fs.writeFileSync(outputFile, JSON.stringify(output, null, 2), 'utf8');
   console.log(`\nSaved to: ${outputFile}`);
+}
+
+function backfillGeoData(output) {
+  if (!output.geo) output.geo = {};
+  if (!output.geo.canada) output.geo.canada = {};
+  if (!output.geo.nola) output.geo.nola = {};
+
+  const US_STATES = [
+    'AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA',
+    'KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ',
+    'NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT',
+    'VA','WA','WV','WI','WY'
+  ];
+  const CANADA_PROVINCES = ['BC','AB','ON','QC','MB','SK','NS','NB','PE','NL','YT','NT','NU'];
+  const NOLA_COUNTRIES = ['MX','GT','BZ','SV','HN','NI','CR','PA','CU','HT','DO','JM','PR'];
+
+  const getSyntheticGeoData = (region, brand) => {
+    const isCanadaBrand = ['NOMA', 'Globe Electric'].includes(brand);
+    const isNolaBrand = ['Tecnolite', 'Steren'].includes(brand);
+
+    let min = 10, max = 80;
+    let keys = [];
+
+    if (region === 'canada') {
+      keys = CANADA_PROVINCES;
+      if (isCanadaBrand) { min = 55; max = 98; }
+      else if (isNolaBrand) { min = 0; max = 15; }
+      else { min = 35; max = 85; }
+    } else if (region === 'nola') {
+      keys = NOLA_COUNTRIES;
+      if (isNolaBrand) { min = 55; max = 98; }
+      else if (isCanadaBrand) { min = 0; max = 15; }
+      else { min = 25; max = 75; }
+    } else {
+      keys = US_STATES;
+      if (isCanadaBrand || isNolaBrand) { min = 0; max = 15; }
+      else { min = 35; max = 95; }
+    }
+
+    const scores = {};
+    keys.forEach((k, idx) => {
+      const factor = (keys.length - idx) / keys.length;
+      scores[k] = Math.round(min + factor * (max - min) + (Math.random() - 0.5) * 10);
+      scores[k] = Math.min(100, Math.max(0, scores[k]));
+    });
+    return scores;
+  };
+
+  for (const chan of CONFIG.channels) {
+    const chanKey = chan.key;
+    if (!output.geo[chanKey]) output.geo[chanKey] = { brands: {}, categories: {} };
+    if (!output.geo.canada[chanKey]) output.geo.canada[chanKey] = { brands: {}, categories: {} };
+    if (!output.geo.nola[chanKey]) output.geo.nola[chanKey] = { brands: {}, categories: {} };
+
+    // Brands Geo Backfill
+    for (const brand of CONFIG.allBrands) {
+      if (!output.geo[chanKey].brands[brand]) {
+        output.geo[chanKey].brands[brand] = getSyntheticGeoData('us', brand);
+      }
+      if (!output.geo.canada[chanKey].brands[brand]) {
+        output.geo.canada[chanKey].brands[brand] = getSyntheticGeoData('canada', brand);
+      }
+      if (!output.geo.nola[chanKey].brands[brand]) {
+        output.geo.nola[chanKey].brands[brand] = getSyntheticGeoData('nola', brand);
+      }
+    }
+
+    // Categories Geo Backfill
+    for (const cat of CONFIG.categories) {
+      if (!output.geo[chanKey].categories[cat]) {
+        output.geo[chanKey].categories[cat] = getSyntheticGeoData('us', cat);
+      }
+      if (!output.geo.canada[chanKey].categories[cat]) {
+        output.geo.canada[chanKey].categories[cat] = getSyntheticGeoData('canada', cat);
+      }
+      if (!output.geo.nola[chanKey].categories[cat]) {
+        output.geo.nola[chanKey].categories[cat] = getSyntheticGeoData('nola', cat);
+      }
+    }
+  }
 }
 
 main().catch(err => {

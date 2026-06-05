@@ -863,7 +863,7 @@
   </div>
 
   <script>
-    // Curated color palette for 19 brands & 3 categories
+    // Curated color palette for 23 brands & 3 categories
     const COLORS = {
       'Philips Hue': '#00E487',              // Signify Green
       'Philips LED': '#ACACAE',              // Medium Gray
@@ -884,6 +884,10 @@
       'Feit Electric': '#1ABC9C',            // Sea Green
       'EcoSmart': '#2980B9',                 // Slate Blue
       'Commercial Electric': '#7F8C8D',      // Steel Gray
+      'NOMA': '#D35400',                     // Dark Orange
+      'Globe Electric': '#2C3E50',            // Navy Slate
+      'Tecnolite': '#F39C12',                // Gold Amber
+      'Steren': '#2980B9',                   // Medium Blue
       'Smart Lighting': '#00E487',
       'LED Bulbs': '#1ECBD0',
       'Smart Home': '#A1ADFF'
@@ -892,8 +896,14 @@
     // Regional index multipliers applied on top of channel data.
     // Values reflect relative brand strength vs the US baseline (1.0 = same as US).
     const REGION_BRAND_ADJ = {
-      'North America': {},  // combined — use data as-is
-      'United States': {},  // data is US-based — no adjustment
+      'North America': {
+        'NOMA':                 0.45, 'Globe Electric':          0.50,
+        'Tecnolite':            0.10, 'Steren':                 0.10
+      },
+      'United States': {
+        'NOMA':                 0.05, 'Globe Electric':          0.15,
+        'Tecnolite':            0.05, 'Steren':                 0.05
+      },
       'Canada': {
         'Philips Hue':          0.88, 'Philips LED':            0.85,
         'Philips Smart Lighting':0.80, 'Philips Wifi':          0.80,
@@ -904,7 +914,9 @@
         'GE Lighting':          0.62, 'Sylvania':               0.58,
         'Cree Lighting':        0.52, 'Great Value':            0.18,
         'Feit Electric':        0.72, 'EcoSmart':               0.65,
-        'Commercial Electric':  0.30
+        'Commercial Electric':  0.30,
+        'NOMA':                 1.35, 'Globe Electric':          1.20,
+        'Tecnolite':            0.05, 'Steren':                 0.05
       },
       'NOLA': {
         'Philips Hue':          0.42, 'Philips LED':            0.48,
@@ -916,7 +928,9 @@
         'GE Lighting':          0.48, 'Sylvania':               0.38,
         'Cree Lighting':        0.32, 'Great Value':            1.25,
         'Feit Electric':        0.75, 'EcoSmart':               0.55,
-        'Commercial Electric':  0.40
+        'Commercial Electric':  0.40,
+        'NOMA':                 0.05, 'Globe Electric':          0.10,
+        'Tecnolite':            1.50, 'Steren':                 1.40
       }
     };
 
@@ -986,12 +1000,50 @@
       updateDashboard();
     }
 
+    function getActiveBrandsForRegion(region, category = 'all') {
+      let defaults = [];
+      let competitors = [];
+
+      if (category === 'connected') {
+        defaults = ['Philips Hue', 'Philips Smart Lighting', 'Philips Wifi', 'WiZ'];
+        competitors = ['Govee', 'Lutron', 'Nanoleaf', 'Sengled', 'Wyze', 'LIFX', 'TP-Link Kasa'];
+        if (region === 'Canada' || region === 'North America') {
+          competitors.push('Globe Electric');
+        } else if (region === 'NOLA') {
+          competitors.push('Tecnolite', 'Steren');
+        }
+      } else if (category === 'traditional') {
+        defaults = ['Philips LED'];
+        competitors = ['GE Lighting', 'Sylvania', 'Cree Lighting', 'Great Value', 'Feit Electric', 'EcoSmart', 'Commercial Electric'];
+        if (region === 'Canada' || region === 'North America') {
+          competitors.push('NOMA', 'Globe Electric');
+        } else if (region === 'NOLA') {
+          competitors.push('Tecnolite');
+        }
+      } else {
+        // 'all'
+        defaults = ['Philips Hue', 'Philips LED', 'Philips Smart Lighting', 'Philips Wifi', 'WiZ'];
+        competitors = [
+          'Govee', 'Lutron', 'Nanoleaf', 'Sengled', 'Wyze', 'LIFX', 'TP-Link Kasa',
+          'GE Lighting', 'Sylvania', 'Cree Lighting', 'Great Value', 'Feit Electric', 'EcoSmart', 'Commercial Electric'
+        ];
+        if (region === 'Canada' || region === 'North America') {
+          competitors.push('NOMA', 'Globe Electric');
+        } else if (region === 'NOLA') {
+          competitors.push('Tecnolite', 'Steren');
+        }
+      }
+
+      return { defaults, competitors, all: [...defaults, ...competitors] };
+    }
+
     function updateDashboard() {
       if (!trendsData) return;
 
       const category = document.getElementById('brandCategorySelect').value;
       const days = parseInt(document.getElementById('timePeriodSelect').value);
       const channel = document.getElementById('searchChannelSelect').value;
+      const region = localStorage.getItem('signifyRegion') || 'North America';
       
       let sourceBrandsTimeline = trendsData.brands.timeline;
       let sourceCategoriesTimeline = trendsData.categories.timeline;
@@ -1003,27 +1055,8 @@
       const filteredBrandTimeline = getFilteredTimeline(applyRegionalAdj(sourceBrandsTimeline, false), days);
       const filteredCategoryTimeline = getFilteredTimeline(applyRegionalAdj(sourceCategoriesTimeline, true), days);
 
-      // Define default and competitor brands lists based on filter dropdown
-      let defaultBrands = [];
-      let competitorBrands = [];
-
-      if (category === 'connected') {
-        defaultBrands = ['Philips Hue', 'Philips Smart Lighting', 'Philips Wifi', 'WiZ'];
-        competitorBrands = ['Govee', 'Lutron', 'Nanoleaf', 'Sengled', 'Wyze', 'LIFX', 'TP-Link Kasa'];
-      } else if (category === 'traditional') {
-        defaultBrands = ['Philips LED'];
-        competitorBrands = ['GE Lighting', 'Sylvania', 'Cree Lighting', 'Great Value', 'Feit Electric', 'EcoSmart', 'Commercial Electric'];
-      } else {
-        // 'all'
-        defaultBrands = ['Philips Hue', 'Philips LED', 'Philips Smart Lighting', 'Philips Wifi', 'WiZ'];
-        competitorBrands = [
-          'Govee', 'Lutron', 'Nanoleaf', 'Sengled', 'Wyze', 'LIFX', 'TP-Link Kasa',
-          'GE Lighting', 'Sylvania', 'Cree Lighting', 'Great Value', 'Feit Electric', 'EcoSmart', 'Commercial Electric'
-        ];
-      }
-
-      // Filter competitor brands that are accidentally defined as defaults (defensive)
-      competitorBrands = competitorBrands.filter(b => !defaultBrands.includes(b));
+      // Define default and competitor brands lists based on filter dropdown and region
+      const { defaults: defaultBrands, competitors: competitorBrands, all: visibleBrands } = getActiveBrandsForRegion(region, category);
       
       // Dynamically resolve default indices in keywords array (prevents indices shifts from cached data)
       const defaultIndices = defaultBrands
@@ -1059,16 +1092,6 @@
 
       // 2. Draw Category Growth Chart
       drawCategoryChart(filteredCategoryTimeline);
-
-      // Compute full visible brands list for leaderboard & SoS
-      let visibleBrands = [];
-      if (category === 'connected') {
-        visibleBrands = ['Philips Hue','Philips Smart Lighting','Philips Wifi','WiZ','Govee','Lutron','Nanoleaf','Sengled','Wyze','LIFX','TP-Link Kasa'];
-      } else if (category === 'traditional') {
-        visibleBrands = ['Philips LED','GE Lighting','Sylvania','Cree Lighting','Great Value','Feit Electric','EcoSmart','Commercial Electric'];
-      } else {
-        visibleBrands = trendsData.brands.keywords;
-      }
 
       // 3. Render Leaderboards with growth badges (sidebar)
       renderLeaderboards(filteredBrandTimeline, filteredCategoryTimeline, sourceBrandsTimeline, visibleBrands);
@@ -1380,7 +1403,8 @@
           keywords: [
             'Philips Hue', 'Philips LED', 'Philips Smart Lighting', 'Philips Wifi', 'WiZ',
             'Govee', 'Lutron', 'Nanoleaf', 'Sengled', 'Wyze', 'LIFX', 'TP-Link Kasa',
-            'GE Lighting', 'Sylvania', 'Cree Lighting', 'Great Value', 'Feit Electric', 'EcoSmart', 'Commercial Electric'
+            'GE Lighting', 'Sylvania', 'Cree Lighting', 'Great Value', 'Feit Electric', 'EcoSmart', 'Commercial Electric',
+            'NOMA', 'Globe Electric', 'Tecnolite', 'Steren'
           ],
           timeline: []
         },
@@ -1416,6 +1440,11 @@
         const feit = Math.round(26 + Math.sin(i / 35) * 5 + Math.random() * 3);
         const ecoSmart = Math.round(14 + Math.cos(i / 45) * 3 + Math.random() * 2);
         const commElec = Math.round(6 + Math.sin(i / 50) * 2 + Math.random() * 1);
+
+        const noma = Math.round(18 + Math.sin(i / 30) * 4 + Math.random() * 2);
+        const globe = Math.round(22 + Math.cos(i / 35) * 5 + Math.random() * 3);
+        const tecnolite = Math.round(15 + Math.sin(i / 40) * 3 + Math.random() * 2);
+        const steren = Math.round(25 + Math.cos(i / 30) * 6 + Math.random() * 4);
         
         data.brands.timeline.push({
           date: time.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
@@ -1423,7 +1452,8 @@
           values: [
             hue, led, smartL, wifi, wiz, 
             govee, lutron, nanoleaf, sengled, wyze, lifx, tpLink,
-            geL, sylvania, cree, greatValue, feit, ecoSmart, commElec
+            geL, sylvania, cree, greatValue, feit, ecoSmart, commElec,
+            noma, globe, tecnolite, steren
           ]
         });
 
@@ -1481,31 +1511,17 @@
       const category = document.getElementById('brandCategorySelect').value;
       const days = parseInt(document.getElementById('timePeriodSelect').value);
       const channel = document.getElementById('searchChannelSelect').value;
+      const region = localStorage.getItem('signifyRegion') || 'North America';
       
       let sourceBrandsTimeline = trendsData.brands.timeline;
       if (trendsData[channel]) {
         sourceBrandsTimeline = trendsData[channel].brands.timeline;
       }
-      const filteredBrandTimeline = getFilteredTimeline(sourceBrandsTimeline, days);
+      
+      // Apply active regional adjustments so downloaded data matches chart
+      const filteredBrandTimeline = getFilteredTimeline(applyRegionalAdj(sourceBrandsTimeline, false), days);
 
-      let defaultBrands = [];
-      let competitorBrands = [];
-
-      if (category === 'connected') {
-        defaultBrands = ['Philips Hue', 'Philips Smart Lighting', 'Philips Wifi', 'WiZ'];
-        competitorBrands = ['Govee', 'Lutron', 'Nanoleaf', 'Sengled', 'Wyze', 'LIFX', 'TP-Link Kasa'];
-      } else if (category === 'traditional') {
-        defaultBrands = ['Philips LED'];
-        competitorBrands = ['GE Lighting', 'Sylvania', 'Cree Lighting', 'Great Value', 'Feit Electric', 'EcoSmart', 'Commercial Electric'];
-      } else {
-        defaultBrands = ['Philips Hue', 'Philips LED', 'Philips Smart Lighting', 'Philips Wifi', 'WiZ'];
-        competitorBrands = [
-          'Govee', 'Lutron', 'Nanoleaf', 'Sengled', 'Wyze', 'LIFX', 'TP-Link Kasa',
-          'GE Lighting', 'Sylvania', 'Cree Lighting', 'Great Value', 'Feit Electric', 'EcoSmart', 'Commercial Electric'
-        ];
-      }
-
-      competitorBrands = competitorBrands.filter(b => !defaultBrands.includes(b));
+      const { defaults: defaultBrands, competitors: competitorBrands } = getActiveBrandsForRegion(region, category);
       
       const defaultIndices = defaultBrands
         .map(name => trendsData.brands.keywords.indexOf(name))
@@ -1542,19 +1558,23 @@
         ];
       });
 
-      downloadCSV(`brand_popularity_${category}_${days}d.csv`, headers, rows);
+      const safeRegion = region.replace(/\s+/g, '_');
+      downloadCSV(`brand_popularity_${safeRegion}_${category}_${days}d.csv`, headers, rows);
     }
 
     function downloadCategoryCSV() {
       if (!trendsData) return;
       const days = parseInt(document.getElementById('timePeriodSelect').value);
       const channel = document.getElementById('searchChannelSelect').value;
+      const region = localStorage.getItem('signifyRegion') || 'North America';
       
       let sourceCategoriesTimeline = trendsData.categories.timeline;
       if (trendsData[channel]) {
         sourceCategoriesTimeline = trendsData[channel].categories.timeline;
       }
-      const filteredCategoryTimeline = getFilteredTimeline(sourceCategoriesTimeline, days);
+      
+      // Apply active regional adjustments
+      const filteredCategoryTimeline = getFilteredTimeline(applyRegionalAdj(sourceCategoriesTimeline, true), days);
 
       const headers = ['Date', 'Event', ...trendsData.categories.keywords];
       const rows = filteredCategoryTimeline.map(item => {
@@ -1565,19 +1585,20 @@
         ];
       });
 
-      downloadCSV(`category_growth_${days}d.csv`, headers, rows);
+      const safeRegion = region.replace(/\s+/g, '_');
+      downloadCSV(`category_growth_${safeRegion}_${days}d.csv`, headers, rows);
     }
 
     function downloadGeoCSV() {
       if (!trendsData || !trendsData.geo) return;
       const subject = document.getElementById('geoSubjectSelect').value;
       const channel = document.getElementById('searchChannelSelect').value;
+      const region = localStorage.getItem('signifyRegion') || 'North America';
       if (!subject) return;
 
-      const geoChannel = trendsData.geo[channel] || trendsData.geo['web'];
-      const scores = geoChannel.brands[subject] || geoChannel.categories[subject]
-                  || trendsData.geo.web.brands[subject] || trendsData.geo.web.categories[subject] || {};
-
+      let scores = {};
+      let geoLabel = 'State';
+      
       const STATE_NAMES = {
         AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',
         CO:'Colorado',CT:'Connecticut',DE:'Delaware',FL:'Florida',GA:'Georgia',
@@ -1591,57 +1612,47 @@
         VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming'
       };
 
+      const PROVINCE_NAMES = {
+        BC:'British Columbia', AB:'Alberta', SK:'Saskatchewan', MB:'Manitoba',
+        ON:'Ontario', QC:'Quebec', NB:'New Brunswick', NS:'Nova Scotia',
+        PE:'Prince Edward Island', NL:'Newfoundland and Labrador', YT:'Yukon',
+        NT:'Northwest Territories', NU:'Nunavut'
+      };
+
+      const COUNTRY_NAMES = {
+        MX:'Mexico', GT:'Guatemala', BZ:'Belize', SV:'El Salvador',
+        HN:'Honduras', NI:'Nicaragua', CR:'Costa Rica', PA:'Panama',
+        CU:'Cuba', PR:'Puerto Rico', HT:'Haiti', DO:'Dominican Republic',
+        JM:'Jamaica'
+      };
+
+      let namesMap = STATE_NAMES;
+
+      if (region === 'Canada') {
+        geoLabel = 'Province';
+        namesMap = PROVINCE_NAMES;
+        const src = (trendsData.geo.canada || {})[channel] || (trendsData.geo.canada || {}).web || {};
+        scores = src.brands?.[subject] || src.categories?.[subject] || {};
+      } else if (region === 'NOLA') {
+        geoLabel = 'Country';
+        namesMap = COUNTRY_NAMES;
+        const src = (trendsData.geo.nola || {})[channel] || (trendsData.geo.nola || {}).web || {};
+        scores = src.brands?.[subject] || src.categories?.[subject] || {};
+      } else {
+        geoLabel = 'State';
+        namesMap = STATE_NAMES;
+        const src = trendsData.geo[channel] || trendsData.geo.web;
+        scores = src.brands?.[subject] || src.categories?.[subject]
+              || trendsData.geo.web.brands?.[subject] || trendsData.geo.web.categories?.[subject] || {};
+      }
+
       const rows = Object.entries(scores)
         .sort((a, b) => b[1] - a[1])
-        .map(([code, score]) => [STATE_NAMES[code] || code, code, score]);
+        .map(([code, score]) => [namesMap[code] || code, code, score]);
 
       const safeSubject = subject.replace(/[^a-zA-Z0-9]/g, '_');
-      downloadCSV(`geo_interest_${safeSubject}_${channel}.csv`, ['State', 'Code', 'Interest Score (0-100)'], rows);
-    }
-
-    const HISTORY_KEY = 'trends_search_history';
-
-    function getSearchHistory() {
-      try {
-        const history = localStorage.getItem(HISTORY_KEY);
-        return history ? JSON.parse(history) : [];
-      } catch (e) {
-        return [];
-      }
-    }
-
-    function saveSearchHistory(query) {
-      if (!query) return;
-      let history = getSearchHistory();
-      history = history.filter(h => h.toLowerCase() !== query.toLowerCase());
-      history.unshift(query);
-      history = history.slice(0, 5);
-      try {
-        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-      } catch (e) {}
-      renderSearchHistory();
-    }
-
-    function renderSearchHistory() {
-      const history = getSearchHistory();
-      const container = document.getElementById('searchHistoryContainer');
-      const list = document.getElementById('searchHistoryList');
-      
-      if (history.length === 0) {
-        container.style.display = 'none';
-        return;
-      }
-      
-      container.style.display = 'flex';
-      list.innerHTML = history.map(query => {
-        const escaped = query.replace(/"/g, '&quot;');
-        return `<span class="history-chip" onclick="applyHistorySearch('${escaped}')">${query}</span>`;
-      }).join('');
-    }
-
-    function applyHistorySearch(query) {
-      document.getElementById('customSearchInput').value = query;
-      renderCustomWidget();
+      const safeRegion = region.replace(/\s+/g, '_');
+      downloadCSV(`geo_interest_${safeRegion}_${safeSubject}_${channel}.csv`, [geoLabel, 'Code', 'Interest Score (0-100)'], rows);
     }
 
     function downloadCustomCSV() {
@@ -1685,6 +1696,7 @@
 
       const days = parseInt(document.getElementById('timePeriodSelect').value);
       const channel = document.getElementById('searchChannelSelect').value;
+      const region = localStorage.getItem('signifyRegion') || 'North America';
       
       let sourceBrandsTimeline = trendsData.brands.timeline;
       let sourceCategoriesTimeline = trendsData.categories.timeline;
@@ -1693,8 +1705,9 @@
         sourceCategoriesTimeline = trendsData[channel].categories.timeline;
       }
 
-      const filteredBrandTimeline = getFilteredTimeline(sourceBrandsTimeline, days);
-      const filteredCategoryTimeline = getFilteredTimeline(sourceCategoriesTimeline, days);
+      // Apply active regional adjustments
+      const filteredBrandTimeline = getFilteredTimeline(applyRegionalAdj(sourceBrandsTimeline, false), days);
+      const filteredCategoryTimeline = getFilteredTimeline(applyRegionalAdj(sourceCategoriesTimeline, true), days);
 
       const headers = ['Date'];
       foundBrands.forEach(b => headers.push(b.originalName));
@@ -1715,7 +1728,8 @@
         rows.push(row);
       }
 
-      downloadCSV(`custom_explore_${keywords.join('_').replace(/[^a-zA-Z0-9]/g, '')}.csv`, headers, rows);
+      const safeRegion = region.replace(/\s+/g, '_');
+      downloadCSV(`custom_explore_${safeRegion}_${keywords.join('_').replace(/[^a-zA-Z0-9]/g, '')}.csv`, headers, rows);
     }
 
     // --- Share of Search ---
@@ -1825,13 +1839,24 @@
     function initGeoPanel() {
       const sel = document.getElementById('geoSubjectSelect');
       if (!sel) return;
+      const prevVal = sel.value;
       sel.innerHTML = '';
-      [...trendsData.brands.keywords, ...trendsData.categories.keywords].forEach(name => {
+      const region = localStorage.getItem('signifyRegion') || 'North America';
+      const { all: brands } = getActiveBrandsForRegion(region, 'all');
+
+      [...brands, ...trendsData.categories.keywords].forEach(name => {
         const opt = document.createElement('option');
         opt.value = name;
         opt.textContent = name;
         sel.appendChild(opt);
       });
+
+      if (brands.includes(prevVal) || trendsData.categories.keywords.includes(prevVal)) {
+        sel.value = prevVal;
+      } else {
+        sel.value = brands[0] || 'Philips Hue';
+      }
+
       renderGeoPanel();
     }
 
@@ -1930,7 +1955,7 @@
       });
 
       updateDashboard();
-      renderGeoPanel();
+      initGeoPanel();
     }
 
     window.onload = () => {
