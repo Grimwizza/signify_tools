@@ -1,10 +1,270 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Welcome to Signify Tools</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signify North America Tools Portal</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --sig-green: #00E487;
+      --sig-teal: #14D3BE;
+      --sig-dark: #0a1628;
+      --sig-dark-2: #0f1f38;
+      --sig-dark-3: #162a4a;
+      --sig-surface: #1a2d4d;
+      --sig-text: #e8edf5;
+      --sig-text-dim: #8899b3;
+      --sig-border: #253a5c;
+      --sig-green-glow: rgba(0, 228, 135, 0.15);
+      --sig-teal-glow: rgba(20, 211, 190, 0.1);
+      --radius: 16px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--sig-dark);
+      color: var(--sig-text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow-x: hidden;
+      padding: 40px 20px;
+    }
+
+    /* Ambient background glows */
+    body::before {
+      content: '';
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, var(--sig-green-glow) 0%, transparent 70%);
+      top: -100px;
+      left: -100px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, var(--sig-teal-glow) 0%, transparent 70%);
+      bottom: -150px;
+      right: -150px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .portal-container {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .logo-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--sig-green), var(--sig-teal));
+      border-radius: 16px;
+      font-weight: 800;
+      font-size: 32px;
+      color: var(--sig-dark);
+      margin-bottom: 24px;
+      box-shadow: 0 8px 24px rgba(0, 228, 135, 0.25);
+    }
+
+    .portal-title {
+      font-size: 36px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--sig-green), var(--sig-teal));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    .portal-subtitle {
+      font-size: 14px;
+      color: var(--sig-text-dim);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 48px;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    @media (max-width: 768px) {
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .tool-card {
+      background: var(--sig-dark-2);
+      border: 1px solid var(--sig-border);
+      border-radius: var(--radius);
+      padding: 36px;
+      text-align: left;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(0, 228, 135, 0.05), rgba(20, 211, 190, 0.05));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--sig-green);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3), 0 0 15px rgba(0, 228, 135, 0.1);
+    }
+
+    .tool-card:hover::before {
+      opacity: 1;
+    }
+
+    .card-icon {
+      font-size: 32px;
+      margin-bottom: 20px;
+      display: inline-block;
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--sig-text);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--sig-green);
+      transition: transform 0.3s;
+    }
+
+    .tool-card:hover .card-title svg {
+      transform: translateX(4px);
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: var(--sig-text-dim);
+      line-height: 1.6;
+      flex-grow: 1;
+      margin-bottom: 24px;
+    }
+
+    .card-badge {
+      align-self: flex-start;
+      background: var(--sig-dark-3);
+      border: 1px solid var(--sig-border);
+      color: var(--sig-teal);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 6px 12px;
+      border-radius: 20px;
+    }
+
+    .portal-footer {
+      font-size: 11px;
+      color: var(--sig-text-dim);
+      border-top: 1px solid var(--sig-border);
+      padding-top: 24px;
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+  </style>
 </head>
 <body>
-    <h1>Welcome to Signify Tools</h1>
-    <p>This page is served by GitHub Pages.</p>
+
+  <div class="portal-container">
+    <div class="logo-container">S</div>
+    <h1 class="portal-title">Signify North America</h1>
+    <div class="portal-subtitle">Commercial &amp; Marketing Tools Hub</div>
+
+    <div class="cards-grid">
+      <!-- Card 1: Prompt Builder -->
+      <a href="signify-prompt-builder.html" class="tool-card">
+        <span class="card-icon">⚡</span>
+        <h2 class="card-title">
+          Copilot Prompt Builder
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+          </svg>
+        </h2>
+        <p class="card-desc">
+          Generate role-tailored prompts for Microsoft Copilot (M365 &amp; Chat). Built specifically for Key Account, Marketing, Planning, and Finance roles with custom pre-filled fields.
+        </p>
+        <span class="card-badge">Prompt Generator</span>
+      </a>
+
+      <!-- Card 2: Google Trends Dashboard -->
+      <a href="trends.html" class="tool-card">
+        <span class="card-icon">📈</span>
+        <h2 class="card-title">
+          Market Trends Dashboard
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+          </svg>
+        </h2>
+        <p class="card-desc">
+          Monitor search popularity metrics for Signify consumer brands (Philips Hue, WiZ) and categories. Search custom keywords using real-time interactive widgets.
+        </p>
+        <span class="card-badge">Google Trends Integration</span>
+      </a>
+    </div>
+
+    <div class="portal-footer">
+      Signify North America &bull; Confidential &bull; Internal Use Only
+    </div>
+  </div>
+
 </body>
 </html>

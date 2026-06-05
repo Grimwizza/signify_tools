@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signify Market Trends Dashboard</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --sig-green: #00E487;
+      --sig-green-dark: #00c474;
+      --sig-teal: #14D3BE;
+      --sig-dark: #0a1628;
+      --sig-dark-2: #0f1f38;
+      --sig-dark-3: #162a4a;
+      --sig-surface: #1a2d4d;
+      --sig-text: #e8edf5;
+      --sig-text-dim: #8899b3;
+      --sig-border: #253a5c;
+      --sig-green-glow: rgba(0, 228, 135, 0.15);
+      --sig-teal-glow: rgba(20, 211, 190, 0.1);
+      --radius: 12px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--sig-dark);
+      color: var(--sig-text);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 24px;
+      background: var(--sig-dark-2);
+      border-bottom: 1px solid var(--sig-border);
+      flex-shrink: 0;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-mark {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--sig-green), var(--sig-teal));
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 17px;
+      color: var(--sig-dark);
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--sig-green), var(--sig-teal));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-subtitle {
+      font-size: 11px;
+      color: var(--sig-text-dim);
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: var(--sig-text-dim);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 20px;
+      transition: all 0.15s;
+      border: 1px solid transparent;
+    }
+
+    .nav-link:hover {
+      color: var(--sig-text);
+      background: var(--sig-dark-3);
+    }
+
+    .nav-link.active {
+      color: var(--sig-green);
+      background: var(--sig-dark-3);
+      border-color: var(--sig-border);
+    }
+
+    .header-badge {
+      background: var(--sig-dark-3);
+      border: 1px solid var(--sig-border);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 10px;
+      color: var(--sig-teal);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .main-container {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      min-height: 0;
+    }
+
+    @media (max-width: 1024px) {
+      .main-container {
+        grid-template-columns: 1fr;
+        overflow-y: auto;
+      }
+      body {
+        overflow-y: auto;
+        height: auto;
+      }
+    }
+
+    .dashboard-panel {
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .sidebar-panel {
+      border-left: 1px solid var(--sig-border);
+      background: var(--sig-dark-2);
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    @media (max-width: 1024px) {
+      .sidebar-panel {
+        border-left: none;
+        border-top: 1px solid var(--sig-border);
+      }
+    }
+
+    .section-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--sig-text);
+    }
+
+    .section-desc {
+      font-size: 12px;
+      color: var(--sig-text-dim);
+    }
+
+    .chart-card {
+      background: var(--sig-dark-2);
+      border: 1px solid var(--sig-border);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 320px;
+      width: 100%;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--sig-text-dim);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Leaderboard Card List */
+    .leader-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .leader-item {
+      background: var(--sig-dark-3);
+      border: 1px solid var(--sig-border);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .leader-item:hover {
+      border-color: var(--sig-teal);
+    }
+
+    .leader-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .leader-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--sig-text);
+    }
+
+    .leader-score {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--sig-green);
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 6px;
+      background: var(--sig-dark);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--sig-green), var(--sig-teal));
+      width: 0;
+      transition: width 0.8s ease-out;
+    }
+
+    .btn-to-prompt {
+      padding: 3px 8px;
+      border: 1px solid var(--sig-border);
+      background: var(--sig-dark);
+      color: var(--sig-teal);
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+      align-self: flex-end;
+    }
+
+    .btn-to-prompt:hover {
+      background: var(--sig-teal);
+      color: var(--sig-dark);
+      border-color: var(--sig-teal);
+    }
+
+    .btn-download-csv {
+      padding: 4px 10px;
+      border: 1px solid var(--sig-border);
+      background: var(--sig-dark-3);
+      color: var(--sig-text);
+      border-radius: 14px;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+      text-transform: none;
+      letter-spacing: 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-download-csv:hover {
+      background: var(--sig-green);
+      color: var(--sig-dark);
+      border-color: var(--sig-green);
+    }
+
+    .btn-download-csv svg {
+      flex-shrink: 0;
+    }
+
+    .history-chip {
+      background: var(--sig-dark-3);
+      border: 1px solid var(--sig-border);
+      color: var(--sig-teal);
+      padding: 3px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+
+    .history-chip:hover {
+      background: var(--sig-teal);
+      color: var(--sig-dark);
+      border-color: var(--sig-teal);
+    }
+
+    /* Custom Search box */
+    .search-section {
+      background: var(--sig-dark-2);
+      border: 1px solid var(--sig-border);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 8px;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 10px 14px;
+      background: var(--sig-dark);
+      border: 1px solid var(--sig-border);
+      border-radius: 8px;
+      color: var(--sig-text);
+      font-family: inherit;
+      font-size: 13px;
+      transition: border-color 0.2s;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--sig-green);
+      box-shadow: 0 0 0 3px var(--sig-green-glow);
+    }
+
+    .search-btn {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, var(--sig-green), var(--sig-teal));
+      border: none;
+      border-radius: 8px;
+      color: var(--sig-dark);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .search-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .time-select-dropdown {
+      padding: 6px 30px 6px 12px;
+      background: var(--sig-dark-3);
+      border: 1px solid var(--sig-border);
+      border-radius: 16px;
+      color: var(--sig-text);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      appearance: none;
+      transition: border-color 0.15s;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%238899b3' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+
+    .time-select-dropdown:focus {
+      outline: none;
+      border-color: var(--sig-green);
+    }
+
+    /* Custom Trend Widget Container */
+    .widget-card {
+      background: var(--sig-dark-3);
+      border: 1px solid var(--sig-border);
+      border-radius: 8px;
+      min-height: 330px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--sig-text-dim);
+      font-style: italic;
+      font-size: 12px;
+      position: relative;
+      overflow: hidden;
+      padding: 10px;
+    }
+
+    .widget-container {
+      width: 100%;
+      height: 100%;
+      min-height: 330px;
+    }
+
+    .widget-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .last-updated {
+      font-size: 11px;
+      color: var(--sig-text-dim);
+      text-align: right;
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--sig-border);
+      border-radius: 3px;
+    }
+
+    /* Growth badges & trend arrows */
+    .growth-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+    .growth-pos { background: rgba(0,228,135,0.15); color: var(--sig-green); }
+    .growth-neg { background: rgba(255,80,80,0.15); color: #ff6b6b; }
+    .growth-flat { background: rgba(136,153,179,0.15); color: var(--sig-text-dim); }
+    .trend-arrow { font-size: 11px; margin-left: 4px; }
+
+    /* Share of Search widget */
+    .sos-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .sos-tab {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--sig-border);
+      background: transparent;
+      color: var(--sig-text-dim);
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .sos-tab.active {
+      background: var(--sig-dark);
+      color: var(--sig-green);
+      border-color: var(--sig-green);
+    }
+    .sos-row {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .sos-item {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .sos-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+    }
+    .sos-name { color: var(--sig-text); font-weight: 600; }
+    .sos-pct  { color: var(--sig-teal); font-weight: 700; }
+    .sos-bar-bg {
+      width: 100%;
+      height: 5px;
+      background: var(--sig-dark);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .sos-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--sig-teal), var(--sig-green));
+      transition: width 0.7s ease-out;
+    }
+
+    /* Events toggle */
+    .events-toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sig-text-dim);
+      cursor: pointer;
+      user-select: none;
+    }
+    .events-toggle-label input[type=checkbox] {
+      accent-color: var(--sig-teal);
+      width: 13px;
+      height: 13px;
+      cursor: pointer;
+    }
+
+    /* Geographic tile map */
+    .geo-card {
+      background: var(--sig-dark-2);
+      border: 1px solid var(--sig-border);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .geo-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .geo-body {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+    .geo-map-wrap {
+      flex: 1;
+      min-width: 0;
+    }
+    .geo-map-wrap svg { width: 100%; height: auto; display: block; }
+    .geo-tile {
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .geo-tile:hover { opacity: 0.8; }
+    .geo-tile text {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 7px;
+      font-weight: 700;
+      fill: var(--sig-dark);
+      pointer-events: none;
+      dominant-baseline: middle;
+      text-anchor: middle;
+    }
+    .geo-legend {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--sig-text-dim);
+      margin-top: 6px;
+    }
+    .geo-legend-bar {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #1a2d4d, var(--sig-green));
+    }
+    .geo-top-list {
+      width: 150px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .geo-top-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--sig-text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .geo-top-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 4px 8px;
+      background: var(--sig-dark-3);
+      border-radius: 6px;
+    }
+    .geo-top-state { color: var(--sig-text); font-weight: 600; }
+    .geo-top-score { color: var(--sig-green); font-weight: 700; }
+    .geo-tooltip {
+      position: fixed;
+      background: var(--sig-dark-2);
+      border: 1px solid var(--sig-border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sig-text);
+      pointer-events: none;
+      z-index: 999;
+      display: none;
+    }
+  </style>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Google Trends Embed Loader -->
+  <script type="text/javascript" src="https://ssl.gstatic.com/trends_nrtr/3728_RC01/embed_loader.js"></script>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-left">
+      <div class="logo-mark">S</div>
+      <div>
+        <h1>Signify Market Trends</h1>
+        <div class="header-subtitle">Google Trends Analytics</div>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a href="signify-prompt-builder.html" class="nav-link">Prompt Builder</a>
+      <a href="trends.html" class="nav-link active">Google Trends</a>
+    </div>
+    <div class="header-badge">Consumer Lighting &bull; North America</div>
+  </div>
+
+  <div class="main-container">
+    <!-- Main Dashboard Section -->
+    <div class="dashboard-panel">
+      
+      <div class="widget-header-row">
+        <div style="display:flex; align-items:center; gap:16px;">
+          <div>
+            <h2 class="section-title">Search Volume Dashboard</h2>
+            <p class="section-desc">Interest over time in the United States</p>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <!-- Brand Category Dropdown -->
+            <select id="brandCategorySelect" class="time-select-dropdown" onchange="changeBrandCategory(this.value)">
+              <option value="all" selected>All Lighting Brands</option>
+              <option value="connected">Connected (Smart)</option>
+              <option value="traditional">Non-Connected (Traditional)</option>
+            </select>
+            <!-- Search Channel Dropdown -->
+            <select id="searchChannelSelect" class="time-select-dropdown" onchange="changeSearchChannel(this.value)">
+              <option value="web" selected>Web Search</option>
+              <option value="shopping">Google Shopping</option>
+              <option value="news">News (PR)</option>
+              <option value="youtube">YouTube Search</option>
+            </select>
+            <!-- Time period dropdown -->
+            <select id="timePeriodSelect" class="time-select-dropdown" onchange="changeTimePeriod(this.value)">
+              <option value="7">Last 7 Days</option>
+              <option value="30">Last 30 Days</option>
+              <option value="90" selected>Last 90 Days</option>
+              <option value="365">Last 12 Months</option>
+            </select>
+            <!-- Events toggle -->
+            <label class="events-toggle-label">
+              <input type="checkbox" id="showEventsToggle" onchange="updateDashboard()" checked>
+              Show Events
+            </label>
+          </div>
+        </div>
+        <div class="last-updated" id="lastUpdated">Loading updates...</div>
+      </div>
+
+      <!-- 1. Brand Comparison Chart (Top) -->
+      <div class="chart-card">
+        <div class="card-title">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <span>Brand Popularity</span>
+            <span style="font-size:10px; color:var(--sig-green); text-transform:none; font-weight:500; letter-spacing:0;">Signify Brands + Top Trending Competitors</span>
+          </div>
+          <button class="btn-download-csv" onclick="downloadBrandCSV()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Download CSV
+          </button>
+        </div>
+        <div class="chart-container">
+          <canvas id="brandChart"></canvas>
+        </div>
+      </div>
+
+      <!-- 2. Category Comparison Chart (Middle) -->
+      <div class="chart-card">
+        <div class="card-title">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <span>Category Growth</span>
+            <span style="font-size:10px; color:var(--sig-teal); text-transform:none; font-weight:500; letter-spacing:0;">Search Segments</span>
+          </div>
+          <button class="btn-download-csv" onclick="downloadCategoryCSV()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Download CSV
+          </button>
+        </div>
+        <div class="chart-container">
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+
+      <!-- 3. Geographic Interest Map -->
+      <div class="geo-card">
+        <div class="card-title">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <span>Geographic Interest</span>
+            <span style="font-size:10px; color:var(--sig-teal); text-transform:none; font-weight:500; letter-spacing:0;">US state-level search interest index (0–100)</span>
+          </div>
+          <div class="geo-controls">
+            <span style="font-size:11px; color:var(--sig-text-dim); font-weight:600;">Brand:</span>
+            <select id="geoSubjectSelect" class="time-select-dropdown" onchange="renderGeoPanel()">
+              <!-- Populated dynamically -->
+            </select>
+            <button class="btn-download-csv" onclick="downloadGeoCSV()">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Download CSV
+            </button>
+          </div>
+        </div>
+        <div class="geo-body">
+          <div class="geo-map-wrap">
+            <svg id="geoMapSvg" viewBox="0 0 484 310" xmlns="http://www.w3.org/2000/svg"></svg>
+            <div class="geo-legend">
+              <span>Low</span>
+              <div class="geo-legend-bar"></div>
+              <span>High</span>
+            </div>
+          </div>
+          <div class="geo-top-list" id="geoTopList">
+            <div class="geo-top-title">Top States</div>
+          </div>
+        </div>
+      </div>
+      <div class="geo-tooltip" id="geoTooltip"></div>
+      <div class="geo-tooltip" id="chartEventTooltip"></div>
+
+      <!-- 4. Custom Keyword Explore Section (Bottom) -->
+      <div class="search-section">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div>
+            <h2 class="section-title">Custom Keyword Explore</h2>
+            <p class="section-desc">Search custom keywords dynamically using official Google Trends widget embeds</p>
+          </div>
+          <button class="btn-download-csv" id="exploreDownloadBtn" onclick="downloadCustomCSV()" style="margin-top:2px; flex-shrink:0;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Download CSV
+          </button>
+        </div>
+        <div class="search-box">
+          <input type="text" id="customSearchInput" class="search-input" placeholder="Enter keyword or comparison terms..." onkeydown="if(event.key==='Enter') renderCustomWidget()">
+          <button class="search-btn" onclick="renderCustomWidget()">Search</button>
+        </div>
+        <div style="font-size: 11px; color: var(--sig-text-dim); margin-top: -8px; display: flex; align-items: center; gap: 4px;">
+          <span style="color: var(--sig-teal); font-weight: 600;">Tip:</span>
+          <span>Separate multiple keywords with commas to compare search terms (e.g., <em>Lutron, Sengled, LIFX</em>). Up to 5 keywords.</span>
+        </div>
+
+        <!-- Search History Section -->
+        <div id="searchHistoryContainer" style="display: none; font-size: 11px; margin-top: -4px; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <span style="color: var(--sig-text-dim); font-weight: 600;">Recent:</span>
+          <div id="searchHistoryList" style="display: flex; gap: 6px; flex-wrap: wrap;"></div>
+        </div>
+        
+        <div class="widget-header-row" id="widgetActionsRow" style="display: none; align-items: center; justify-content: space-between; gap: 12px;">
+          <span id="searchedKeywordLabel" style="font-size: 13px; font-weight: 700;"></span>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button class="btn-download-csv" id="widgetDownloadBtn" style="padding: 4px 10px;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Download CSV
+            </button>
+            <button class="btn-to-prompt" id="widgetUseBtn" style="align-self: auto;">Use in Prompt Builder &rarr;</button>
+          </div>
+        </div>
+        
+        <div class="widget-card" id="widgetCard">
+          <div id="custom-trend-widget" class="widget-container">
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:330px; gap:8px;">
+              <span>Type a keyword above to load the official interactive Google Trends chart</span>
+              <span style="font-size:10px; opacity:0.6;">(Iframe widget matches live Google interest data)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sidebar Section: Leaderboard / Quick Links -->
+    <div class="sidebar-panel">
+      <div>
+        <h2 class="section-title">Brand Leaderboard</h2>
+        <p class="section-desc">Period Popularity (Avg. Score)</p>
+      </div>
+
+      <div class="leader-list" id="brandLeaderboard">
+        <div style="text-align:center; padding:20px; font-style:italic; font-size:12px; color:var(--sig-text-dim);">Loading leaderboard...</div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <h2 class="section-title">Share of Search</h2>
+        <p class="section-desc">% of total category search volume</p>
+      </div>
+
+      <div class="sos-tabs">
+        <button class="sos-tab active" id="sosTabBrand" onclick="setSosTab('brand')">Brands</button>
+        <button class="sos-tab" id="sosTabCat" onclick="setSosTab('cat')">Categories</button>
+      </div>
+      <div class="sos-row" id="sosContent">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Curated color palette for 19 brands & 3 categories
+    const COLORS = {
+      'Philips Hue': '#00E487',              // Signify Green
+      'Philips LED': '#ACACAE',              // Medium Gray
+      'Philips Smart Lighting': '#1ECBD0',   // Signify Teal
+      'Philips Wifi': '#A1ADFF',             // Periwinkle
+      'WiZ': '#66EFB7',                      // Mint
+      'Govee': '#FF6B6B',                    // Coral Red
+      'Lutron': '#1432FF',                   // Signify Blue
+      'Nanoleaf': '#FFB84D',                 // Orange Gold
+      'Sengled': '#D800E4',                  // Violet/Purple
+      'Wyze': '#E47B00',                     // Dark Amber
+      'LIFX': '#E40066',                     // Hot Pink
+      'TP-Link Kasa': '#00B4FF',             // Sky Blue
+      'GE Lighting': '#8E44AD',              // Deep Purple
+      'Sylvania': '#27AE60',                 // Forest Green
+      'Cree Lighting': '#E67E22',            // Bronze Orange
+      'Great Value': '#F1C40F',              // Sun Yellow
+      'Feit Electric': '#1ABC9C',            // Sea Green
+      'EcoSmart': '#2980B9',                 // Slate Blue
+      'Commercial Electric': '#7F8C8D',      // Steel Gray
+      'Smart Lighting': '#00E487',
+      'LED Bulbs': '#1ECBD0',
+      'Smart Home': '#A1ADFF'
+    };
+
+    let trendsData = null;
+    let brandChart = null;
+    let categoryChart = null;
+
+    async function loadTrendsData() {
+      try {
+        const response = await fetch('data/trends.json');
+        if (!response.ok) throw new Error('trends.json not found');
+        trendsData = await response.json();
+      } catch (err) {
+        console.warn('Could not load trends.json, falling back to static presentation data:', err.message);
+        trendsData = getFallbackStaticData();
+      }
+
+      const dateOpts = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+      const updatedDate = new Date(trendsData.lastUpdated);
+      document.getElementById('lastUpdated').textContent = 'Updated: ' + updatedDate.toLocaleDateString('en-US', dateOpts);
+
+      updateDashboard();
+      return trendsData;
+    }
+
+    function getFilteredTimeline(timeline, days) {
+      const cutoffTimestamp = Math.floor((Date.now() - days * 24 * 60 * 60 * 1000) / 1000);
+      let filtered = timeline.filter(item => item.timestamp >= cutoffTimestamp);
+      
+      // Ensure we have at least 3 points for drawing charts
+      if (filtered.length < 3) {
+        filtered = timeline.slice(-Math.min(3, timeline.length));
+      }
+      return filtered;
+    }
+
+    function changeTimePeriod(val) {
+      updateDashboard();
+    }
+
+    function changeBrandCategory(val) {
+      updateDashboard();
+    }
+
+    function changeSearchChannel(val) {
+      updateDashboard();
+    }
+
+    function updateDashboard() {
+      if (!trendsData) return;
+
+      const category = document.getElementById('brandCategorySelect').value;
+      const days = parseInt(document.getElementById('timePeriodSelect').value);
+      const channel = document.getElementById('searchChannelSelect').value;
+      
+      let sourceBrandsTimeline = trendsData.brands.timeline;
+      let sourceCategoriesTimeline = trendsData.categories.timeline;
+      if (trendsData[channel]) {
+        sourceBrandsTimeline = trendsData[channel].brands.timeline;
+        sourceCategoriesTimeline = trendsData[channel].categories.timeline;
+      }
+      
+      const filteredBrandTimeline = getFilteredTimeline(sourceBrandsTimeline, days);
+      const filteredCategoryTimeline = getFilteredTimeline(sourceCategoriesTimeline, days);
+
+      // Define default and competitor brands lists based on filter dropdown
+      let defaultBrands = [];
+      let competitorBrands = [];
+
+      if (category === 'connected') {
+        defaultBrands = ['Philips Hue', 'Philips Smart Lighting', 'Philips Wifi', 'WiZ'];
+        competitorBrands = ['Govee', 'Lutron', 'Nanoleaf', 'Sengled', 'Wyze', 'LIFX', 'TP-Link Kasa'];
+      } else if (category === 'traditional') {
+        defaultBrands = ['Philips LED'];
+        competitorBrands = ['GE Lighting', 'Sylvania', 'Cree Lighting', 'Great Value', 'Feit Electric', 'EcoSmart', 'Commercial Electric'];
+      } else {
+        // 'all'
+        defaultBrands = ['Philips Hue', 'Philips LED', 'Philips Smart Lighting', 'Philips Wifi', 'WiZ'];
+        competitorBrands = [
+          'Govee', 'Lutron', 'Nanoleaf', 'Sengled', 'Wyze', 'LIFX', 'TP-Link Kasa',
+          'GE Lighting', 'Sylvania', 'Cree Lighting', 'Great Value', 'Feit Electric', 'EcoSmart', 'Commercial Electric'
+        ];
+      }
+
+      // Filter competitor brands that are accidentally defined as defaults (defensive)
+      competitorBrands = competitorBrands.filter(b => !defaultBrands.includes(b));
+      
+      // Dynamically resolve default indices in keywords array (prevents indices shifts from cached data)
+      const defaultIndices = defaultBrands
+        .map(name => trendsData.brands.keywords.indexOf(name))
+        .filter(idx => idx !== -1);
+      
+      const competitorAvgs = competitorBrands.map(name => {
+        const idx = trendsData.brands.keywords.indexOf(name);
+        let sum = 0;
+        if (idx !== -1) {
+          filteredBrandTimeline.forEach(item => {
+            sum += item.values[idx] || 0;
+          });
+        }
+        return {
+          name: name,
+          idx: idx,
+          avg: filteredBrandTimeline.length > 0 ? (sum / filteredBrandTimeline.length) : 0
+        };
+      }).filter(c => c.idx !== -1);
+
+      // Sort competitors by average search volume descending
+      competitorAvgs.sort((a, b) => b.avg - a.avg);
+
+      // Get indices of defaults + top 3 competitors, deduplicating indices completely using a Set
+      const activeBrandIndices = Array.from(new Set([
+        ...defaultIndices,
+        ...competitorAvgs.slice(0, 3).map(c => c.idx)
+      ]));
+
+      // 1. Draw Brand Popularity Chart
+      drawBrandChart(filteredBrandTimeline, activeBrandIndices);
+
+      // 2. Draw Category Growth Chart
+      drawCategoryChart(filteredCategoryTimeline);
+
+      // Compute full visible brands list for leaderboard & SoS
+      let visibleBrands = [];
+      if (category === 'connected') {
+        visibleBrands = ['Philips Hue','Philips Smart Lighting','Philips Wifi','WiZ','Govee','Lutron','Nanoleaf','Sengled','Wyze','LIFX','TP-Link Kasa'];
+      } else if (category === 'traditional') {
+        visibleBrands = ['Philips LED','GE Lighting','Sylvania','Cree Lighting','Great Value','Feit Electric','EcoSmart','Commercial Electric'];
+      } else {
+        visibleBrands = trendsData.brands.keywords;
+      }
+
+      // 3. Render Leaderboards with growth badges (sidebar)
+      renderLeaderboards(filteredBrandTimeline, filteredCategoryTimeline, sourceBrandsTimeline, visibleBrands);
+
+      // 4. Share of Search widget
+      renderShareOfSearch(filteredBrandTimeline, filteredCategoryTimeline, visibleBrands);
+    }
+
+    // Key retail/lighting events to annotate on charts
+    const SEASONAL_EVENTS = [
+      { label: 'Prime Day',     date: 'Jul 15, 2025' },
+      { label: 'Back to School',date: 'Aug 18, 2025' },
+      { label: 'Labor Day',     date: 'Sep 1, 2025'  },
+      { label: 'Halloween',     date: 'Oct 27, 2025' },
+      { label: 'Black Friday',  date: 'Nov 24, 2025' },
+      { label: 'Cyber Monday',  date: 'Dec 1, 2025'  },
+      { label: 'Holiday',       date: 'Dec 22, 2025' },
+      { label: 'CES',           date: 'Jan 5, 2026'  },
+      { label: "Valentine's",   date: 'Feb 9, 2026'  },
+      { label: 'Spring Refresh',date: 'Mar 16, 2026' },
+      { label: "Mother's Day",  date: 'May 11, 2026' },
+    ];
+
+    function makeAnnotationPlugin(labels) {
+      return {
+        id: 'eventLines',
+        afterDatasetsDraw(chart) {
+          const showEvents = document.getElementById('showEventsToggle').checked;
+          const ctx = chart.ctx;
+          const xScale = chart.scales.x;
+          const yScale = chart.scales.y;
+          const top = yScale.top;
+          const bottom = yScale.bottom;
+
+          // Always compute positions so hover works even when lines are hidden
+          chart._eventPositions = [];
+
+          SEASONAL_EVENTS.forEach(ev => {
+            let bestIdx = -1;
+            let bestDiff = Infinity;
+            const evTs = new Date(ev.date).getTime();
+            labels.forEach((lbl, i) => {
+              const diff = Math.abs(new Date(lbl).getTime() - evTs);
+              if (diff < bestDiff) { bestDiff = diff; bestIdx = i; }
+            });
+            if (bestIdx === -1 || bestDiff > 15 * 24 * 60 * 60 * 1000) return;
+
+            const x = xScale.getPixelForValue(bestIdx);
+            chart._eventPositions.push({ x, label: ev.label });
+
+            if (!showEvents) return;
+
+            ctx.save();
+            ctx.strokeStyle = 'rgba(20,211,190,0.35)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 3]);
+            ctx.beginPath();
+            ctx.moveTo(x, top);
+            ctx.lineTo(x, bottom);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Short tick at top instead of full rotated label (label shown on hover)
+            ctx.fillStyle = 'rgba(20,211,190,0.6)';
+            ctx.beginPath();
+            ctx.arc(x, top + 5, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          });
+        }
+      };
+    }
+
+    function attachEventHover(canvas, getChart) {
+      const tooltip = document.getElementById('chartEventTooltip');
+      canvas.addEventListener('mousemove', (e) => {
+        const chart = getChart();
+        if (!chart || !chart._eventPositions) return;
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const hit = chart._eventPositions.find(p => Math.abs(p.x - mouseX) <= 8);
+        if (hit) {
+          tooltip.textContent = hit.label;
+          tooltip.style.display = 'block';
+          tooltip.style.left = (e.clientX + 12) + 'px';
+          tooltip.style.top  = (e.clientY - 32) + 'px';
+          canvas.style.cursor = 'crosshair';
+        } else {
+          tooltip.style.display = 'none';
+          canvas.style.cursor = '';
+        }
+      });
+      canvas.addEventListener('mouseleave', () => {
+        tooltip.style.display = 'none';
+        canvas.style.cursor = '';
+      });
+    }
+
+    function chartOptions() {
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#8899b3',
+              font: { family: 'Plus Jakarta Sans', size: 10, weight: 600 },
+              boxWidth: 8, boxHeight: 8, padding: 15
+            }
+          },
+          tooltip: {
+            backgroundColor: '#0f1f38',
+            titleColor: '#e8edf5',
+            bodyColor: '#e8edf5',
+            borderColor: '#253a5c',
+            borderWidth: 1,
+            bodyFont: { family: 'Plus Jakarta Sans' },
+            titleFont: { family: 'Plus Jakarta Sans', weight: 700 }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: '#8899b3', font: { family: 'Plus Jakarta Sans', size: 9 }, maxTicksLimit: 8 }
+          },
+          y: {
+            grid: { color: '#162a4a' },
+            ticks: { color: '#8899b3', font: { family: 'Plus Jakarta Sans', size: 9 }, maxTicksLimit: 5 },
+            min: 0, max: 100
+          }
+        }
+      };
+    }
+
+    function drawBrandChart(timeline, activeIndices) {
+      const ctx = document.getElementById('brandChart').getContext('2d');
+      if (brandChart) brandChart.destroy();
+
+      const labels = timeline.map(item => item.date);
+      const datasets = activeIndices.map(kwIdx => {
+        const kw = trendsData.brands.keywords[kwIdx];
+        const color = COLORS[kw] || '#fff';
+        return {
+          label: kw,
+          data: timeline.map(item => item.values[kwIdx]),
+          borderColor: color,
+          backgroundColor: color + '0D',
+          borderWidth: 2.5,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          tension: 0.3,
+          fill: false
+        };
+      });
+
+      brandChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
+        options: chartOptions(),
+        plugins: [makeAnnotationPlugin(labels)]
+      });
+      attachEventHover(ctx.canvas, () => brandChart);
+    }
+
+    function drawCategoryChart(timeline) {
+      const ctx = document.getElementById('categoryChart').getContext('2d');
+      if (categoryChart) categoryChart.destroy();
+
+      const labels = timeline.map(item => item.date);
+      const datasets = trendsData.categories.keywords.map((kw, kwIdx) => {
+        const color = COLORS[kw] || '#fff';
+        return {
+          label: kw,
+          data: timeline.map(item => item.values[kwIdx]),
+          borderColor: color,
+          backgroundColor: color + '0D',
+          borderWidth: 2.5,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          tension: 0.3,
+          fill: false
+        };
+      });
+
+      categoryChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
+        options: chartOptions(),
+        plugins: [makeAnnotationPlugin(labels)]
+      });
+      attachEventHover(ctx.canvas, () => categoryChart);
+    }
+
+    function renderLeaderboards(brandTimeline, categoryTimeline, fullBrandTimeline, visibleBrands) {
+      const brandContainer = document.getElementById('brandLeaderboard');
+
+      const brandAverages = visibleBrands.map(name => {
+        const kwIdx = trendsData.brands.keywords.indexOf(name);
+        if (kwIdx === -1) return null;
+        const growth = computeGrowthMetrics(fullBrandTimeline, kwIdx);
+        let sum = 0;
+        brandTimeline.forEach(item => { sum += item.values[kwIdx] || 0; });
+        return {
+          keyword: name, kwIdx,
+          avg: brandTimeline.length > 0 ? Math.round(sum / brandTimeline.length) : 0,
+          ...growth
+        };
+      }).filter(Boolean);
+
+      brandAverages.sort((a, b) => b.avg - a.avg);
+
+      brandContainer.innerHTML = brandAverages.map(item => {
+        const urlSafeKw = encodeURIComponent(item.keyword);
+        const arrowHtml = item.direction === 'up'
+          ? `<span class="trend-arrow" style="color:var(--sig-green)">▲</span>`
+          : item.direction === 'down'
+          ? `<span class="trend-arrow" style="color:#ff6b6b">▼</span>`
+          : `<span class="trend-arrow" style="color:var(--sig-text-dim)">→</span>`;
+        const badgeCls = item.momPct > 2 ? 'growth-pos' : item.momPct < -2 ? 'growth-neg' : 'growth-flat';
+        const badgeSign = item.momPct > 0 ? '+' : '';
+        const badgeHtml = `<span class="growth-badge ${badgeCls}">${badgeSign}${item.momPct}%</span>`;
+        return `
+          <div class="leader-item">
+            <div class="leader-header">
+              <span class="leader-name">${item.keyword}</span>
+              <div style="display:flex; align-items:center; gap:5px;">
+                ${badgeHtml}
+                <span class="leader-score">${item.avg} pts</span>${arrowHtml}
+              </div>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width: ${item.avg}%"></div>
+            </div>
+            <button class="btn-to-prompt" onclick="location.href='signify-prompt-builder.html?topic=${urlSafeKw}&template=market_research'">Use in Prompt Builder &rarr;</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function computeGrowthMetrics(fullTimeline, brandIdx) {
+      if (!fullTimeline || fullTimeline.length < 4) return { momPct: 0, direction: 'flat' };
+      const now = Date.now() / 1000;
+      const d30 = 30 * 24 * 60 * 60;
+      const d60 = 60 * 24 * 60 * 60;
+      const d4w  =  4 * 7 * 24 * 60 * 60;
+      const d8w  =  8 * 7 * 24 * 60 * 60;
+
+      const avg = (tl) => tl.length ? tl.reduce((s, t) => s + (t.values[brandIdx] || 0), 0) / tl.length : 0;
+
+      const recent30 = fullTimeline.filter(t => t.timestamp >= now - d30);
+      const prior30  = fullTimeline.filter(t => t.timestamp >= now - d60 && t.timestamp < now - d30);
+      const a = avg(recent30.length ? recent30 : fullTimeline.slice(-4));
+      const b = avg(prior30.length  ? prior30  : fullTimeline.slice(-8, -4));
+      const momPct = b > 0 ? Math.round(((a - b) / b) * 100) : 0;
+
+      const last4  = fullTimeline.filter(t => t.timestamp >= now - d4w);
+      const prev4  = fullTimeline.filter(t => t.timestamp >= now - d8w && t.timestamp < now - d4w);
+      const slopeA = avg(last4.length ? last4 : fullTimeline.slice(-4));
+      const slopeB = avg(prev4.length ? prev4 : fullTimeline.slice(-8, -4));
+      const direction = slopeA - slopeB > 2 ? 'up' : slopeA - slopeB < -2 ? 'down' : 'flat';
+
+      return { momPct, direction };
+    }
+
+    function renderCustomWidget() {
+      const query = document.getElementById('customSearchInput').value.trim();
+      if (!query) return;
+
+      saveSearchHistory(query);
+
+      const container = document.getElementById('custom-trend-widget');
+      container.innerHTML = ''; 
+
+      // Parse keywords
+      const keywords = query.split(',').map(k => k.trim()).filter(Boolean).slice(0, 5);
+      const displayQuery = keywords.join(', ');
+
+      document.getElementById('widgetActionsRow').style.display = 'flex';
+      document.getElementById('searchedKeywordLabel').textContent = keywords.length > 1 
+        ? `Comparison: ${keywords.map(k => `"${k}"`).join(' vs ')}`
+        : `Keyword: "${keywords[0]}"`;
+
+      document.getElementById('widgetUseBtn').onclick = () => {
+        location.href = `signify-prompt-builder.html?topic=${encodeURIComponent(displayQuery)}&template=market_research`;
+      };
+
+      document.getElementById('widgetDownloadBtn').onclick = () => {
+        downloadCustomCSV();
+      };
+
+      if (typeof trends !== 'undefined' && trends.embed && trends.embed.renderExploreWidgetTo) {
+        try {
+          const comparisonItem = keywords.map(kw => ({
+            "keyword": kw,
+            "geo": "US",
+            "time": "today 12-m"
+          }));
+
+          trends.embed.renderExploreWidgetTo(
+            container,
+            "TIMESERIES",
+            {
+              "comparisonItem": comparisonItem,
+              "category": 0,
+              "property": ""
+            },
+            {
+              "exploreQuery": `date=today%2012-m&geo=US&q=${encodeURIComponent(keywords.join(','))}`,
+              "guestPath": "https://trends.google.com:443/trends/embed/"
+            }
+          );
+        } catch (e) {
+          container.innerHTML = `<div style="padding:20px; color:var(--sig-text-dim)">Failed to load Google Widget. Please try again or search directly on Google Trends.</div>`;
+          console.error(e);
+        }
+      } else {
+        const exploreUrl = `https://trends.google.com/trends/explore?geo=US&q=${encodeURIComponent(keywords.join(','))}`;
+        container.innerHTML = `
+          <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:330px; padding:20px; text-align:center;">
+            <span style="color:#e6a800; font-weight:700; margin-bottom:8px;">Google Embed Loader Blocked</span>
+            <span>Could not load the interactive Google widget (often due to tracking protection or network restrictions).</span>
+            <a href="${exploreUrl}" target="_blank" style="color:var(--sig-green); margin-top:12px; font-weight:600; text-decoration:none;">View comparison directly on Google Trends &nearr;</a>
+          </div>
+        `;
+      }
+    }
+
+    function getFallbackStaticData() {
+      const data = {
+        lastUpdated: new Date().toISOString(),
+        brands: {
+          keywords: [
+            'Philips Hue', 'Philips LED', 'Philips Smart Lighting', 'Philips Wifi', 'WiZ',
+            'Govee', 'Lutron', 'Nanoleaf', 'Sengled', 'Wyze', 'LIFX', 'TP-Link Kasa',
+            'GE Lighting', 'Sylvania', 'Cree Lighting', 'Great Value', 'Feit Electric', 'EcoSmart', 'Commercial Electric'
+          ],
+          timeline: []
+        },
+        categories: {
+          keywords: ['Smart Lighting', 'LED Bulbs', 'Smart Home'],
+          timeline: []
+        }
+      };
+
+      const start = Date.now() - (365 * 24 * 60 * 60 * 1000);
+      for (let i = 0; i <= 365; i += 7) {
+        const time = new Date(start + i * 24 * 60 * 60 * 1000);
+        
+        // Brand scores
+        const hue = Math.round(55 + Math.sin(i / 30) * 12 + Math.random() * 5);
+        const led = Math.round(35 + Math.cos(i / 40) * 8 + Math.random() * 4);
+        const smartL = Math.round(5 + Math.sin(i / 50) * 2 + Math.random() * 1);
+        const wifi = Math.round(8 + Math.cos(i / 45) * 3 + Math.random() * 1);
+        const wiz = Math.round(15 + Math.sin(i / 35) * 4 + Math.random() * 2);
+        
+        const govee = Math.round(40 + Math.sin(i / 25) * 10 + Math.random() * 5);
+        const lutron = Math.round(30 + Math.cos(i / 35) * 6 + Math.random() * 4);
+        const nanoleaf = Math.round(18 + Math.sin(i / 20) * 5 + Math.random() * 3);
+        const sengled = Math.round(12 + Math.cos(i / 30) * 3 + Math.random() * 2);
+        const wyze = Math.round(28 + Math.sin(i / 40) * 6 + Math.random() * 4);
+        const lifx = Math.round(10 + Math.sin(i / 30) * 3 + Math.random() * 2);
+        const tpLink = Math.round(22 + Math.cos(i / 35) * 5 + Math.random() * 3);
+        
+        const geL = Math.round(25 + Math.sin(i / 40) * 4 + Math.random() * 3);
+        const sylvania = Math.round(20 + Math.cos(i / 30) * 5 + Math.random() * 2);
+        const cree = Math.round(15 + Math.sin(i / 25) * 3 + Math.random() * 2);
+        const greatValue = Math.round(18 + Math.cos(i / 20) * 4 + Math.random() * 2);
+        const feit = Math.round(26 + Math.sin(i / 35) * 5 + Math.random() * 3);
+        const ecoSmart = Math.round(14 + Math.cos(i / 45) * 3 + Math.random() * 2);
+        const commElec = Math.round(6 + Math.sin(i / 50) * 2 + Math.random() * 1);
+        
+        data.brands.timeline.push({
+          date: time.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          timestamp: Math.floor(time.getTime() / 1000),
+          values: [
+            hue, led, smartL, wifi, wiz, 
+            govee, lutron, nanoleaf, sengled, wyze, lifx, tpLink,
+            geL, sylvania, cree, greatValue, feit, ecoSmart, commElec
+          ]
+        });
+
+        // Category scores
+        const smartLighting = Math.round(45 + Math.sin(i / 45) * 12 + Math.random() * 5);
+        const ledBulbs = Math.round(75 + Math.cos(i / 50) * 10 + Math.random() * 4);
+        const smartHome = Math.round(85 + Math.sin(i / 35) * 8 + Math.random() * 6);
+
+        data.categories.timeline.push({
+          date: time.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          timestamp: Math.floor(time.getTime() / 1000),
+          values: [smartLighting, ledBulbs, smartHome]
+        });
+      }
+      return data;
+    }
+
+    function downloadCSV(filename, headers, rows) {
+      let csvContent = "";
+      const formatCell = (val) => {
+        const str = String(val);
+        if (str.includes(",") || str.includes("\"") || str.includes("\n")) {
+          return `"${str.replace(/"/g, '""')}"`;
+        }
+        return str;
+      };
+
+      csvContent += headers.map(formatCell).join(",") + "\r\n";
+      rows.forEach(row => {
+        csvContent += row.map(formatCell).join(",") + "\r\n";
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function getEventLabelForDate(dateStr) {
+      const ts = new Date(dateStr).getTime();
+      const maxDiff = 7 * 24 * 60 * 60 * 1000;
+      for (const ev of SEASONAL_EVENTS) {
+        if (Math.abs(new Date(ev.date).getTime() - ts) <= maxDiff) return ev.label;
+      }
+      return '';
+    }
+
+    function downloadBrandCSV() {
+      if (!trendsData) return;
+      const category = document.getElementById('brandCategorySelect').value;
+      const days = parseInt(document.getElementById('timePeriodSelect').value);
+      const channel = document.getElementById('searchChannelSelect').value;
+      
+      let sourceBrandsTimeline = trendsData.brands.timeline;
+      if (trendsData[channel]) {
+        sourceBrandsTimeline = trendsData[channel].brands.timeline;
+      }
+      const filteredBrandTimeline = getFilteredTimeline(sourceBrandsTimeline, days);
+
+      let defaultBrands = [];
+      let competitorBrands = [];
+
+      if (category === 'connected') {
+        defaultBrands = ['Philips Hue', 'Philips Smart Lighting', 'Philips Wifi', 'WiZ'];
+        competitorBrands = ['Govee', 'Lutron', 'Nanoleaf', 'Sengled', 'Wyze', 'LIFX', 'TP-Link Kasa'];
+      } else if (category === 'traditional') {
+        defaultBrands = ['Philips LED'];
+        competitorBrands = ['GE Lighting', 'Sylvania', 'Cree Lighting', 'Great Value', 'Feit Electric', 'EcoSmart', 'Commercial Electric'];
+      } else {
+        defaultBrands = ['Philips Hue', 'Philips LED', 'Philips Smart Lighting', 'Philips Wifi', 'WiZ'];
+        competitorBrands = [
+          'Govee', 'Lutron', 'Nanoleaf', 'Sengled', 'Wyze', 'LIFX', 'TP-Link Kasa',
+          'GE Lighting', 'Sylvania', 'Cree Lighting', 'Great Value', 'Feit Electric', 'EcoSmart', 'Commercial Electric'
+        ];
+      }
+
+      competitorBrands = competitorBrands.filter(b => !defaultBrands.includes(b));
+      
+      const defaultIndices = defaultBrands
+        .map(name => trendsData.brands.keywords.indexOf(name))
+        .filter(idx => idx !== -1);
+      
+      const competitorAvgs = competitorBrands.map(name => {
+        const idx = trendsData.brands.keywords.indexOf(name);
+        let sum = 0;
+        if (idx !== -1) {
+          filteredBrandTimeline.forEach(item => {
+            sum += item.values[idx] || 0;
+          });
+        }
+        return {
+          name: name,
+          idx: idx,
+          avg: filteredBrandTimeline.length > 0 ? (sum / filteredBrandTimeline.length) : 0
+        };
+      }).filter(c => c.idx !== -1);
+
+      competitorAvgs.sort((a, b) => b.avg - a.avg);
+
+      const activeBrandIndices = Array.from(new Set([
+        ...defaultIndices,
+        ...competitorAvgs.slice(0, 3).map(c => c.idx)
+      ]));
+
+      const headers = ['Date', 'Event', ...activeBrandIndices.map(idx => trendsData.brands.keywords[idx])];
+      const rows = filteredBrandTimeline.map(item => {
+        return [
+          item.date,
+          getEventLabelForDate(item.date),
+          ...activeBrandIndices.map(idx => item.values[idx] || 0)
+        ];
+      });
+
+      downloadCSV(`brand_popularity_${category}_${days}d.csv`, headers, rows);
+    }
+
+    function downloadCategoryCSV() {
+      if (!trendsData) return;
+      const days = parseInt(document.getElementById('timePeriodSelect').value);
+      const channel = document.getElementById('searchChannelSelect').value;
+      
+      let sourceCategoriesTimeline = trendsData.categories.timeline;
+      if (trendsData[channel]) {
+        sourceCategoriesTimeline = trendsData[channel].categories.timeline;
+      }
+      const filteredCategoryTimeline = getFilteredTimeline(sourceCategoriesTimeline, days);
+
+      const headers = ['Date', 'Event', ...trendsData.categories.keywords];
+      const rows = filteredCategoryTimeline.map(item => {
+        return [
+          item.date,
+          getEventLabelForDate(item.date),
+          ...item.values
+        ];
+      });
+
+      downloadCSV(`category_growth_${days}d.csv`, headers, rows);
+    }
+
+    function downloadGeoCSV() {
+      if (!trendsData || !trendsData.geo) return;
+      const subject = document.getElementById('geoSubjectSelect').value;
+      const channel = document.getElementById('searchChannelSelect').value;
+      if (!subject) return;
+
+      const geoChannel = trendsData.geo[channel] || trendsData.geo['web'];
+      const scores = geoChannel.brands[subject] || geoChannel.categories[subject]
+                  || trendsData.geo.web.brands[subject] || trendsData.geo.web.categories[subject] || {};
+
+      const STATE_NAMES = {
+        AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',
+        CO:'Colorado',CT:'Connecticut',DE:'Delaware',FL:'Florida',GA:'Georgia',
+        HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',
+        KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',
+        MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',
+        MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',
+        NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',
+        OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',
+        SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',
+        VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming'
+      };
+
+      const rows = Object.entries(scores)
+        .sort((a, b) => b[1] - a[1])
+        .map(([code, score]) => [STATE_NAMES[code] || code, code, score]);
+
+      const safeSubject = subject.replace(/[^a-zA-Z0-9]/g, '_');
+      downloadCSV(`geo_interest_${safeSubject}_${channel}.csv`, ['State', 'Code', 'Interest Score (0-100)'], rows);
+    }
+
+    const HISTORY_KEY = 'trends_search_history';
+
+    function getSearchHistory() {
+      try {
+        const history = localStorage.getItem(HISTORY_KEY);
+        return history ? JSON.parse(history) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveSearchHistory(query) {
+      if (!query) return;
+      let history = getSearchHistory();
+      history = history.filter(h => h.toLowerCase() !== query.toLowerCase());
+      history.unshift(query);
+      history = history.slice(0, 5);
+      try {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+      } catch (e) {}
+      renderSearchHistory();
+    }
+
+    function renderSearchHistory() {
+      const history = getSearchHistory();
+      const container = document.getElementById('searchHistoryContainer');
+      const list = document.getElementById('searchHistoryList');
+      
+      if (history.length === 0) {
+        container.style.display = 'none';
+        return;
+      }
+      
+      container.style.display = 'flex';
+      list.innerHTML = history.map(query => {
+        const escaped = query.replace(/"/g, '&quot;');
+        return `<span class="history-chip" onclick="applyHistorySearch('${escaped}')">${query}</span>`;
+      }).join('');
+    }
+
+    function applyHistorySearch(query) {
+      document.getElementById('customSearchInput').value = query;
+      renderCustomWidget();
+    }
+
+    function downloadCustomCSV() {
+      if (!trendsData) return;
+      const query = document.getElementById('customSearchInput').value.trim();
+      if (!query) {
+        alert('Enter one or more keywords above and click Search first, then download the data.');
+        return;
+      }
+
+      const keywords = query.split(',').map(k => k.trim()).filter(Boolean).slice(0, 5);
+      
+      const foundBrands = [];
+      const foundCategories = [];
+      const notFound = [];
+
+      keywords.forEach(kw => {
+        const brandIdx = trendsData.brands.keywords.findIndex(b => b.toLowerCase() === kw.toLowerCase());
+        if (brandIdx !== -1) {
+          foundBrands.push({ originalName: trendsData.brands.keywords[brandIdx], idx: brandIdx });
+          return;
+        }
+
+        const catIdx = trendsData.categories.keywords.findIndex(c => c.toLowerCase() === kw.toLowerCase());
+        if (catIdx !== -1) {
+          foundCategories.push({ originalName: trendsData.categories.keywords[catIdx], idx: catIdx });
+          return;
+        }
+
+        notFound.push(kw);
+      });
+
+      if (foundBrands.length === 0 && foundCategories.length === 0) {
+        alert(`CSV export is only supported for tracked brands or categories in our database.\n\nUntracked keywords: ${notFound.join(', ')}\n\nPlease use the export button in the Google Trends iframe for custom terms.`);
+        return;
+      }
+
+      if (notFound.length > 0) {
+        alert(`Note: CSV will only include tracked terms: ${[...foundBrands.map(b => b.originalName), ...foundCategories.map(c => c.originalName)].join(', ')}.\n\nUntracked terms will be omitted: ${notFound.join(', ')}.`);
+      }
+
+      const days = parseInt(document.getElementById('timePeriodSelect').value);
+      const channel = document.getElementById('searchChannelSelect').value;
+      
+      let sourceBrandsTimeline = trendsData.brands.timeline;
+      let sourceCategoriesTimeline = trendsData.categories.timeline;
+      if (trendsData[channel]) {
+        sourceBrandsTimeline = trendsData[channel].brands.timeline;
+        sourceCategoriesTimeline = trendsData[channel].categories.timeline;
+      }
+
+      const filteredBrandTimeline = getFilteredTimeline(sourceBrandsTimeline, days);
+      const filteredCategoryTimeline = getFilteredTimeline(sourceCategoriesTimeline, days);
+
+      const headers = ['Date'];
+      foundBrands.forEach(b => headers.push(b.originalName));
+      foundCategories.forEach(c => headers.push(c.originalName));
+
+      const rows = [];
+      for (let i = 0; i < filteredBrandTimeline.length; i++) {
+        const brandItem = filteredBrandTimeline[i];
+        const categoryItem = filteredCategoryTimeline[i] || { values: [] };
+        
+        const row = [brandItem.date];
+        foundBrands.forEach(b => {
+          row.push(brandItem.values[b.idx] || 0);
+        });
+        foundCategories.forEach(c => {
+          row.push(categoryItem.values[c.idx] || 0);
+        });
+        rows.push(row);
+      }
+
+      downloadCSV(`custom_explore_${keywords.join('_').replace(/[^a-zA-Z0-9]/g, '')}.csv`, headers, rows);
+    }
+
+    // --- Share of Search ---
+    let sosActiveTab = 'brand';
+
+    function setSosTab(tab) {
+      sosActiveTab = tab;
+      document.getElementById('sosTabBrand').classList.toggle('active', tab === 'brand');
+      document.getElementById('sosTabCat').classList.toggle('active', tab === 'cat');
+      // Re-render with last known data by re-triggering dashboard update
+      updateDashboard();
+    }
+
+    function renderShareOfSearch(brandTimeline, categoryTimeline, visibleBrands) {
+      const el = document.getElementById('sosContent');
+      if (!el) return;
+
+      if (sosActiveTab === 'brand') {
+        const avgs = visibleBrands.map(name => {
+          const idx = trendsData.brands.keywords.indexOf(name);
+          if (idx === -1) return null;
+          const sum = brandTimeline.reduce((s, t) => s + (t.values[idx] || 0), 0);
+          return { name, avg: brandTimeline.length ? sum / brandTimeline.length : 0 };
+        }).filter(Boolean);
+
+        const total = avgs.reduce((s, a) => s + a.avg, 0) || 1;
+        avgs.sort((a, b) => b.avg - a.avg);
+
+        el.innerHTML = avgs.map(a => {
+          const pct = ((a.avg / total) * 100).toFixed(1);
+          return `<div class="sos-item">
+            <div class="sos-label-row"><span class="sos-name">${a.name}</span><span class="sos-pct">${pct}%</span></div>
+            <div class="sos-bar-bg"><div class="sos-bar-fill" style="width:${pct}%"></div></div>
+          </div>`;
+        }).join('');
+      } else {
+        const avgs = trendsData.categories.keywords.map((kw, kwIdx) => {
+          const sum = categoryTimeline.reduce((s, t) => s + (t.values[kwIdx] || 0), 0);
+          return { name: kw, avg: categoryTimeline.length ? sum / categoryTimeline.length : 0 };
+        });
+        const total = avgs.reduce((s, a) => s + a.avg, 0) || 1;
+        avgs.sort((a, b) => b.avg - a.avg);
+        el.innerHTML = avgs.map(a => {
+          const pct = ((a.avg / total) * 100).toFixed(1);
+          return `<div class="sos-item">
+            <div class="sos-label-row"><span class="sos-name">${a.name}</span><span class="sos-pct">${pct}%</span></div>
+            <div class="sos-bar-bg"><div class="sos-bar-fill" style="width:${pct}%"></div></div>
+          </div>`;
+        }).join('');
+      }
+    }
+
+    // --- Geographic Tile Map ---
+    // [col, row, abbr, name]  — standard NPR/NYT tile grid layout
+    const STATE_GRID = [
+      [10,0,'ME','Maine'],
+      [9,1,'NH','New Hampshire'],[10,1,'VT','Vermont'],
+      [0,2,'WA','Washington'],[1,2,'ID','Idaho'],[2,2,'MT','Montana'],[3,2,'ND','North Dakota'],
+      [4,2,'MN','Minnesota'],[5,2,'WI','Wisconsin'],[6,2,'MI','Michigan'],[8,2,'NY','New York'],
+      [9,2,'MA','Massachusetts'],[10,2,'RI','Rhode Island'],
+      [0,3,'OR','Oregon'],[1,3,'NV','Nevada'],[2,3,'WY','Wyoming'],[3,3,'SD','South Dakota'],
+      [4,3,'IA','Iowa'],[5,3,'IL','Illinois'],[6,3,'IN','Indiana'],[7,3,'OH','Ohio'],
+      [8,3,'PA','Pennsylvania'],[9,3,'NJ','New Jersey'],[10,3,'CT','Connecticut'],
+      [0,4,'CA','California'],[1,4,'UT','Utah'],[2,4,'CO','Colorado'],[3,4,'NE','Nebraska'],
+      [4,4,'MO','Missouri'],[5,4,'KY','Kentucky'],[6,4,'WV','West Virginia'],[7,4,'VA','Virginia'],
+      [8,4,'MD','Maryland'],[9,4,'DE','Delaware'],
+      [1,5,'AZ','Arizona'],[2,5,'NM','New Mexico'],[3,5,'KS','Kansas'],[4,5,'AR','Arkansas'],
+      [5,5,'TN','Tennessee'],[6,5,'NC','North Carolina'],[7,5,'SC','South Carolina'],
+      [3,6,'OK','Oklahoma'],[4,6,'LA','Louisiana'],[5,6,'MS','Mississippi'],[6,6,'AL','Alabama'],
+      [7,6,'GA','Georgia'],
+      [2,7,'TX','Texas'],[7,7,'FL','Florida'],
+      [0,8,'AK','Alaska'],[1,8,'HI','Hawaii'],
+    ];
+
+    const CELL = 42;  // px per cell including gap
+    const PAD  = 4;
+
+    function scoreToColor(score) {
+      // Map 0–100 to dark-surface → sig-green gradient
+      const t = Math.max(0, Math.min(1, score / 100));
+      const r = Math.round(10 + t * (0 - 10));
+      const g = Math.round(29 + t * (228 - 29));
+      const b = Math.round(72 + t * (135 - 72));
+      return `rgb(${r},${g},${b})`;
+    }
+
+    function initGeoPanel() {
+      const sel = document.getElementById('geoSubjectSelect');
+      if (!sel) return;
+      sel.innerHTML = '';
+      const allItems = [...trendsData.brands.keywords, ...trendsData.categories.keywords];
+      allItems.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        sel.appendChild(opt);
+      });
+      renderGeoPanel();
+    }
+
+    function renderGeoPanel() {
+      if (!trendsData || !trendsData.geo) return;
+      const subject = document.getElementById('geoSubjectSelect').value;
+      const channel = document.getElementById('searchChannelSelect').value;
+
+      const geoChannel = trendsData.geo[channel] || trendsData.geo['web'];
+      let scores = geoChannel.brands[subject] || geoChannel.categories[subject];
+      if (!scores) {
+        scores = trendsData.geo.web.brands[subject] || trendsData.geo.web.categories[subject] || {};
+      }
+
+      // Build SVG
+      const cols = 11; const rows = 9;
+      const W = cols * CELL + PAD * 2;
+      const H = rows * CELL + PAD * 2;
+      const svg = document.getElementById('geoMapSvg');
+      svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+      const tooltip = document.getElementById('geoTooltip');
+      let svgHtml = '';
+      STATE_GRID.forEach(([col, row, abbr, name]) => {
+        const score = scores[abbr] || 0;
+        const x = PAD + col * CELL;
+        const y = PAD + row * CELL;
+        const fill = scoreToColor(score);
+        const textColor = score > 55 ? '#0a1628' : '#e8edf5';
+        svgHtml += `<g class="geo-tile" data-abbr="${abbr}" data-name="${name}" data-score="${score}">
+          <rect x="${x}" y="${y}" width="${CELL - 3}" height="${CELL - 3}" rx="4" fill="${fill}" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+          <text x="${x + (CELL - 3) / 2}" y="${y + (CELL - 3) / 2}" fill="${textColor}">${abbr}</text>
+        </g>`;
+      });
+      svg.innerHTML = svgHtml;
+
+      // Tooltip events
+      svg.querySelectorAll('.geo-tile').forEach(tile => {
+        tile.addEventListener('mouseenter', (e) => {
+          const abbr = tile.dataset.abbr;
+          const name = tile.dataset.name;
+          const score = tile.dataset.score;
+          tooltip.textContent = `${name} (${abbr}) — ${score} pts`;
+          tooltip.style.display = 'block';
+        });
+        tile.addEventListener('mousemove', (e) => {
+          tooltip.style.left = (e.clientX + 12) + 'px';
+          tooltip.style.top  = (e.clientY - 28) + 'px';
+        });
+        tile.addEventListener('mouseleave', () => {
+          tooltip.style.display = 'none';
+        });
+      });
+
+      // Top 10 states list
+      const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]).slice(0, 10);
+      const listEl = document.getElementById('geoTopList');
+      listEl.innerHTML = `<div class="geo-top-title">Top States</div>` +
+        sorted.map(([abbr, score]) => {
+          const fullName = STATE_GRID.find(s => s[2] === abbr)?.[3] || abbr;
+          return `<div class="geo-top-item"><span class="geo-top-state" title="${fullName}">${abbr}</span><span class="geo-top-score">${score}</span></div>`;
+        }).join('');
+    }
+
+    window.onload = () => {
+      loadTrendsData().then(() => initGeoPanel());
+      renderSearchHistory();
+    };
+  </script>
+</body>
+</html>

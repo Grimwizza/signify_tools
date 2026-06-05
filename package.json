@@ -1,0 +1,16 @@
+{
+  "name": "signify-tools",
+  "version": "1.0.0",
+  "description": "Internal tools for Signify North America team members.",
+  "main": "scripts/fetch-trends.js",
+  "scripts": {
+    "fetch-trends": "node scripts/fetch-trends.js"
+  },
+  "dependencies": {
+    "google-trends-api": "^4.9.2"
+  },
+  "private": true,
+  "devDependencies": {
+    "playwright": "^1.60.0"
+  }
+}

@@ -42,7 +42,41 @@
     }
 
     .header {
-      display: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 24px;
+      background: var(--sig-dark-2);
+      border-bottom: 1px solid var(--sig-border);
+      flex-shrink: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: var(--sig-text-dim);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 20px;
+      transition: all 0.15s;
+      border: 1px solid transparent;
+    }
+
+    .nav-link:hover {
+      color: var(--sig-text);
+      background: var(--sig-dark-3);
+    }
+
+    .nav-link.active {
+      color: var(--sig-green);
+      background: var(--sig-dark-3);
+      border-color: var(--sig-border);
     }
 
     .header-left {
@@ -954,6 +988,10 @@
         <h1>Signify Prompt Builder</h1>
         <div class="header-subtitle">Microsoft Copilot Prompt Generator</div>
       </div>
+    </div>
+    <div class="nav-links">
+      <a href="signify-prompt-builder.html" class="nav-link active">Prompt Builder</a>
+      <a href="trends.html" class="nav-link">Google Trends</a>
     </div>
     <div class="header-badge">Consumer Lighting &bull; North America</div>
   </div>
@@ -3057,8 +3095,93 @@ Output Templates:
       if (t) t.remove();
     }
 
+    function handlePrefills() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const topic = urlParams.get('topic') || urlParams.get('prefill');
+      const template = urlParams.get('template');
+      
+      if (template && T[template]) {
+        switchTmpl(template);
+      }
+      
+      if (topic) {
+        const tmpl = T[currentTemplate];
+        if (tmpl) {
+          tmpl.fields.forEach(f => {
+            if (f.id === 'topic' || f.id === 'keyword' || f.id === 'competitor' || f.id === 'brand' || f.id === 'competitors' || f.id === 'terms') {
+              if (f.type === 'text' || f.type === 'textarea') {
+                formData[f.id] = topic;
+              } else if (f.type === 'select') {
+                const selectEl = document.getElementById('fi_' + f.id);
+                if (selectEl) {
+                  let found = false;
+                  for (let i = 0; i < selectEl.options.length; i++) {
+                    if (selectEl.options[i].value.toLowerCase() === topic.toLowerCase()) {
+                      selectEl.selectedIndex = i;
+                      formData[f.id] = selectEl.options[i].value;
+                      found = true;
+                      break;
+                    }
+                  }
+                  if (!found) {
+                    formData[f.id] = topic;
+                  }
+                } else {
+                  formData[f.id] = topic;
+                }
+              } else if (f.type === 'chips') {
+                const subTopics = topic.split(',').map(t => t.trim()).filter(Boolean);
+                subTopics.forEach(subTopic => {
+                  const baseOpts = f.opts === 'COMP' ? COMPETITORS : f.opts;
+                  const matchesBase = baseOpts.some(o => o.toLowerCase() === subTopic.toLowerCase());
+                  if (matchesBase) {
+                    const chips = document.querySelectorAll(`#cg_${f.id} .chip`);
+                    chips.forEach(c => {
+                      if (c.textContent.trim().toLowerCase() === subTopic.toLowerCase()) {
+                        c.classList.add('selected');
+                        if (f.multi) {
+                          if (!Array.isArray(formData[f.id])) formData[f.id] = [];
+                          if (!formData[f.id].includes(c.textContent.trim())) {
+                            formData[f.id].push(c.textContent.trim());
+                          }
+                        } else {
+                          formData[f.id] = c.textContent.trim();
+                        }
+                      }
+                    });
+                  } else {
+                    if (!customOpts[f.id]) customOpts[f.id] = [];
+                    if (!customOpts[f.id].includes(subTopic)) {
+                      customOpts[f.id].push(subTopic);
+                    }
+                    renderBuilder();
+                    const chips = document.querySelectorAll(`#cg_${f.id} .chip`);
+                    chips.forEach(c => {
+                      if (c.textContent.trim().toLowerCase() === subTopic.toLowerCase()) {
+                        c.classList.add('selected');
+                        if (f.multi) {
+                          if (!Array.isArray(formData[f.id])) formData[f.id] = [];
+                          if (!formData[f.id].includes(c.textContent.trim())) {
+                            formData[f.id].push(c.textContent.trim());
+                          }
+                        } else {
+                          formData[f.id] = c.textContent.trim();
+                        }
+                      }
+                    });
+                  }
+                });
+              }
+            }
+          });
+          syncFormDataToDOM();
+        }
+      }
+    }
+
     document.getElementById('roleSelect').value = userRole;
     setRole(userRole);
+    handlePrefills();
   </script>
 </body>
 
