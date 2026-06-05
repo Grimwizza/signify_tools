@@ -3099,84 +3099,84 @@ Output Templates:
       const urlParams = new URLSearchParams(window.location.search);
       const topic = urlParams.get('topic') || urlParams.get('prefill');
       const template = urlParams.get('template');
-      
+
       if (template && T[template]) {
         switchTmpl(template);
       }
-      
-      if (topic) {
-        const tmpl = T[currentTemplate];
-        if (tmpl) {
-          tmpl.fields.forEach(f => {
-            if (f.id === 'topic' || f.id === 'keyword' || f.id === 'competitor' || f.id === 'brand' || f.id === 'competitors' || f.id === 'terms') {
-              if (f.type === 'text' || f.type === 'textarea') {
-                formData[f.id] = topic;
-              } else if (f.type === 'select') {
-                const selectEl = document.getElementById('fi_' + f.id);
-                if (selectEl) {
-                  let found = false;
-                  for (let i = 0; i < selectEl.options.length; i++) {
-                    if (selectEl.options[i].value.toLowerCase() === topic.toLowerCase()) {
-                      selectEl.selectedIndex = i;
-                      formData[f.id] = selectEl.options[i].value;
-                      found = true;
-                      break;
-                    }
-                  }
-                  if (!found) {
-                    formData[f.id] = topic;
-                  }
-                } else {
-                  formData[f.id] = topic;
-                }
-              } else if (f.type === 'chips') {
-                const subTopics = topic.split(',').map(t => t.trim()).filter(Boolean);
-                subTopics.forEach(subTopic => {
-                  const baseOpts = f.opts === 'COMP' ? COMPETITORS : f.opts;
-                  const matchesBase = baseOpts.some(o => o.toLowerCase() === subTopic.toLowerCase());
-                  if (matchesBase) {
-                    const chips = document.querySelectorAll(`#cg_${f.id} .chip`);
-                    chips.forEach(c => {
-                      if (c.textContent.trim().toLowerCase() === subTopic.toLowerCase()) {
-                        c.classList.add('selected');
-                        if (f.multi) {
-                          if (!Array.isArray(formData[f.id])) formData[f.id] = [];
-                          if (!formData[f.id].includes(c.textContent.trim())) {
-                            formData[f.id].push(c.textContent.trim());
-                          }
-                        } else {
-                          formData[f.id] = c.textContent.trim();
-                        }
-                      }
-                    });
-                  } else {
-                    if (!customOpts[f.id]) customOpts[f.id] = [];
-                    if (!customOpts[f.id].includes(subTopic)) {
-                      customOpts[f.id].push(subTopic);
-                    }
-                    renderBuilder();
-                    const chips = document.querySelectorAll(`#cg_${f.id} .chip`);
-                    chips.forEach(c => {
-                      if (c.textContent.trim().toLowerCase() === subTopic.toLowerCase()) {
-                        c.classList.add('selected');
-                        if (f.multi) {
-                          if (!Array.isArray(formData[f.id])) formData[f.id] = [];
-                          if (!formData[f.id].includes(c.textContent.trim())) {
-                            formData[f.id].push(c.textContent.trim());
-                          }
-                        } else {
-                          formData[f.id] = c.textContent.trim();
-                        }
-                      }
-                    });
-                  }
-                });
+
+      if (!topic) return;
+
+      const tmpl = T[currentTemplate];
+      if (!tmpl) return;
+
+      let topicPlaced = false;
+
+      tmpl.fields.forEach(f => {
+        const isTargetField = ['topic','keyword','competitor','brand','competitors','terms'].includes(f.id);
+        if (!isTargetField) return;
+
+        if (f.type === 'text' || f.type === 'textarea') {
+          formData[f.id] = topic;
+          topicPlaced = true;
+        } else if (f.type === 'select') {
+          // Only set if there is an exact option match — never force free text into a select
+          const selectEl = document.getElementById('fi_' + f.id);
+          if (selectEl) {
+            for (let i = 0; i < selectEl.options.length; i++) {
+              if (selectEl.options[i].value.toLowerCase() === topic.toLowerCase()) {
+                selectEl.selectedIndex = i;
+                formData[f.id] = selectEl.options[i].value;
+                topicPlaced = true;
+                break;
               }
             }
+          }
+        } else if (f.type === 'chips') {
+          const subTopics = topic.split(',').map(t => t.trim()).filter(Boolean);
+          const baseOpts = f.opts === 'COMP' ? COMPETITORS : (Array.isArray(f.opts) ? f.opts : []);
+
+          // First pass: add any non-standard terms to customOpts, then rebuild once
+          let needsRebuild = false;
+          const labels = subTopics.map(subTopic => {
+            const canonical = baseOpts.find(o => o.toLowerCase() === subTopic.toLowerCase());
+            const label = canonical || subTopic;
+            if (!canonical) {
+              if (!customOpts[f.id]) customOpts[f.id] = [];
+              if (!customOpts[f.id].includes(label)) { customOpts[f.id].push(label); needsRebuild = true; }
+            }
+            return label;
           });
-          syncFormDataToDOM();
+          if (needsRebuild) renderBuilder();
+
+          // Second pass: select all chips in one sweep after the DOM is stable
+          labels.forEach(label => {
+            document.querySelectorAll(`#cg_${f.id} .chip`).forEach(c => {
+              if (c.textContent.trim().toLowerCase() === label.toLowerCase()) {
+                c.classList.add('selected');
+                if (f.multi) {
+                  if (!Array.isArray(formData[f.id])) formData[f.id] = [];
+                  if (!formData[f.id].includes(label)) formData[f.id].push(label);
+                } else {
+                  formData[f.id] = label;
+                }
+              }
+            });
+          });
+          topicPlaced = true;
         }
+      });
+
+      // If no matching field found (e.g. topic is a select with no match),
+      // write the value into the first available free-text fallback field.
+      if (!topicPlaced) {
+        const fallback = tmpl.fields.find(f =>
+          ['extra','context','notes','question'].includes(f.id) &&
+          (f.type === 'text' || f.type === 'textarea')
+        );
+        if (fallback) formData[fallback.id] = topic;
       }
+
+      syncFormDataToDOM();
     }
 
     document.getElementById('roleSelect').value = userRole;
