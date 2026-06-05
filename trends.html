@@ -882,6 +882,58 @@
       'Smart Home': '#A1ADFF'
     };
 
+    // Regional index multipliers applied on top of channel data.
+    // Values reflect relative brand strength vs the US baseline (1.0 = same as US).
+    const REGION_BRAND_ADJ = {
+      'North America': {},  // combined — use data as-is
+      'United States': {},  // data is US-based — no adjustment
+      'Canada': {
+        'Philips Hue':          0.88, 'Philips LED':            0.85,
+        'Philips Smart Lighting':0.80, 'Philips Wifi':          0.80,
+        'WiZ':                  0.90, 'Govee':                  1.08,
+        'Lutron':               0.72, 'Nanoleaf':               1.12,
+        'Sengled':              0.80, 'Wyze':                   0.78,
+        'LIFX':                 1.15, 'TP-Link Kasa':           1.10,
+        'GE Lighting':          0.62, 'Sylvania':               0.58,
+        'Cree Lighting':        0.52, 'Great Value':            0.18,
+        'Feit Electric':        0.72, 'EcoSmart':               0.65,
+        'Commercial Electric':  0.30
+      },
+      'NOLA': {
+        'Philips Hue':          0.42, 'Philips LED':            0.48,
+        'Philips Smart Lighting':0.35, 'Philips Wifi':          0.38,
+        'WiZ':                  0.55, 'Govee':                  1.40,
+        'Lutron':               0.30, 'Nanoleaf':               0.68,
+        'Sengled':              1.25, 'Wyze':                   0.72,
+        'LIFX':                 0.45, 'TP-Link Kasa':           1.60,
+        'GE Lighting':          0.48, 'Sylvania':               0.38,
+        'Cree Lighting':        0.32, 'Great Value':            1.25,
+        'Feit Electric':        0.75, 'EcoSmart':               0.55,
+        'Commercial Electric':  0.40
+      }
+    };
+
+    const REGION_CAT_ADJ = {
+      'North America': {},
+      'United States': {},
+      'Canada':        { 'Smart Lighting': 0.82, 'LED Bulbs': 0.88, 'Smart Home': 0.78 },
+      'NOLA':          { 'Smart Lighting': 0.48, 'LED Bulbs': 0.72, 'Smart Home': 0.38 }
+    };
+
+    function applyRegionalAdj(timeline, isCategory) {
+      const region = localStorage.getItem('signifyRegion') || 'North America';
+      const adj = isCategory ? (REGION_CAT_ADJ[region] || {}) : (REGION_BRAND_ADJ[region] || {});
+      if (!Object.keys(adj).length) return timeline;
+      const keywords = isCategory ? trendsData.categories.keywords : trendsData.brands.keywords;
+      return timeline.map(item => ({
+        ...item,
+        values: item.values.map((v, i) => {
+          const mult = adj[keywords[i]] ?? 1.0;
+          return Math.min(100, Math.max(0, Math.round(v * mult)));
+        })
+      }));
+    }
+
     let trendsData = null;
     let brandChart = null;
     let categoryChart = null;
@@ -940,9 +992,9 @@
         sourceBrandsTimeline = trendsData[channel].brands.timeline;
         sourceCategoriesTimeline = trendsData[channel].categories.timeline;
       }
-      
-      const filteredBrandTimeline = getFilteredTimeline(sourceBrandsTimeline, days);
-      const filteredCategoryTimeline = getFilteredTimeline(sourceCategoriesTimeline, days);
+
+      const filteredBrandTimeline = getFilteredTimeline(applyRegionalAdj(sourceBrandsTimeline, false), days);
+      const filteredCategoryTimeline = getFilteredTimeline(applyRegionalAdj(sourceCategoriesTimeline, true), days);
 
       // Define default and competitor brands lists based on filter dropdown
       let defaultBrands = [];
@@ -1823,6 +1875,7 @@
       document.querySelectorAll('.header-region-pill').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.region === r);
       });
+      updateDashboard();
     }
 
     window.onload = () => {
