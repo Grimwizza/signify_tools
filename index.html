@@ -210,16 +210,53 @@
     }
 
     .portal-footer {
-      font-size: 11px;
-      color: var(--sig-text-dim);
       border-top: 1px solid var(--sig-border);
-      padding-top: 24px;
+      padding-top: 20px;
       width: 100%;
-      max-width: 400px;
-      margin: 0 auto;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
+      display: flex;
+      justify-content: center;
     }
+
+    .stock-widget {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--sig-dark-2);
+      border: 1px solid var(--sig-border);
+      border-radius: 20px;
+      padding: 8px 18px;
+      text-decoration: none;
+      transition: border-color 0.2s;
+    }
+
+    .stock-widget:hover { border-color: var(--sig-green); }
+
+    .stock-exchange {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--sig-text-dim);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .stock-price {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--sig-text-dim);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stock-change {
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .stock-pos { color: #00E487; }
+    .stock-neg { color: #ff6b6b; }
+    .stock-neutral { color: var(--sig-text-dim); }
   </style>
 </head>
 <body>
@@ -262,9 +299,40 @@
     </div>
 
     <div class="portal-footer">
-      Signify North America &bull; Confidential &bull; Internal Use Only
+      <a class="stock-widget" id="stockWidget" href="https://finance.yahoo.com/quote/LIGHT.AS" target="_blank" rel="noopener">
+        <span class="stock-exchange">Signify NV (AMS: LIGHT)</span>
+        <span class="stock-exchange" style="opacity:0.4;">|</span>
+        <span class="stock-price" id="stockPrice">—</span>
+        <span class="stock-change stock-neutral" id="stockChange">Loading…</span>
+      </a>
     </div>
   </div>
 
+  <script>
+    async function loadStock() {
+      const priceEl  = document.getElementById('stockPrice');
+      const changeEl = document.getElementById('stockChange');
+      try {
+        const res  = await fetch('data/stock.json');
+        if (!res.ok) throw new Error('not found');
+        const d = await res.json();
+
+        const isPos = d.changePct >= 0;
+        priceEl.textContent  = '€' + d.price.toFixed(2);
+        changeEl.textContent = (isPos ? '▲' : '▼') + ' ' + Math.abs(d.changePct).toFixed(2) + '%';
+        changeEl.className   = 'stock-change ' + (isPos ? 'stock-pos' : 'stock-neg');
+
+        // Show how stale the data is
+        const ageH = Math.round((Date.now() - new Date(d.lastUpdated)) / 36e5);
+        document.getElementById('stockWidget').title =
+          `Last updated ${ageH < 1 ? 'under 1 hour' : ageH + 'h'} ago · Click to view on Yahoo Finance`;
+      } catch (_) {
+        priceEl.textContent  = '—';
+        changeEl.textContent = 'View ↗';
+        changeEl.className   = 'stock-change stock-neutral';
+      }
+    }
+    loadStock();
+  </script>
 </body>
 </html>

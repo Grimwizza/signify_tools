@@ -27,14 +27,17 @@ jobs:
       - name: Fetch Trends Data
         run: npm run fetch-trends
 
+      - name: Fetch Stock Price
+        run: node scripts/fetch-stock.js
+
       - name: Commit and Push Changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/trends.json
+          git add data/trends.json data/stock.json
           if ! git diff --cached --quiet; then
-            git commit -m "data: update google trends data [skip ci]"
+            git commit -m "data: update trends and stock data [skip ci]"
             git push
           else
-            echo "No changes in trends data. Skipping commit."
+            echo "No changes in data. Skipping commit."
           fi
