@@ -1793,8 +1793,28 @@
     const CELL = 42;  // px per cell including gap
     const PAD  = 4;
 
+    // Canadian province tile grid
+    const CANADA_GRID = [
+      [0,0,'YT','Yukon'],           [1,0,'NT','Northwest Territories'], [2,0,'NU','Nunavut'],
+      [0,1,'BC','British Columbia'],[1,1,'AB','Alberta'],               [2,1,'SK','Saskatchewan'],
+      [3,1,'MB','Manitoba'],        [4,1,'ON','Ontario'],               [5,1,'QC','Quebec'],
+      [6,1,'NB','New Brunswick'],   [7,1,'NS','Nova Scotia'],           [8,1,'PE','P.E.I.'],
+      [8,0,'NL','Newfoundland & Labrador']
+    ];
+
+    // Northern Latin America country tile grid
+    const NOLA_GRID = [
+      [0,1,'MX','Mexico'],
+      [2,2,'GT','Guatemala'],   [3,2,'BZ','Belize'],
+      [2,3,'SV','El Salvador'], [3,3,'HN','Honduras'],
+      [3,4,'NI','Nicaragua'],
+      [3,5,'CR','Costa Rica'],  [4,5,'PA','Panama'],
+      [6,0,'CU','Cuba'],        [8,0,'PR','Puerto Rico'],
+      [6,1,'HT','Haiti'],       [7,1,'DO','Dom. Republic'],
+      [6,2,'JM','Jamaica']
+    ];
+
     function scoreToColor(score) {
-      // Map 0–100 to dark-surface → sig-green gradient
       const t = Math.max(0, Math.min(1, score / 100));
       const r = Math.round(10 + t * (0 - 10));
       const g = Math.round(29 + t * (228 - 29));
@@ -1806,8 +1826,7 @@
       const sel = document.getElementById('geoSubjectSelect');
       if (!sel) return;
       sel.innerHTML = '';
-      const allItems = [...trendsData.brands.keywords, ...trendsData.categories.keywords];
-      allItems.forEach(name => {
+      [...trendsData.brands.keywords, ...trendsData.categories.keywords].forEach(name => {
         const opt = document.createElement('option');
         opt.value = name;
         opt.textContent = name;
@@ -1820,59 +1839,69 @@
       if (!trendsData || !trendsData.geo) return;
       const subject = document.getElementById('geoSubjectSelect').value;
       const channel = document.getElementById('searchChannelSelect').value;
+      const region  = localStorage.getItem('signifyRegion') || 'North America';
 
-      const geoChannel = trendsData.geo[channel] || trendsData.geo['web'];
-      let scores = geoChannel.brands[subject] || geoChannel.categories[subject];
-      if (!scores) {
-        scores = trendsData.geo.web.brands[subject] || trendsData.geo.web.categories[subject] || {};
+      // Select tile grid and data source based on active region
+      let grid, scores, listLabel;
+      if (region === 'Canada') {
+        grid = CANADA_GRID;
+        listLabel = 'Top Provinces';
+        const src = (trendsData.geo.canada || {})[channel] || (trendsData.geo.canada || {}).web || {};
+        scores = src.brands?.[subject] || src.categories?.[subject] || {};
+      } else if (region === 'NOLA') {
+        grid = NOLA_GRID;
+        listLabel = 'Top Markets';
+        const src = (trendsData.geo.nola || {})[channel] || (trendsData.geo.nola || {}).web || {};
+        scores = src.brands?.[subject] || src.categories?.[subject] || {};
+      } else {
+        // North America or United States — show US states
+        grid = STATE_GRID;
+        listLabel = 'Top States';
+        const src = trendsData.geo[channel] || trendsData.geo.web;
+        scores = src.brands?.[subject] || src.categories?.[subject]
+              || trendsData.geo.web.brands?.[subject] || trendsData.geo.web.categories?.[subject] || {};
       }
 
-      // Build SVG
-      const cols = 11; const rows = 9;
-      const W = cols * CELL + PAD * 2;
-      const H = rows * CELL + PAD * 2;
+      // Compute SVG dimensions from grid bounds
+      const maxCol = Math.max(...grid.map(r => r[0]));
+      const maxRow = Math.max(...grid.map(r => r[1]));
+      const W = (maxCol + 1) * CELL + PAD * 2;
+      const H = (maxRow + 1) * CELL + PAD * 2;
       const svg = document.getElementById('geoMapSvg');
       svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
 
       const tooltip = document.getElementById('geoTooltip');
       let svgHtml = '';
-      STATE_GRID.forEach(([col, row, abbr, name]) => {
+      grid.forEach(([col, row, abbr, name]) => {
         const score = scores[abbr] || 0;
         const x = PAD + col * CELL;
         const y = PAD + row * CELL;
         const fill = scoreToColor(score);
-        const textColor = score > 55 ? '#0a1628' : '#e8edf5';
+        const textFill = score > 55 ? '#0a1628' : '#e8edf5';
         svgHtml += `<g class="geo-tile" data-abbr="${abbr}" data-name="${name}" data-score="${score}">
-          <rect x="${x}" y="${y}" width="${CELL - 3}" height="${CELL - 3}" rx="4" fill="${fill}" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-          <text x="${x + (CELL - 3) / 2}" y="${y + (CELL - 3) / 2}" fill="${textColor}">${abbr}</text>
+          <rect x="${x}" y="${y}" width="${CELL-3}" height="${CELL-3}" rx="4" fill="${fill}" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+          <text x="${x+(CELL-3)/2}" y="${y+(CELL-3)/2}" fill="${textFill}">${abbr}</text>
         </g>`;
       });
       svg.innerHTML = svgHtml;
 
-      // Tooltip events
       svg.querySelectorAll('.geo-tile').forEach(tile => {
-        tile.addEventListener('mouseenter', (e) => {
-          const abbr = tile.dataset.abbr;
-          const name = tile.dataset.name;
-          const score = tile.dataset.score;
-          tooltip.textContent = `${name} (${abbr}) — ${score} pts`;
+        tile.addEventListener('mouseenter', () => {
+          tooltip.textContent = `${tile.dataset.name} (${tile.dataset.abbr}) — ${tile.dataset.score} pts`;
           tooltip.style.display = 'block';
         });
-        tile.addEventListener('mousemove', (e) => {
+        tile.addEventListener('mousemove', e => {
           tooltip.style.left = (e.clientX + 12) + 'px';
           tooltip.style.top  = (e.clientY - 28) + 'px';
         });
-        tile.addEventListener('mouseleave', () => {
-          tooltip.style.display = 'none';
-        });
+        tile.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
       });
 
-      // Top 10 states list
       const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]).slice(0, 10);
       const listEl = document.getElementById('geoTopList');
-      listEl.innerHTML = `<div class="geo-top-title">Top States</div>` +
+      listEl.innerHTML = `<div class="geo-top-title">${listLabel}</div>` +
         sorted.map(([abbr, score]) => {
-          const fullName = STATE_GRID.find(s => s[2] === abbr)?.[3] || abbr;
+          const fullName = grid.find(g => g[2] === abbr)?.[3] || abbr;
           return `<div class="geo-top-item"><span class="geo-top-state" title="${fullName}">${abbr}</span><span class="geo-top-score">${score}</span></div>`;
         }).join('');
     }
@@ -1901,6 +1930,7 @@
       });
 
       updateDashboard();
+      renderGeoPanel();
     }
 
     window.onload = () => {
