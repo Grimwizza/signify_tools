@@ -114,17 +114,39 @@
       border-color: var(--sig-border);
     }
 
-    .header-badge {
+    .header-region-toggle {
+      display: flex;
       background: var(--sig-dark-3);
       border: 1px solid var(--sig-border);
       border-radius: 20px;
-      padding: 5px 12px;
+      padding: 3px;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    .header-region-pill {
+      padding: 3px 10px;
+      border-radius: 14px;
+      border: none;
+      background: transparent;
+      color: var(--sig-text-dim);
+      font-family: inherit;
       font-size: 10px;
-      color: var(--sig-teal);
       font-weight: 600;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.15s;
       white-space: nowrap;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    .header-region-pill.active {
+      background: var(--sig-teal);
+      color: var(--sig-dark);
+    }
+
+    .header-region-pill:not(.active):hover {
+      color: var(--sig-text);
     }
 
     .main-container {
@@ -655,7 +677,12 @@
       <a href="signify-prompt-builder.html" class="nav-link">Prompt Builder</a>
       <a href="trends.html" class="nav-link active">Google Trends</a>
     </div>
-    <div class="header-badge">Consumer Lighting &bull; North America</div>
+    <div class="header-region-toggle" id="regionToggle">
+      <button class="header-region-pill active" data-region="North America" onclick="setRegion('North America')">North America</button>
+      <button class="header-region-pill" data-region="United States" onclick="setRegion('United States')">United States</button>
+      <button class="header-region-pill" data-region="Canada" onclick="setRegion('Canada')">Canada</button>
+      <button class="header-region-pill" data-region="NOLA" onclick="setRegion('NOLA')">NOLA</button>
+    </div>
   </div>
 
   <div class="main-container">
@@ -1791,7 +1818,19 @@
         }).join('');
     }
 
+    function setRegion(r) {
+      localStorage.setItem('signifyRegion', r);
+      document.querySelectorAll('.header-region-pill').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.region === r);
+      });
+    }
+
     window.onload = () => {
+      // Restore saved region
+      const savedRegion = localStorage.getItem('signifyRegion') || 'North America';
+      document.querySelectorAll('.header-region-pill').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.region === savedRegion);
+      });
       loadTrendsData().then(() => initGeoPanel());
       renderSearchHistory();
     };

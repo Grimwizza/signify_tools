@@ -223,7 +223,7 @@
     .role-select option { background: var(--sig-dark); color: var(--sig-text); }
     .bar-divider { width: 1px; height: 20px; background: var(--sig-border); flex-shrink: 0; }
 
-    .region-toggle {
+    .header-region-toggle {
       display: flex;
       background: var(--sig-dark-3);
       border: 1px solid var(--sig-border);
@@ -233,26 +233,28 @@
       flex-shrink: 0;
     }
 
-    .region-pill {
-      padding: 4px 12px;
-      border-radius: 16px;
+    .header-region-pill {
+      padding: 3px 10px;
+      border-radius: 14px;
       border: none;
       background: transparent;
       color: var(--sig-text-dim);
       font-family: inherit;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.15s;
       white-space: nowrap;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
     }
 
-    .region-pill.active {
+    .header-region-pill.active {
       background: var(--sig-teal);
       color: var(--sig-dark);
     }
 
-    .region-pill:not(.active):hover {
+    .header-region-pill:not(.active):hover {
       color: var(--sig-text);
     }
 
@@ -1027,7 +1029,12 @@
       <a href="signify-prompt-builder.html" class="nav-link active">Prompt Builder</a>
       <a href="trends.html" class="nav-link">Google Trends</a>
     </div>
-    <div class="header-badge">Consumer Lighting &bull; North America</div>
+    <div class="header-region-toggle" id="regionToggle">
+      <button class="header-region-pill active" data-region="North America" onclick="setRegion('North America')">North America</button>
+      <button class="header-region-pill" data-region="United States" onclick="setRegion('United States')">United States</button>
+      <button class="header-region-pill" data-region="Canada" onclick="setRegion('Canada')">Canada</button>
+      <button class="header-region-pill" data-region="NOLA" onclick="setRegion('NOLA')">NOLA</button>
+    </div>
   </div>
 
   <div class="copilot-bar">
@@ -1043,13 +1050,6 @@
         <option value="pm">Product Manager</option>
         <option value="bp">Business Planner</option>
       </select>
-    </div>
-    <div class="bar-divider"></div>
-    <div class="region-toggle" id="regionToggle">
-      <button class="region-pill active" data-region="North America" onclick="setRegion('North America')">North America</button>
-      <button class="region-pill" data-region="United States" onclick="setRegion('United States')">United States</button>
-      <button class="region-pill" data-region="Canada" onclick="setRegion('Canada')">Canada</button>
-      <button class="region-pill" data-region="NOLA" onclick="setRegion('NOLA')">NOLA</button>
     </div>
     <div class="bar-divider"></div>
     <div class="copilot-toggle">
@@ -2343,7 +2343,7 @@ Reference Signify NA's portfolio (Philips Hue, WiZ, Philips LED) for cannibaliza
       }
 
       // Update toggle button states
-      document.querySelectorAll('.region-pill').forEach(btn => {
+      document.querySelectorAll('.header-region-pill').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.region === r);
       });
 
