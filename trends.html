@@ -639,8 +639,6 @@
   </style>
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Google Trends Embed Loader -->
-  <script type="text/javascript" src="https://ssl.gstatic.com/trends_nrtr/3728_RC01/embed_loader.js"></script>
 </head>
 <body>
 
@@ -796,22 +794,12 @@
           <div id="searchHistoryList" style="display: flex; gap: 6px; flex-wrap: wrap;"></div>
         </div>
         
-        <div class="widget-header-row" id="widgetActionsRow" style="display: none; align-items: center; justify-content: space-between; gap: 12px;">
-          <span id="searchedKeywordLabel" style="font-size: 13px; font-weight: 700;"></span>
-          <div style="display: flex; gap: 8px; align-items: center;">
-            <button class="btn-download-csv" id="widgetDownloadBtn" style="padding: 4px 10px;">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-              Download CSV
-            </button>
-            <button class="btn-to-prompt" id="widgetUseBtn" style="align-self: auto;">Use in Prompt Builder &rarr;</button>
-          </div>
-        </div>
-        
         <div class="widget-card" id="widgetCard">
           <div id="custom-trend-widget" class="widget-container">
-            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:330px; gap:8px;">
-              <span>Type a keyword above to load the official interactive Google Trends chart</span>
-              <span style="font-size:10px; opacity:0.6;">(Iframe widget matches live Google interest data)</span>
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:280px; gap:10px; text-align:center; padding:20px;">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(136,153,179,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+              <span style="color:var(--sig-text-dim); font-size:13px;">Enter keywords above and click <strong style="color:var(--sig-text);">Search</strong> to explore trends</span>
+              <span style="font-size:11px; color:var(--sig-text-dim); opacity:0.7;">Up to 5 comma-separated terms — opens live Google Trends data in a new tab</span>
             </div>
           </div>
         </div>
@@ -1272,61 +1260,42 @@
 
       saveSearchHistory(query);
 
-      const container = document.getElementById('custom-trend-widget');
-      container.innerHTML = ''; 
-
-      // Parse keywords
       const keywords = query.split(',').map(k => k.trim()).filter(Boolean).slice(0, 5);
       const displayQuery = keywords.join(', ');
+      const exploreUrl = `https://trends.google.com/trends/explore?date=today%2012-m&geo=US&q=${encodeURIComponent(keywords.join(','))}&hl=en-US`;
 
-      document.getElementById('widgetActionsRow').style.display = 'flex';
-      document.getElementById('searchedKeywordLabel').textContent = keywords.length > 1 
-        ? `Comparison: ${keywords.map(k => `"${k}"`).join(' vs ')}`
-        : `Keyword: "${keywords[0]}"`;
+      const isComparison = keywords.length > 1;
+      const headingHtml = isComparison
+        ? keywords.map(k => `<span style="background:var(--sig-dark);border:1px solid var(--sig-border);border-radius:6px;padding:3px 10px;font-size:13px;font-weight:700;">${k}</span>`).join('<span style="color:var(--sig-text-dim);font-size:11px;padding:0 4px;">vs</span>')
+        : `<span style="font-size:15px;font-weight:700;">&ldquo;${keywords[0]}&rdquo;</span>`;
 
-      document.getElementById('widgetUseBtn').onclick = () => {
-        location.href = `signify-prompt-builder.html?topic=${encodeURIComponent(displayQuery)}&template=market_research`;
-      };
-
-      document.getElementById('widgetDownloadBtn').onclick = () => {
-        downloadCustomCSV();
-      };
-
-      if (typeof trends !== 'undefined' && trends.embed && trends.embed.renderExploreWidgetTo) {
-        try {
-          const comparisonItem = keywords.map(kw => ({
-            "keyword": kw,
-            "geo": "US",
-            "time": "today 12-m"
-          }));
-
-          trends.embed.renderExploreWidgetTo(
-            container,
-            "TIMESERIES",
-            {
-              "comparisonItem": comparisonItem,
-              "category": 0,
-              "property": ""
-            },
-            {
-              "exploreQuery": `date=today%2012-m&geo=US&q=${encodeURIComponent(keywords.join(','))}`,
-              "guestPath": "https://trends.google.com:443/trends/embed/"
-            }
-          );
-        } catch (e) {
-          container.innerHTML = `<div style="padding:20px; color:var(--sig-text-dim)">Failed to load Google Widget. Please try again or search directly on Google Trends.</div>`;
-          console.error(e);
-        }
-      } else {
-        const exploreUrl = `https://trends.google.com/trends/explore?geo=US&q=${encodeURIComponent(keywords.join(','))}`;
-        container.innerHTML = `
-          <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:330px; padding:20px; text-align:center;">
-            <span style="color:#e6a800; font-weight:700; margin-bottom:8px;">Google Embed Loader Blocked</span>
-            <span>Could not load the interactive Google widget (often due to tracking protection or network restrictions).</span>
-            <a href="${exploreUrl}" target="_blank" style="color:var(--sig-green); margin-top:12px; font-weight:600; text-decoration:none;">View comparison directly on Google Trends &nearr;</a>
+      document.getElementById('custom-trend-widget').innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:280px;gap:18px;text-align:center;padding:24px;">
+          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;justify-content:center;">${headingHtml}</div>
+          <p style="font-size:12px;color:var(--sig-text-dim);max-width:380px;line-height:1.6;">
+            Google Trends no longer allows third-party embedding. Click below to view the full interactive chart on Google Trends — your keywords are pre-filled.
+          </p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+            <a href="${exploreUrl}" target="_blank" rel="noopener"
+               style="display:inline-flex;align-items:center;gap:7px;padding:10px 22px;background:linear-gradient(135deg,var(--sig-green),var(--sig-teal));border-radius:8px;color:var(--sig-dark);font-weight:700;font-size:13px;text-decoration:none;transition:opacity 0.15s;"
+               onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+              Open in Google Trends
+            </a>
+            <button onclick="downloadCustomCSV()"
+               style="display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:var(--sig-dark-3);border:1px solid var(--sig-border);border-radius:8px;color:var(--sig-text);font-weight:600;font-size:12px;cursor:pointer;font-family:inherit;transition:all 0.15s;"
+               onmouseover="this.style.background='var(--sig-surface)'" onmouseout="this.style.background='var(--sig-dark-3)'">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Download CSV
+            </button>
+            <button onclick="location.href='signify-prompt-builder.html?topic=${encodeURIComponent(displayQuery)}&template=market_research'"
+               style="display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:var(--sig-dark-3);border:1px solid var(--sig-border);border-radius:8px;color:var(--sig-teal);font-weight:600;font-size:12px;cursor:pointer;font-family:inherit;transition:all 0.15s;"
+               onmouseover="this.style.background='var(--sig-surface)'" onmouseout="this.style.background='var(--sig-dark-3)'">
+              Use in Prompt Builder &rarr;
+            </button>
           </div>
-        `;
-      }
+        </div>
+      `;
     }
 
     function getFallbackStaticData() {
@@ -1604,7 +1573,7 @@
       if (!trendsData) return;
       const query = document.getElementById('customSearchInput').value.trim();
       if (!query) {
-        alert('Enter one or more keywords above and click Search first, then download the data.');
+        alert('Enter one or more keywords above and click Search, then use the Download CSV button that appears.');
         return;
       }
 
