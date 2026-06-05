@@ -481,6 +481,13 @@
       border-radius: 3px;
     }
 
+    @keyframes regionRefresh {
+      0%   { opacity: 1; }
+      25%  { opacity: 0.35; }
+      100% { opacity: 1; }
+    }
+    .region-refreshing { animation: regionRefresh 0.4s ease-out; }
+
     /* Growth badges & trend arrows */
     .growth-badge {
       font-size: 10px;
@@ -693,7 +700,7 @@
         <div style="display:flex; align-items:center; gap:16px;">
           <div>
             <h2 class="section-title">Search Volume Dashboard</h2>
-            <p class="section-desc">Interest over time in the United States</p>
+            <p class="section-desc" id="regionDesc">Interest over time — North America</p>
           </div>
           <div style="display:flex; gap:8px; align-items:center;">
             <!-- Brand Category Dropdown -->
@@ -1870,11 +1877,29 @@
         }).join('');
     }
 
+    const REGION_LABELS = {
+      'North America': 'North America (US + Canada)',
+      'United States': 'United States',
+      'Canada':        'Canada',
+      'NOLA':          'Northern Latin America'
+    };
+
     function setRegion(r) {
       localStorage.setItem('signifyRegion', r);
       document.querySelectorAll('.header-region-pill').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.region === r);
       });
+
+      const desc = document.getElementById('regionDesc');
+      if (desc) desc.textContent = 'Interest over time — ' + (REGION_LABELS[r] || r);
+
+      // Flash the chart cards so it's clear the data refreshed
+      document.querySelectorAll('.chart-card').forEach(card => {
+        card.classList.remove('region-refreshing');
+        void card.offsetWidth; // force reflow to restart animation
+        card.classList.add('region-refreshing');
+      });
+
       updateDashboard();
     }
 
@@ -1884,6 +1909,8 @@
       document.querySelectorAll('.header-region-pill').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.region === savedRegion);
       });
+      const desc = document.getElementById('regionDesc');
+      if (desc) desc.textContent = 'Interest over time — ' + (REGION_LABELS[savedRegion] || savedRegion);
       loadTrendsData().then(() => initGeoPanel());
       renderSearchHistory();
     };
