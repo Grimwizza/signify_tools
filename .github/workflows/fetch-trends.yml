@@ -24,6 +24,9 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Install Playwright Browsers
+        run: npx playwright install
+
       - name: Fetch Trends Data
         run: npm run fetch-trends
 
@@ -40,4 +43,3 @@ jobs:
             git push
           else
             echo "No changes in data. Skipping commit."
-          fi
